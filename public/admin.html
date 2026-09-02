@@ -1,0 +1,1743 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2025级本科生军训国防知识竞赛 - 管理端</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --bg: #0b1120; --bg2: #111827; --card: #1a2332; --card2: #1e293b;
+  --border: rgba(148,163,184,0.12); --border2: rgba(148,163,184,0.08);
+  --gold: #fbbf24; --gold2: #f59e0b; --green: #34d399; --blue: #60a5fa; --red: #f87171;
+  --white: #f1f5f9; --muted: #94a3b8; --dim: rgba(148,163,184,0.15);
+  --shadow: 0 4px 6px -1px rgba(0,0,0,0.3), 0 2px 4px -2px rgba(0,0,0,0.2);
+  --glow: 0 0 20px rgba(251,191,36,0.15);
+}
+body { font-family: 'Microsoft YaHei','Segoe UI',sans-serif; background: var(--bg); color: var(--white); user-select: none; overflow: hidden; }
+#app { display: flex; height: 100vh; }
+
+/* Sidebar */
+.sidebar { width: 200px; background: linear-gradient(180deg,var(--bg2) 0%,var(--bg) 100%); border-right: 1px solid var(--border); display: flex; flex-direction: column; position: relative; }
+.sidebar::before { content: ''; position: absolute; top: 0; right: 0; bottom: 0; width: 1px; background: linear-gradient(180deg,transparent,var(--gold),transparent); opacity: 0.3; }
+.sidebar-title { padding: 20px 16px 16px; text-align: center; font-size: 15px; font-weight: 700; border-bottom: 1px solid var(--border); background: linear-gradient(135deg,var(--gold),var(--gold2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.sidebar-title small { display: block; font-size: 11px; -webkit-text-fill-color: var(--muted); margin-top: 2px; font-weight: 400; }
+.nav-item { padding: 11px 18px; cursor: pointer; font-size: 13px; color: var(--muted); border-left: 3px solid transparent; transition: all 0.25s; position: relative; }
+.nav-item::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; border-radius: 3px; background: transparent; transition: all 0.25s; }
+.nav-item:hover { background: rgba(251,191,36,0.04); color: var(--white); }
+.nav-item.active { background: linear-gradient(90deg,rgba(251,191,36,0.08),transparent); color: var(--gold); }
+.nav-item.active::before { background: var(--gold); box-shadow: 0 0 8px var(--gold); }
+.conn-status { margin-top: auto; padding: 12px 16px; font-size: 11px; border-top: 1px solid var(--border); color: var(--muted); }
+.intro-control { padding: 12px 16px; border-top: 1px solid var(--border); font-size: 12px; }
+.intro-control .ic-label { font-size: 11px; color: var(--muted); margin-bottom: 8px; letter-spacing: 2px; text-transform: uppercase; }
+.conn-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; box-shadow: 0 0 6px currentColor; }
+.conn-dot.ok { background: var(--green); color: var(--green); } .conn-dot.err { background: var(--red); color: var(--red); }
+
+/* Main */
+.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.topbar { height: 52px; background: var(--bg2); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 24px; gap: 12px; }
+.topbar .crumbs { display: flex; gap: 4px; font-size: 12px; }
+.topbar .crumb { padding: 5px 14px; border-radius: 20px; cursor: pointer; color: var(--muted); transition: all 0.25s; border: 1px solid transparent; }
+.topbar .crumb:hover { background: rgba(255,255,255,0.04); color: var(--white); }
+.topbar .crumb.active { background: rgba(251,191,36,0.1); color: var(--gold); border-color: rgba(251,191,36,0.2); }
+.topbar .crumb.done { color: var(--green); opacity: 0.5; }
+.topbar .crumb.done:hover { opacity: 0.9; }
+.topbar .spacer { flex: 1; }
+.topbar .sound-toggle { display: flex; gap: 6px; }
+.topbar .sound-btn { padding: 4px 10px; border-radius: 16px; font-size: 10px; cursor: pointer; border: 1px solid var(--dim); background: transparent; color: var(--muted); transition: all 0.2s; }
+.topbar .sound-btn.on { background: rgba(52,211,153,0.08); border-color: rgba(52,211,153,0.3); color: var(--green); }
+.topbar .sound-btn.off { opacity: 0.25; }
+
+.content { flex: 1; overflow-y: auto; padding: 24px; scrollbar-width: thin; scrollbar-color: var(--dim) transparent; }
+.content::-webkit-scrollbar { width: 6px; }
+.content::-webkit-scrollbar-thumb { background: var(--dim); border-radius: 3px; }
+
+/* Buttons */
+.btn { padding: 8px 18px; border-radius: 8px; border: 1px solid var(--border); background: var(--card2); color: var(--white); cursor: pointer; font-size: 13px; font-weight: 500; transition: all 0.2s; position: relative; overflow: hidden; }
+.btn:hover { background: rgba(255,255,255,0.06); transform: translateY(-1px); box-shadow: var(--shadow); }
+.btn:active { transform: translateY(0); }
+.btn.gold { border-color: rgba(251,191,36,0.4); color: var(--gold); background: rgba(251,191,36,0.05); }
+.btn.gold:hover { background: rgba(251,191,36,0.12); box-shadow: 0 0 12px rgba(251,191,36,0.15); }
+.btn.green { border-color: rgba(52,211,153,0.4); color: var(--green); background: rgba(52,211,153,0.05); }
+.btn.green:hover { background: rgba(52,211,153,0.12); }
+.btn.blue { border-color: rgba(96,165,250,0.4); color: var(--blue); background: rgba(96,165,250,0.05); }
+.btn.blue:hover { background: rgba(96,165,250,0.12); }
+.btn.red { border-color: rgba(248,113,113,0.4); color: var(--red); background: rgba(248,113,113,0.05); }
+.btn.red:hover { background: rgba(248,113,113,0.12); }
+.btn.big { padding: 12px 28px; font-size: 15px; font-weight: 600; }
+.btn:disabled { opacity: 0.25; pointer-events: none; }
+.btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; align-items: center; }
+
+/* Buzzer test admin buttons */
+.bt-admin-buttons { display: flex; flex-direction: column; gap: 12px; margin-bottom: 8px; }
+.btab-group { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; }
+.btab-label { font-size: 11px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
+.btab-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* Cards */
+.card { background: linear-gradient(135deg,var(--card) 0%,var(--bg2) 100%); border: 1px solid var(--border); border-radius: 14px; padding: 20px; margin-bottom: 16px; box-shadow: var(--shadow); }
+.card-title { font-size: 15px; color: var(--gold); margin-bottom: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.card-title::before { content: ''; width: 3px; height: 16px; background: linear-gradient(180deg,var(--gold),var(--gold2)); border-radius: 2px; }
+
+/* Team grid */
+.team-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 10px; }
+.team-card { background: var(--bg2); border: 1px solid var(--border2); border-radius: 10px; padding: 14px; transition: all 0.2s; }
+.team-card:hover { border-color: var(--border); box-shadow: var(--shadow); }
+.team-card .tc-name { font-size: 15px; font-weight: 600; margin-bottom: 2px; }
+.team-card .tc-score { font-size: 28px; font-weight: 800; color: var(--gold); margin-bottom: 10px; text-shadow: 0 0 20px rgba(251,191,36,0.2); }
+.team-card .tc-btns { display: flex; gap: 4px; flex-wrap: wrap; }
+.team-card .tc-btns .btn { padding: 4px 10px; font-size: 11px; border-radius: 6px; }
+.team-card.eliminated { opacity: 0.35; filter: grayscale(0.5); }
+.team-card.disqualified { border-color: rgba(248,113,113,0.3); opacity: 0.35; }
+
+/* Question preview */
+.q-preview { background: var(--bg2); border-radius: 10px; padding: 18px; margin-bottom: 16px; border: 1px solid var(--border2); }
+.q-preview .qp-text { font-size: 17px; margin-bottom: 10px; line-height: 1.5; }
+.q-preview .qp-options { font-size: 13px; color: var(--muted); line-height: 1.8; }
+.q-preview .qp-answer { margin-top: 8px; color: var(--green); font-size: 13px; font-weight: 600; }
+
+/* Buzzer control */
+.buzzer-control { background: linear-gradient(135deg,var(--card),var(--bg2)); border: 2px solid rgba(251,191,36,0.3); border-radius: 14px; padding: 24px; margin-bottom: 16px; box-shadow: var(--glow),var(--shadow); }
+.buzzer-status { font-size: 22px; font-weight: 700; text-align: center; margin-bottom: 16px; }
+.buzzer-status.counting { color: var(--gold); text-shadow: 0 0 20px rgba(251,191,36,0.3); }
+.buzzer-status.open { color: var(--green); text-shadow: 0 0 20px rgba(52,211,153,0.3); }
+.buzzer-status.buzzed { color: var(--gold); }
+.buzzer-status.judged { color: var(--blue); }
+.buzzer-team { text-align: center; font-size: 36px; color: var(--gold); margin-bottom: 16px; font-weight: 800; text-shadow: 0 0 30px rgba(251,191,36,0.3); }
+
+/* PK */
+.pk-display { display: flex; align-items: center; justify-content: center; gap: 48px; margin-bottom: 16px; }
+.pk-side { text-align: center; }
+.pk-side .pk-name { font-size: 22px; margin-bottom: 4px; }
+.pk-side .pk-score { font-size: 52px; color: var(--gold); font-weight: 800; text-shadow: 0 0 30px rgba(251,191,36,0.2); }
+.pk-vs { font-size: 24px; color: var(--muted); font-weight: 600; }
+
+/* Input */
+.input { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 7px 12px; color: var(--white); font-size: 13px; width: 80px; transition: all 0.2s; }
+.input:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 2px rgba(251,191,36,0.15); }
+.label { font-size: 11px; color: var(--muted); margin-bottom: 4px; }
+
+/* Bracket admin */
+.bracket-admin { display: flex; flex-direction: column; gap: 8px; }
+.bracket-row { display: flex; align-items: center; gap: 12px; background: var(--bg2); padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border2); transition: all 0.2s; }
+.bracket-row:hover { border-color: var(--border); }
+.bracket-row .br-label { font-size: 13px; min-width: 80px; color: var(--muted); }
+.bracket-row select { background: var(--card); color: var(--white); border: 1px solid var(--border); border-radius: 6px; padding: 4px 8px; font-size: 12px; }
+
+/* Final grid admin */
+.final-grid-admin { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; max-width: 600px; }
+.fg-cell { padding: 14px; border-radius: 10px; border: 2px solid; text-align: center; cursor: pointer; transition: all 0.2s; background: var(--bg2); }
+.fg-cell:hover { transform: scale(1.03); }
+.fg-cell.easy { border-color: var(--green); } .fg-cell.medium { border-color: var(--blue); } .fg-cell.hard { border-color: var(--red); }
+.fg-cell.selected { opacity: 0.3; } .fg-cell.current { box-shadow: 0 0 16px rgba(251,191,36,0.3); }
+
+/* History */
+.history-list { max-height: 200px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--dim) transparent; }
+.history-list::-webkit-scrollbar { width: 4px; }
+.history-list::-webkit-scrollbar-thumb { background: var(--dim); border-radius: 2px; }
+.history-item { padding: 7px 12px; font-size: 12px; border-bottom: 1px solid var(--border2); color: var(--muted); }
+.history-item .hi-time { color: var(--dim); margin-right: 8px; font-family: monospace; }
+
+/* Settings */
+.setting-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border2); }
+.setting-row .sr-label { min-width: 160px; font-size: 13px; color: var(--muted); }
+
+/* Progress bar */
+.progress-bar { width: 100%; height: 24px; background: var(--bg2); border-radius: 12px; overflow: hidden; position: relative; }
+.progress-bar .pb-fill { height: 100%; background: linear-gradient(90deg, var(--gold), #f59e0b); border-radius: 12px; transition: width 0.3s; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #000; }
+.progress-bar .pb-text { position: absolute; top: 0; left: 0; right: 0; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: var(--text); }
+.advance-prompt { margin-top: 12px; padding: 14px 20px; border-radius: 10px; background: linear-gradient(135deg, rgba(52,211,153,0.15), rgba(52,211,153,0.05)); border: 1px solid var(--green); display: flex; align-items: center; justify-content: space-between; }
+.advance-prompt .ap-text { font-size: 14px; color: var(--green); }
+
+/* Confirm modal */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 999; }
+.modal-overlay.active { display: flex; animation: fadeIn 0.2s; }
+.modal { background: linear-gradient(135deg,var(--card),var(--bg2)); border: 1px solid var(--border); border-radius: 16px; padding: 32px; text-align: center; max-width: 420px; box-shadow: 0 20px 60px rgba(0,0,0,0.5); animation: slideUp 0.25s; }
+.modal .modal-text { font-size: 16px; margin-bottom: 24px; line-height: 1.5; }
+.modal .modal-btns { display: flex; gap: 12px; justify-content: center; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+.section { display: none; }
+.section.active { display: block; animation: fadeIn 0.3s; }
+
+/* Ranking list */
+.rank-row { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; background: var(--bg2); border: 1px solid var(--border2); margin-bottom: 6px; transition: all 0.2s; }
+.rank-row:hover { border-color: var(--border); }
+.rank-row .rr-pos { font-size: 18px; font-weight: 700; color: var(--gold); min-width: 32px; text-align: center; }
+.rank-row .rr-name { font-size: 14px; flex: 1; }
+.rank-row .rr-score { font-size: 20px; font-weight: 700; color: var(--gold); }
+.rank-row .rr-tied { font-size: 11px; color: var(--red); margin-left: 4px; }
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="sidebar">
+    <div class="sidebar-title">2025级本科生军训国防知识竞赛<small>管理端</small></div>
+    <div class="nav-item active" data-page="dashboard">总控台</div>
+    <div class="nav-item" data-page="buzzerTest">抢答测试</div>
+    <div class="nav-item" data-page="teams">队伍管理</div>
+    <div class="nav-item" data-page="required">必答题</div>
+    <div class="nav-item" data-page="buzzer">抢答控制</div>
+    <div class="nav-item" data-page="ranking">排名确认</div>
+    <div class="nav-item" data-page="bracket">对阵管理</div>
+    <div class="nav-item" data-page="pk">PK控制</div>
+    <div class="nav-item" data-page="final">决赛控制</div>
+    <div class="nav-item" data-page="tiebreaker">加赛控制</div>
+    <div class="nav-item" data-page="settings">设置</div>
+    <div class="intro-control">
+      <div class="ic-label">环节介绍</div>
+      <select class="input" id="intro-select" style="margin-bottom:6px;">
+        <option value="round1_required">第一环节·必答题</option>
+        <option value="round1_buzzer">第一环节·抢答题</option>
+        <option value="round2_pk">第二环节·八强PK</option>
+        <option value="round3_semifinal">第三环节·半决赛</option>
+        <option value="round4_final">第四环节·决赛</option>
+      </select>
+      <button class="btn gold" style="width:100%;font-size:12px;" onclick="showIntroPage()">展示介绍页</button>
+      <button class="btn green" id="intro-start-btn" style="width:100%;font-size:12px;margin-top:4px;display:none;" onclick="send('start_from_intro')">开始答题 →</button>
+    </div>
+    <div class="conn-status">
+      <div><span class="conn-dot ok" id="dot-ws"></span>WebSocket</div>
+      <div><span class="conn-dot err" id="dot-dll"></span>DLL <span style="font-size:10px;" id="dll-addr">127.0.0.1:9999</span></div>
+      <button class="btn" style="margin-top:4px;padding:2px 8px;font-size:11px;" onclick="send('settings_update',{dllConnected:false})">重连DLL</button>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="crumbs" id="crumbs">
+        <span class="crumb" data-phase="round1">第一环节</span>
+        <span class="crumb" data-phase="round2">第二环节</span>
+        <span class="crumb" data-phase="round3">第三环节</span>
+        <span class="crumb" data-phase="round4">第四环节</span>
+        <span class="crumb" data-phase="awards">颁奖</span>
+      </div>
+      <div class="spacer"></div>
+      <div class="sound-toggle" id="sound-toggles"></div>
+    </div>
+    <div class="content">
+
+      <!-- Dashboard -->
+      <div class="section active" id="sec-dashboard">
+        <div class="card">
+          <div class="card-title">总控台</div>
+          <div id="dash-phase" style="font-size:20px;margin-bottom:8px;">未开始</div>
+          <div id="dash-progress" style="font-size:14px;color:var(--muted);margin-bottom:16px;"></div>
+          <div class="btn-row">
+            <button class="btn gold big" onclick="send('start_contest')">开始竞赛</button>
+            <button class="btn" onclick="send('toggle_answer')">显示/隐藏答案</button>
+            <button class="btn gold" onclick="send('buzzer_start')">开始抢答</button>
+          </div>
+          <div class="btn-row">
+            <button class="btn" onclick="navQuestion(-1)">上一题</button>
+            <button class="btn" onclick="navQuestion(1)">下一题</button>
+            <button class="btn" onclick="send('undo')">撤销</button>
+            <button class="btn" onclick="send('export_data')">导出数据</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">环节推进</div>
+          <div class="btn-row" id="phase-advances"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">答题历史 (最近10条)</div>
+          <div class="history-list" id="dash-history"></div>
+        </div>
+      </div>
+
+      <!-- Teams -->
+      <div class="section" id="sec-teams">
+        <div class="card">
+          <div class="card-title">队伍管理</div>
+          <div class="btn-row">
+            <button class="btn red" onclick="confirmAction('重置全部分数？', () => send('reset_all_scores'))">重置全部分数</button>
+            <button class="btn green" onclick="batchTeamStatus('active',true)">全部激活</button>
+            <button class="btn blue" onclick="batchTeamStatus('eliminated',true)">全部淘汰</button>
+          </div>
+          <div class="team-grid" id="team-grid"></div>
+        </div>
+      </div>
+
+      <!-- Required -->
+      <div class="section" id="sec-required">
+        <div class="card">
+          <div class="card-title">必答题控制 <span id="req-qnum" style="color:var(--muted);"></span></div>
+          <div class="progress-bar" id="req-progress" style="margin-bottom:12px;"></div>
+          <div class="q-preview" id="req-preview"></div>
+          <div class="btn-row">
+            <button class="btn" onclick="navQuestion(-1)">上一题</button>
+            <button class="btn" onclick="navQuestion(1)">下一题</button>
+            <button class="btn" onclick="send('toggle_answer')">显示/隐藏答案</button>
+            <button class="btn" onclick="send('required_clear')">清除本题判分</button>
+            <button class="btn green" onclick="batchCorrect()">全部答对</button>
+            <button class="btn" onclick="send('undo')">撤销</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">逐队判分</div>
+          <div class="team-grid" id="req-teams"></div>
+        </div>
+      </div>
+
+      <!-- Buzzer -->
+      <div class="section" id="sec-buzzer">
+        <div class="progress-bar" id="bz-progress" style="margin-bottom:12px;"></div>
+        <div class="buzzer-control">
+          <div class="buzzer-status" id="bz-status">待开始</div>
+          <div class="buzzer-team" id="bz-team" style="display:none;"></div>
+          <div class="btn-row" style="justify-content:center;">
+            <button class="btn gold big" onclick="send('buzzer_start')">开始抢答</button>
+            <button class="btn green" onclick="send('buzzer_judge',{result:'correct'})" id="btn-correct">答对</button>
+            <button class="btn blue" onclick="send('buzzer_judge',{result:'wrong'})" id="btn-wrong">答错</button>
+            <button class="btn red" onclick="manualViolation()">手动犯规</button>
+            <button class="btn red" onclick="disqualifyFromBuzzer()">判负</button>
+            <button class="btn" onclick="send('buzzer_skip')">跳过此题</button>
+            <button class="btn" onclick="send('buzzer_cancel')">取消抢答</button>
+            <button class="btn blue" onclick="send('buzzer_reopen')">重新抢答</button>
+          </div>
+          <div class="btn-row" id="timeout-row" style="justify-content:center;display:none;">
+            <button class="btn red big" onclick="send('buzzer_confirm_timeout')">⏰ 确认无人抢答（本题作废）</button>
+          </div>
+          <div style="margin-top:12px;text-align:center;">
+            <span class="label">DLL降级-手动选择:</span>
+            <select id="manual-team" class="input" style="width:auto;"></select>
+            <button class="btn" onclick="manualBuzz()">确认抢答</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">题目预览</div>
+          <div class="q-preview" id="bz-preview"></div>
+          <div class="btn-row">
+            <button class="btn" onclick="navQuestion(-1)">上一题</button>
+            <button class="btn" onclick="navQuestion(1)">下一题</button>
+            <button class="btn" onclick="send('toggle_answer')">显示/隐藏答案</button>
+            <button class="btn" onclick="send('undo')">撤销</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ranking -->
+      <div class="section" id="sec-ranking">
+        <div class="card">
+          <div class="card-title">第一环节排名确认</div>
+          <div id="ranking-list-admin"></div>
+          <div id="tie-notice" style="margin-top:12px;padding:10px 14px;border-radius:8px;background:rgba(251,191,36,0.12);border:1px solid var(--gold);color:var(--gold);font-size:13px;display:none;"></div>
+          <div class="btn-row" style="margin-top:16px;">
+            <button class="btn gold big" onclick="send('confirm_ranking')">确认排名</button>
+            <button class="btn gold" onclick="send('tiebreaker_auto_start')">自动加赛（检测同分）</button>
+            <button class="btn" onclick="startTiebreakerWithSelection('round1_ranking')">手动选择加赛</button>
+            <button class="btn" onclick="manualAdjustRank()">手动调整排名</button>
+            <button class="btn" onclick="send('undo')">撤销</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bracket -->
+      <div class="section" id="sec-bracket">
+        <div class="card">
+          <div class="card-title">对阵管理</div>
+          <div class="btn-row">
+            <button class="btn gold" onclick="send('generate_bracket')">自动生成对阵</button>
+            <button class="btn" onclick="manualAdjustBracket()">手动调整对阵</button>
+            <button class="btn" onclick="send('undo')">撤销</button>
+          </div>
+          <div id="bracket-start-bar" style="margin:16px 0;padding:16px 20px;background:linear-gradient(135deg, rgba(251,191,36,0.1), rgba(255,23,68,0.08));border:1px solid rgba(251,191,36,0.3);border-radius:12px;display:none;align-items:center;justify-content:space-between;">
+            <div>
+              <div id="bracket-start-title" style="font-size:18px;font-weight:700;color:var(--gold);margin-bottom:4px;">对阵已就绪</div>
+              <div id="bracket-start-sub" style="font-size:13px;color:var(--muted);">点击右侧按钮开始答题</div>
+            </div>
+            <button class="btn gold big" id="bracket-start-btn" onclick="startBracketPk()">开始答题 →</button>
+          </div>
+          <div class="bracket-admin" id="bracket-admin"></div>
+        </div>
+      </div>
+
+      <!-- PK -->
+      <div class="section" id="sec-pk">
+        <div class="card">
+          <div class="card-title">PK控制 <span id="pk-match-label" style="color:var(--muted);"></span></div>
+          <div class="pk-display" id="pk-display"></div>
+          <div class="buzzer-control" style="border-color:var(--gold);">
+            <div class="buzzer-status" id="pk-bz-status">待开始</div>
+            <div class="buzzer-team" id="pk-bz-team" style="display:none;"></div>
+            <div class="btn-row" style="justify-content:center;">
+              <button class="btn gold" onclick="send('buzzer_start')">开始抢答</button>
+              <button class="btn green" onclick="send('buzzer_judge',{result:'correct'})">答对</button>
+              <button class="btn blue" onclick="send('buzzer_judge',{result:'wrong'})">答错</button>
+              <button class="btn red" onclick="pkManualViolation()">手动犯规</button>
+              <button class="btn red" onclick="pkDisqualify()">判负</button>
+              <button class="btn" onclick="send('buzzer_skip')">跳过</button>
+              <button class="btn" onclick="send('buzzer_cancel')">取消</button>
+              <button class="btn blue" onclick="send('buzzer_reopen')">重新抢答</button>
+              <button class="btn" onclick="send('undo')">撤销</button>
+            </div>
+            <div class="btn-row" id="pk-timeout-row" style="justify-content:center;display:none;">
+              <button class="btn red big" onclick="send('buzzer_confirm_timeout')">⏰ 确认无人抢答（本题作废）</button>
+            </div>
+            <div style="margin-top:12px;text-align:center;">
+              <span class="label">DLL降级-手动选择:</span>
+              <select id="pk-manual-team" class="input" style="width:auto;"></select>
+              <button class="btn" onclick="pkManualBuzz()">确认抢答</button>
+            </div>
+          </div>
+          <div class="btn-row" style="justify-content:center;">
+            <button class="btn gold" onclick="send('pk_mark_winner',{teamId:getCurrentPkWinner()})" id="pk-mark-winner" disabled>标记胜者</button>
+            <button class="btn" onclick="startTiebreaker('round2_pk')">开始加赛(平局)</button>
+          </div>
+          <div class="btn-row">
+            <button class="btn" onclick="navQuestion(-1)">上一题</button>
+            <button class="btn" onclick="navQuestion(1)">下一题</button>
+            <button class="btn" onclick="send('toggle_answer')">显示/隐藏答案</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Final -->
+      <div class="section" id="sec-final">
+        <div class="card">
+          <div class="card-title">决赛控制</div>
+          <div class="pk-display" id="final-display"></div>
+          <div id="coin-toss-panel" style="display:none;text-align:center;padding:16px;border:2px dashed var(--gold);border-radius:8px;margin-bottom:12px;">
+            <div style="font-size:18px;color:var(--gold);font-weight:700;margin-bottom:8px;">🎲 半决赛分数相同，请进行猜丁壳</div>
+            <div style="font-size:13px;color:var(--muted);margin-bottom:12px;">现场猜丁壳后，点击获胜方获得优先选题权</div>
+            <div class="btn-row" style="justify-content:center;" id="coin-toss-btns"></div>
+          </div>
+          <div class="btn-row" style="justify-content:center;">
+            <button class="btn green" onclick="send('final_judge',{result:'correct'})" id="btn-final-correct">答对</button>
+            <button class="btn blue" onclick="send('final_judge',{result:'wrong'})" id="btn-final-wrong">答错</button>
+            <button class="btn red" onclick="manualViolation()">手动犯规</button>
+            <button class="btn red" onclick="finalDisqualify()">判负</button>
+            <button class="btn" onclick="send('toggle_answer')">显示/隐藏答案</button>
+            <button class="btn" onclick="send('undo')">撤销</button>
+          </div>
+          <div id="final-tiebreak-question" style="display:none;text-align:center;padding:12px;background:rgba(0,0,0,0.3);border-radius:8px;margin-bottom:8px;">
+            <div style="font-size:13px;color:var(--red);margin-bottom:4px;">第9题（平局抢答）</div>
+            <div id="ftb-question-text" style="font-size:16px;color:var(--gold);"></div>
+            <div id="ftb-question-options" style="font-size:13px;margin-top:4px;"></div>
+            <div id="ftb-question-answer" style="font-size:14px;color:var(--green);margin-top:4px;display:none;"></div>
+          </div>
+          <div class="btn-row" id="final-tiebreak-controls" style="justify-content:center;display:none;">
+            <button class="btn gold" onclick="send('buzzer_start')">开始抢答</button>
+            <button class="btn green" onclick="send('buzzer_judge',{result:'correct'})">答对（夺冠）</button>
+            <button class="btn blue" onclick="send('buzzer_judge',{result:'wrong'})">答错（对手夺冠）</button>
+            <button class="btn" onclick="send('toggle_answer')">显示/隐藏答案</button>
+            <button class="btn" onclick="send('undo')">撤销</button>
+          </div>
+          <div class="btn-row" style="justify-content:center;">
+            <button class="btn gold" onclick="confirmSelectionOrder()" id="btn-confirm-order">确认选题顺序</button>
+            <button class="btn gold big" onclick="send('final_confirm_champion',{teamId:getFinalLeader()})" id="btn-champion" disabled>确认冠军</button>
+          </div>
+          <div class="btn-row" style="justify-content:center;">
+            <button class="btn gold big" onclick="send('change_phase',{phase:'awards'})" id="btn-awards" style="display:none;">进入颁奖</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">选题区 (点击选题)</div>
+          <div class="final-grid-admin" id="final-grid-admin"></div>
+          <div style="margin-top:8px;font-size:12px;color:var(--muted);" id="final-order-display"></div>
+        </div>
+      </div>
+
+      <!-- Tiebreaker -->
+      <div class="section" id="sec-tiebreaker">
+        <div class="card">
+          <div class="card-title">加赛控制</div>
+          <div id="tb-info-admin"></div>
+          <div class="pk-display" id="tb-scores-admin"></div>
+          <div id="tb-result-actions" style="display:none;margin-bottom:16px;text-align:center;">
+            <!-- 加赛结果页的操作按钮，由JS动态填充 -->
+          </div>
+          <div class="buzzer-control">
+            <div class="buzzer-status" id="tb-bz-status">待开始</div>
+            <div class="buzzer-team" id="tb-bz-team" style="display:none;"></div>
+            <div class="btn-row" style="justify-content:center;">
+              <button class="btn gold" onclick="send('buzzer_start')">开始抢答</button>
+              <button class="btn green" onclick="send('tiebreaker_judge',{result:'correct'})">答对</button>
+              <button class="btn blue" onclick="send('tiebreaker_judge',{result:'wrong'})">答错</button>
+              <button class="btn red" onclick="tbManualViolation()">手动犯规</button>
+              <button class="btn red" onclick="tbDisqualify()">判负</button>
+              <button class="btn" onclick="send('buzzer_skip')">跳过</button>
+              <button class="btn" onclick="send('buzzer_cancel')">取消</button>
+              <button class="btn blue" onclick="send('buzzer_reopen')">重新抢答</button>
+              <button class="btn" onclick="send('undo')">撤销</button>
+            </div>
+            <div class="btn-row" id="tb-timeout-row" style="justify-content:center;display:none;">
+              <button class="btn red big" onclick="send('buzzer_confirm_timeout')">⏰ 确认无人抢答（本题作废）</button>
+            </div>
+            <div style="margin-top:12px;text-align:center;">
+              <span class="label">DLL降级-手动选择:</span>
+              <select id="tb-manual-team" class="input" style="width:auto;"></select>
+              <button class="btn" onclick="tbManualBuzz()">确认抢答</button>
+            </div>
+          </div>
+          <div class="btn-row">
+            <button class="btn" onclick="navQuestion(-1)">上一题</button>
+            <button class="btn" onclick="navQuestion(1)">下一题</button>
+            <button class="btn" onclick="send('toggle_answer')">显示/隐藏答案</button>
+            <button class="btn gold" onclick="finishTiebreaker()">完成加赛</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Buzzer Test -->
+      <div class="section" id="sec-buzzerTest">
+        <div class="card">
+          <div class="card-title">抢答测试（设备检测）</div>
+          <div style="font-size:13px;color:var(--muted);margin-bottom:16px;line-height:1.6;">
+            用于比赛前检测各连队抢答器设备是否正常工作。<br>
+            点击「开始抢答」后进入3秒倒计时，倒计时期间抢答为红色（提前抢答），第一个抢答成功为绿色，其余成功为蓝色。
+          </div>
+          <div class="bt-admin-buttons">
+            <div class="btab-group">
+              <div class="btab-label">测试控制</div>
+              <div class="btab-btns">
+                <button class="btn gold big" onclick="send('buzzer_test_start')">▶ 开始抢答</button>
+                <button class="btn" onclick="send('buzzer_test_reset')">↻ 重置</button>
+              </div>
+            </div>
+            <div class="btab-group">
+              <div class="btab-label">流程跳转</div>
+              <div class="btab-btns">
+                <button class="btn green big" onclick="send('change_phase',{phase:'round1_required'})">进入第一环节 · 必答题 →</button>
+                <button class="btn" onclick="send('change_phase',{phase:'cover'})">返回封面</button>
+              </div>
+            </div>
+          </div>
+          <div id="bt-status-admin" style="font-size:18px;text-align:center;margin:16px 0 12px;font-weight:600;"></div>
+          <div id="bt-grid-admin" style="display:flex;flex-direction:column;gap:10px;"></div>
+        </div>
+      </div>
+
+      <!-- Settings -->
+      <div class="section" id="sec-settings">
+        <div class="card">
+          <div class="card-title">抢答器连接</div>
+          <div class="setting-row"><div class="sr-label">地址</div><input class="input" id="set-dll-addr" value="127.0.0.1" style="width:160px;"></div>
+          <div class="setting-row"><div class="sr-label">事件端口</div><input class="input" id="set-dll-port" value="9999" style="width:80px;"></div>
+          <div class="setting-row"><div class="sr-label">命令端口</div><input class="input" id="set-dll-cmdport" value="9998" style="width:80px;"></div>
+          <button class="btn gold" style="margin-top:8px;" onclick="send('dll_reconnect')">重连抢答器</button>
+        </div>
+        <div class="card">
+          <div class="card-title">抢答器Key ID映射</div>
+          <div style="font-size:12px;color:var(--muted);margin-bottom:8px;line-height:1.5;">
+            映射规则：左侧为队伍名称，右侧填写对应的抢答器台号（硬件编号）。<br>
+            若某台抢答器损坏，可立即在此处修改为备用台号，保存后立即生效。
+          </div>
+          <div id="key-id-mapping"></div>
+          <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;">
+            <button class="btn gold" onclick="saveKeyIdMapping()">保存映射</button>
+            <button class="btn" onclick="scanDevices()">扫描设备</button>
+          </div>
+          <div id="scan-result" style="margin-top:8px;font-size:12px;color:var(--muted);display:none;"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">快捷键设置</div>
+          <div class="setting-row"><div class="sr-label">键盘快捷键</div><button class="btn" id="btn-shortcuts" onclick="toggleShortcuts()"></button></div>
+          <div style="font-size:12px;color:var(--muted);margin-top:4px;">仅控制翻页(←→)/撤销(Ctrl+Z)/关闭弹窗(Esc)</div>
+        </div>
+        <div class="card">
+          <div class="card-title">超时设置</div>
+          <div class="setting-row"><div class="sr-label">抢答超时(秒)</div><input class="input" id="set-bz-timeout" value="10" type="number"></div>
+          <div class="setting-row"><div class="sr-label">答题超时(秒)</div><input class="input" id="set-ans-timeout" value="3" type="number"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">题目管理</div>
+          <div class="setting-row"><div class="sr-label">当前题目文件</div><span id="q-file-info">questions.json</span></div>
+          <button class="btn" onclick="send('reload_questions')">重新加载题目</button>
+        </div>
+        <div class="card">
+          <div class="card-title">数据导出</div>
+          <div class="btn-row">
+            <button class="btn" onclick="send('export_data')">导出成绩(JSON)</button>
+            <button class="btn" onclick="send('export_csv')">导出成绩(CSV)</button>
+            <button class="btn" onclick="send('export_history')">导出答题历史</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">状态管理</div>
+          <div class="btn-row">
+            <button class="btn red" onclick="confirmAction('确定重置全部状态？所有进度将清空！', () => send('reset_state'))">重置全部状态</button>
+            <button class="btn" onclick="send('undo')">恢复上次操作</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">连队名称</div>
+          <div id="team-names-admin"></div>
+          <button class="btn gold" style="margin-top:8px;" onclick="saveTeamNames()">保存名称</button>
+        </div>
+        <button class="btn gold big" onclick="saveSettings()">保存全部设置</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-text" id="modal-text"></div>
+    <div id="modal-custom-body" style="display:none;margin-bottom:24px;text-align:left;"></div>
+    <div class="modal-btns">
+      <button class="btn gold" onclick="executeConfirm()">确定</button>
+      <button class="btn" onclick="closeModal()">取消</button>
+    </div>
+  </div>
+</div>
+
+<div style="position:fixed;bottom:0;left:0;right:0;text-align:center;padding:4px 0;font-size:12px;color:#aaa;background:rgba(0,0,0,0.5);z-index:9999;">
+  深北莫计算机协会 <span style="color:#fbbf24;">技术支持</span> &nbsp;|&nbsp; 2025级本科生军训指挥部 <span style="color:#fbbf24;">监制</span>
+</div>
+
+<script>
+let ws = null, state = null, currentPage = 'dashboard', lastPhase = null;
+let confirmCallback = null;
+let reconnectAttempts = 0;
+
+function connect() {
+  const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+  ws = new WebSocket(`${proto}//${location.host}`);
+  ws.onopen = () => { document.getElementById('dot-ws').className = 'conn-dot ok'; reconnectAttempts = 0; };
+  ws.onmessage = (e) => {
+    let msg;
+    try { msg = JSON.parse(e.data); } catch(err) { console.error('消息解析失败', err); return; }
+    try {
+      if (msg.type === 'state_sync') { state = msg.data; render(); }
+      else if (msg.type === 'export_data') downloadExport(msg.data);
+      else if (msg.type === 'info' || msg.type === 'error') alert(msg.data.message);
+      else if (msg.type === 'questions_loaded') alert(msg.data.success ? '题目已重新加载' : '加载失败: ' + msg.data.error);
+      else if (msg.type === 'scan_result') {
+        const resultEl = document.getElementById('scan-result');
+        if (resultEl) {
+          const data = msg.data;
+          if (data.error) {
+            resultEl.textContent = '扫描失败: ' + data.error;
+            resultEl.style.color = 'var(--red)';
+          } else if (data.devices || data.keys) {
+            const devices = data.devices || data.keys || [];
+            const count = Array.isArray(devices) ? devices.length : 0;
+            resultEl.innerHTML = `扫描完成，共发现 <strong style="color:var(--green)">${count}</strong> 台设备：${Array.isArray(devices) ? devices.map(d => typeof d === 'object' ? ('#' + (d.id || d.key_id || '?')) : ('#' + d)).join('、') : JSON.stringify(devices)}`;
+            resultEl.style.color = 'var(--text)';
+          } else {
+            resultEl.textContent = '扫描结果: ' + JSON.stringify(data);
+            resultEl.style.color = 'var(--text)';
+          }
+        }
+      }
+    } catch(err) {
+      console.error('消息处理失败', msg.type, err);
+    }
+  };
+  ws.onerror = (e) => { console.log('WS error', e); };
+  ws.onclose = () => {
+    document.getElementById('dot-ws').className = 'conn-dot err';
+    reconnectAttempts++;
+    const delay = Math.min(1000 * Math.pow(2, Math.min(reconnectAttempts - 1, 5)), 10000);
+    setTimeout(connect, delay);
+  };
+}
+connect();
+
+// 全局错误护盾
+window.addEventListener('error', (e) => {
+  console.error('[全局错误]', e.message, e.error?.stack);
+  e.preventDefault();
+  try { if (state) render(); } catch(_) {}
+  return true;
+});
+window.addEventListener('unhandledrejection', (e) => {
+  console.error('[未处理Promise]', e.reason?.message || e.reason);
+  e.preventDefault();
+  return true;
+});
+
+function send(type, data = {}) { if (ws && ws.readyState === 1) ws.send(JSON.stringify({ type, data })); }
+
+function showPage(page) {
+  currentPage = page;
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('sec-' + page).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.querySelector(`.nav-item[data-page="${page}"]`)?.classList.add('active');
+}
+document.querySelectorAll('.nav-item').forEach(n => n.addEventListener('click', () => showPage(n.dataset.page)));
+
+document.querySelectorAll('.crumb').forEach(c => c.addEventListener('click', () => {
+  const phaseMap = {
+    round1: 'round1_required',
+    round2: 'round2_pk',
+    round3: 'round3_semifinal',
+    round4: 'round4_final',
+    awards: 'awards'
+  };
+  const target = phaseMap[c.dataset.phase];
+  if (target) {
+    send('change_phase', { phase: target });
+    const pageMap = { round1: 'required', round2: 'pk', round3: 'pk', round4: 'final', awards: 'dashboard' };
+    if (pageMap[c.dataset.phase]) showPage(pageMap[c.dataset.phase]);
+  }
+}));
+
+function navQuestion(dir) {
+  if (!state) return;
+  const newIdx = state.currentQuestionIndex + dir;
+  let max = 999;
+  if (state.phase === 'round1_required') max = (state._currentQuestions?.round1_required?.length || 5) - 1;
+  else if (state.phase === 'round1_buzzer') max = (state._currentQuestions?.round1_buzzer?.length || 20) - 1;
+  else if (state.phase === 'round2_pk') max = (state._currentQuestions?.round2_pk?.[state.pk?.currentMatch]?.length || 5) - 1;
+  else if (state.phase === 'round3_semifinal') max = (state._currentQuestions?.round3_semifinal?.[state.pk?.currentMatch]?.length || 5) - 1;
+  else if (state.phase === 'round4_final') max = (state._currentQuestions?.round4_final?.length || 9) - 1;
+  else if (state.phase === 'tiebreaker') max = 4; // 加赛限制5题（0-4）
+  if (newIdx < 0 || newIdx > max) return;
+  send('navigate', { index: newIdx });
+}
+
+function confirmAction(text, callback) {
+  document.getElementById('modal-text').textContent = text;
+  document.getElementById('modal-custom-body').style.display = 'none';
+  document.getElementById('modal-custom-body').innerHTML = '';
+  confirmCallback = callback;
+  document.getElementById('modal').classList.add('active');
+}
+function showConfirmModal(title, htmlBody, callback) {
+  document.getElementById('modal-text').textContent = title;
+  const body = document.getElementById('modal-custom-body');
+  body.innerHTML = htmlBody;
+  body.style.display = 'block';
+  confirmCallback = callback;
+  document.getElementById('modal').classList.add('active');
+}
+function executeConfirm() { const cb = confirmCallback; confirmCallback = null; if (cb) { if (typeof cb === 'function') cb(); else eval(cb); } closeModal(); }
+function closeModal() { document.getElementById('modal').classList.remove('active'); document.getElementById('modal-custom-body').style.display = 'none'; document.getElementById('modal-custom-body').innerHTML = ''; }
+
+function manualBuzz() {
+  const sel = document.getElementById('manual-team');
+  if (sel.value) send('buzzer_manual', { teamId: parseInt(sel.value) });
+}
+function manualViolation() {
+  const sel = document.getElementById('manual-team');
+  const teams = getActiveTeams();
+  const teamId = parseInt(sel.value) || teams[0];
+  if (teamId) send('buzzer_violation', { teamId });
+}
+function disqualifyFromBuzzer() {
+  const sel = document.getElementById('manual-team');
+  const teams = getActiveTeams();
+  const teamId = parseInt(sel.value) || teams[0];
+  if (!teamId) { alert('请先选择队伍'); return; }
+  const team = state.companies.find(c => c.id === teamId);
+  if (team) confirmAction(`确定判定${team.name}作弊判负？此操作不可撤销！`, () => send('disqualify', { teamId: teamId }));
+}
+function pkManualBuzz() {
+  const sel = document.getElementById('pk-manual-team');
+  if (sel.value) send('buzzer_manual', { teamId: parseInt(sel.value) });
+}
+function pkManualViolation() {
+  const sel = document.getElementById('pk-manual-team');
+  if (sel.value) send('buzzer_violation', { teamId: parseInt(sel.value) });
+}
+function pkDisqualify() {
+  const sel = document.getElementById('pk-manual-team');
+  if (!sel.value) { alert('请先选择队伍'); return; }
+  const teamId = parseInt(sel.value);
+  const team = state.companies.find(c => c.id === teamId);
+  if (team) confirmAction(`确定判定${team.name}作弊判负？对手自动获胜！`, () => send('disqualify', { teamId: teamId }));
+}
+function finalDisqualify() {
+  const finalists = state.bracket.round3?.filter(m => m.winnerId).map(m => m.winnerId) || [];
+  if (finalists.length < 2) { alert('决赛队伍未确定'); return; }
+  const teams = finalists.map(id => state.companies.find(c => c.id === id)).filter(Boolean);
+  const teamNames = teams.map((t, i) => `${i+1}.${t.name}`).join('\n');
+  const choice = prompt(`选择判负队伍:\n${teamNames}\n输入序号(1或2):`);
+  const idx = parseInt(choice) - 1;
+  if (idx >= 0 && idx < teams.length) {
+    const team = teams[idx];
+    confirmAction(`确定判定${team.name}作弊判负？对手夺冠！`, () => send('disqualify', { teamId: team.id }));
+}
+}
+function confirmSelectionOrder() {
+  const finalists = state.bracket.round3?.filter(m => m.winnerId).map(m => m.winnerId) || [];
+  if (finalists.length < 2) { alert('决赛队伍未确定'); return; }
+  send('final_confirm_order', { order: finalists });
+  alert('选题顺序已确认: ' + finalists.map(id => state.companies.find(c=>c.id===id)?.name).join(' → '));
+}
+function tbManualBuzz() {
+  const sel = document.getElementById('tb-manual-team');
+  if (sel.value) send('buzzer_manual', { teamId: parseInt(sel.value) });
+}
+function tbManualViolation() {
+  const sel = document.getElementById('tb-manual-team');
+  if (sel.value) send('buzzer_violation', { teamId: parseInt(sel.value) });
+}
+function tbDisqualify() {
+  const sel = document.getElementById('tb-manual-team');
+  if (!sel.value) { alert('请先选择队伍'); return; }
+  const teamId = parseInt(sel.value);
+  const team = state.companies.find(c => c.id === teamId);
+  if (team) confirmAction(`确定判定${team.name}作弊判负？`, () => send('disqualify', { teamId: teamId }));
+}
+function manualAdjustRank() {
+  const sorted = [...state.companies].filter(c => !c.disqualified).sort((a,b) => b.score - a.score);
+  const list = sorted.map((c, i) => `${i+1}.${c.name}(${c.score}分)`).join('\n');
+  const input = prompt(`当前排名:\n${list}\n\n输入两个队伍ID用逗号分隔，交换它们的分数:\n(如: 3,7)`);
+  if (!input) return;
+  const ids = input.split(',').map(s => parseInt(s.trim()));
+  if (ids.length === 2 && ids[0] > 0 && ids[1] > 0) {
+    const t1 = state.companies.find(c => c.id === ids[0]);
+    const t2 = state.companies.find(c => c.id === ids[1]);
+    if (t1 && t2) {
+      const tmp = t1.score;
+      send('score_set', { teamId: t1.id, score: t2.score });
+      setTimeout(() => send('score_set', { teamId: t2.id, score: tmp }), 100);
+    } else { alert('队伍ID不存在'); }
+  } else { alert('输入格式错误'); }
+}
+function manualAdjustBracket() {
+  if (!state.bracket.round2) { alert('请先生成对阵'); return; }
+  const list = state.bracket.round2.map((m, i) => `第${i+1}组: ${state.companies.find(c=>c.id===m.team1Id)?.name||'?'} vs ${state.companies.find(c=>c.id===m.team2Id)?.name||'?'}`).join('\n');
+  const input = prompt(`当前对阵:\n${list}\n\n输入 场次号,队伍1ID,队伍2ID 用逗号分隔:\n(如: 1,3,6 表示第1场改为3连vs6连)`);
+  if (!input) return;
+  const parts = input.split(',').map(s => parseInt(s.trim()));
+  if (parts.length === 3 && parts[0] > 0 && parts[1] > 0 && parts[2] > 0) {
+    const matchIndex = parts[0] - 1;
+    send('adjust_bracket', { matchIndex, team1Id: parts[1], team2Id: parts[2] });
+  } else { alert('输入格式错误'); }
+}
+function batchCorrect() {
+  const currentQAnswers = state.requiredAnswers[state.currentQuestionIndex] || {};
+  const results = state.companies.filter(c => c.active && !c.eliminated && !currentQAnswers[c.id]).map(c => ({ teamId: c.id, result: 'correct' }));
+  if (results.length) send('required_batch', { results });
+}
+function getCurrentPkWinner() {
+  if (!state?.bracket?.round2) return null;
+  const match = state.bracket.round2[state.pk.currentMatch];
+  if (!match) return null;
+  const s1 = state.pk.scores[match.team1Id] || 0;
+  const s2 = state.pk.scores[match.team2Id] || 0;
+  return s1 > s2 ? match.team1Id : s2 > s2 ? match.team2Id : null;
+}
+function getFinalLeader() {
+  if (!state?.bracket?.round3) return null;
+  const winners = state.bracket.round3.filter(m => m.winnerId).map(m => m.winnerId);
+  if (winners.length < 2) return null;
+  const t1 = state.companies.find(c => c.id === winners[0]);
+  const t2 = state.companies.find(c => c.id === winners[1]);
+  return (t1?.score || 0) > (t2?.score || 0) ? t1.id : t2.id;
+}
+function getActiveTeams() {
+  if (!state) return [];
+  if (state.phase === 'round2_pk' || state.phase === 'round3_semifinal') {
+    const match = state.bracket.round2?.[state.pk.currentMatch] || state.bracket.round3?.[state.pk.currentMatch];
+    return match ? [match.team1Id, match.team2Id] : [];
+  }
+  if (state.phase === 'tiebreaker') return state.tiebreaker.teams;
+  if (state.phase === 'final_tiebreak' || state.phase === 'round4_final') {
+    const f = state.bracket.final;
+    return f ? [f.team1Id, f.team2Id] : [];
+  }
+  return state.companies.filter(c => c.active && !c.eliminated).map(c => c.id);
+}
+function startTiebreaker(context) {
+  const teams = getActiveTeams();
+  if (teams.length === 0) { alert('没有参赛队伍'); return; }
+  send('change_phase', { phase: 'tiebreaker' });
+  send('tiebreaker_start', { context, teams });
+}
+function startTiebreakerWithSelection(context) {
+  const ranking = getDisplayRanking();
+  // Find tied teams
+  const ties = [];
+  for (let i = 0; i < ranking.length - 1; i++) {
+    if (ranking[i].score === ranking[i+1].score) {
+      // Found a tie
+      let group = [ranking[i].id, ranking[i+1].id];
+      // Extend group if more teams have same score
+      let j = i + 2;
+      while (j < ranking.length && ranking[j].score === ranking[i].score) {
+        group.push(ranking[j].id);
+        j++;
+      }
+      ties.push({ score: ranking[i].score, teams: group });
+      i = j - 1; // Skip ahead
+    }
+  }
+  if (ties.length === 0) {
+    alert('当前没有同分的队伍，无需加赛');
+    return;
+  }
+  // Build selection HTML
+  let html = '<div style="margin-bottom:12px;font-size:14px;color:var(--gold);">检测到同分队伍，请勾选需要加赛的队伍：</div>';
+  for (const tie of ties) {
+    const teamNames = tie.teams.map(id => state.companies.find(c=>c.id===id)?.name).join('、');
+    html += `<div style="margin-bottom:8px;padding:8px;border:1px solid var(--gold);border-radius:6px;background:rgba(251,191,36,0.08);">
+      <div style="font-size:13px;margin-bottom:4px;">同分 ${tie.score}分：${teamNames}</div>`;
+    for (const id of tie.teams) {
+      const c = state.companies.find(c => c.id === id);
+      html += `<label style="margin-right:12px;font-size:13px;cursor:pointer;"><input type="checkbox" value="${id}" checked> ${c?.name}</label>`;
+    }
+    html += '</div>';
+  }
+  html += '<div style="margin-top:8px;font-size:12px;color:var(--muted);">仅勾选的队伍参加加赛</div>';
+  showConfirmModal('选择加赛队伍', html, () => {
+    const checkboxes = document.querySelectorAll('#modal-custom-body input[type=checkbox]:checked');
+    const teams = Array.from(checkboxes).map(cb => parseInt(cb.value));
+    if (teams.length < 2) { alert('至少需要2支队伍加赛'); return; }
+    send('change_phase', { phase: 'tiebreaker' });
+    send('tiebreaker_start', { context, teams });
+  });
+}
+function finishTiebreaker() {
+  send('tiebreaker_finish', {});
+}
+function enterPk(matchIndex) {
+  send('pk_start_match', { matchIndex });
+  showPage('pk');
+}
+
+function startBracketPk() {
+  if (state.phase !== 'bracket') return;
+  const cmd = state.bracket.currentRound === 'round3' ? 'start_semifinal_from_bracket' : 'start_pk_from_bracket';
+  send(cmd);
+}
+
+function saveSettings() {
+  send('settings_update', {
+    dllAddress: document.getElementById('set-dll-addr').value,
+    dllPort: parseInt(document.getElementById('set-dll-port').value),
+    dllCmdPort: parseInt(document.getElementById('set-dll-cmdport').value),
+    buzzerTimeout: parseInt(document.getElementById('set-bz-timeout').value),
+    answerTimeout: parseInt(document.getElementById('set-ans-timeout').value),
+  });
+  alert('设置已保存');
+}
+function saveTeamNames() {
+  const inputs = document.querySelectorAll('#team-names-admin input');
+  const names = {};
+  inputs.forEach(inp => { names[inp.dataset.id] = inp.value; });
+  Object.entries(names).forEach(([id, name]) => {
+    const c = state.companies.find(c => c.id === parseInt(id));
+    if (c) c.name = name;
+  });
+  send('settings_update', {});
+  alert('名称已保存');
+}
+
+function downloadExport(data) {
+  if (data.csv) {
+    const blob = new Blob(['\uFEFF' + data.csv], { type: 'text/csv;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = data.filename || `成绩表_${Date.now()}.csv`;
+    a.click();
+  } else {
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = data.history ? `答题历史_${Date.now()}.json` : `contest_${Date.now()}.json`;
+    a.click();
+  }
+}
+
+function render() {
+  if (!state) return;
+  if (lastPhase !== state.phase) {
+    const phaseToPage = {
+      idle: 'dashboard', cover: 'dashboard', intro: 'dashboard',
+      round1_required: 'required', round1_buzzer: 'buzzer',
+      ranking: 'ranking', bracket: 'bracket',
+      round2_pk: 'pk', round3_semifinal: 'pk',
+      round4_final: 'final', final_select: 'final', final_result: 'final', final_tiebreak: 'final',
+      tiebreaker: 'tiebreaker', tiebreaker_result: 'tiebreaker',
+      awards: 'dashboard', buzzer_test: 'buzzerTest'
+    };
+    const targetPage = phaseToPage[state.phase] || 'dashboard';
+    if (targetPage !== currentPage) showPage(targetPage);
+    lastPhase = state.phase;
+  }
+  renderCrumbs();
+  renderSoundToggles();
+  renderConn();
+  renderIntroControl();
+  renderDashboard();
+  renderBuzzerTest();
+  renderTeams();
+  renderRequired();
+  renderBuzzer();
+  renderRanking();
+  renderBracket();
+  renderPK();
+  renderFinal();
+  renderTiebreaker();
+  renderSettings();
+}
+
+function renderCrumbs() {
+  const pm = { idle:0, cover:0, round1_required:0, round1_buzzer:0, ranking:0, bracket:1, round2_pk:1, round3_semifinal:2, round4_final:3, tiebreaker:-1, awards:4 };
+  const idx = pm[state.phase] ?? -1;
+  document.querySelectorAll('.crumb').forEach((c, i) => {
+    c.classList.remove('active','done');
+    if (i < idx) c.classList.add('done');
+    else if (i === idx) c.classList.add('active');
+  });
+}
+
+function renderSoundToggles() {
+  const container = document.getElementById('sound-toggles');
+  const ss = state.settings.soundSettings || {};
+  const items = [
+    ['countdown','倒计时'],['buzzer','抢答'],['violation','犯规'],['correct','答对'],['wrong','答错']
+  ];
+  let html = '';
+  items.forEach(([key, label]) => {
+    const on = ss[key] !== false;
+    html += `<button class="sound-btn ${on?'on':'off'}" onclick="toggleSound('${key}')">${label}</button>`;
+  });
+  html += `<button class="sound-btn ${state.settings.soundEnabled?'on':'off'}" onclick="toggleAllSound()">总</button>`;
+  container.innerHTML = html;
+}
+function toggleSound(key) {
+  const ss = state.settings.soundSettings || {};
+  ss[key] = !ss[key];
+  send('settings_update', { soundSettings: ss });
+}
+function toggleAllSound() {
+  send('settings_update', { soundEnabled: !state.settings.soundEnabled });
+}
+
+function renderConn() {
+  document.getElementById('dot-dll').className = 'conn-dot ' + (state.settings.dllConnected ? 'ok' : 'err');
+  document.getElementById('dll-addr').textContent = `${state.settings.dllAddress}:${state.settings.dllPort}`;
+}
+
+function renderIntroControl() {
+  const btn = document.getElementById('intro-start-btn');
+  if (!btn) return;
+  if (state.phase === 'intro' && state.introTarget) {
+    btn.style.display = 'block';
+  } else {
+    btn.style.display = 'none';
+  }
+}
+
+function renderDashboard() {
+  const phaseNames = { idle:'未开始', cover:'封面', buzzer_test:'抢答测试', round1_required:'第一环节·必答题', round1_buzzer:'第一环节·抢答题',
+    ranking:'排名确认', round2_pk:'第二环节·PK', round3_semifinal:'第三环节·半决赛', round4_final:'第四环节·决赛',
+    tiebreaker:'加赛', awards:'颁奖' };
+  document.getElementById('dash-phase').textContent = phaseNames[state.phase] || state.phase;
+  // Question progress
+  const progressEl = document.getElementById('dash-progress');
+  const phaseQs = {
+    round1_required: state._currentQuestions?.round1_required,
+    round1_buzzer: state._currentQuestions?.round1_buzzer,
+    round2_pk: state._currentQuestions?.round2_pk?.[state.pk.currentMatch],
+    round3_semifinal: state._currentQuestions?.round3_semifinal?.[state.pk.currentMatch],
+    round4_final: state._currentQuestions?.round4_final,
+    tiebreaker: state._currentQuestions?.tiebreaker?.[state.tiebreaker.currentGroupIndex],
+  };
+  const currentQs = phaseQs[state.phase];
+  if (currentQs && currentQs.length > 0) {
+    progressEl.textContent = `第 ${state.currentQuestionIndex + 1} 题 / 共 ${currentQs.length} 题`;
+  } else if (state.phase === 'idle' || state.phase === 'cover') {
+    progressEl.textContent = '';
+  } else {
+    progressEl.textContent = '';
+  }
+
+  // Phase advance buttons
+  const adv = document.getElementById('phase-advances');
+  const advances = [
+    { from: 'cover', to: 'buzzer_test', label: '进入抢答测试' },
+    { from: 'buzzer_test', to: 'round1_required', label: '进入第一环节·必答题' },
+    { from: 'round1_required', to: 'round1_buzzer', label: '进入抢答阶段' },
+    { from: 'round1_buzzer', to: 'ranking', label: '进入排名确认' },
+    { from: 'ranking', to: 'bracket', label: '进入第二环节' },
+    { from: 'round3_semifinal', to: 'round4_final', label: '进入决赛' },
+  ];
+  let ah = '';
+  advances.forEach(a => {
+    if (state.phase === a.from) ah += `<button class="btn gold" onclick="send('change_phase',{phase:'${a.to}'})">${a.label}</button>`;
+  });
+  adv.innerHTML = ah || '<span style="color:var(--muted);">当前环节无推进按钮</span>';
+
+  // History
+  const hist = document.getElementById('dash-history');
+  const items = state.history.slice(-10).reverse();
+  hist.innerHTML = items.map(h => {
+    const t = new Date(h.time).toLocaleTimeString();
+    return `<div class="history-item"><span class="hi-time">${t}</span>${h.action}</div>`;
+  }).join('') || '<div style="color:var(--muted);">暂无历史</div>';
+}
+
+function renderBuzzerTest() {
+  const bt = state.buzzerTest || { status: 'idle', results: {} };
+  const statusEl = document.getElementById('bt-status-admin');
+  const gridEl = document.getElementById('bt-grid-admin');
+  if (!statusEl || !gridEl) return;
+
+  const statusText = { idle: '待开始', counting: '倒计时中...', open: '抢答中', buzzed: '首个抢答已决出', done: '已结束' };
+  statusEl.textContent = statusText[bt.status] || bt.status;
+  statusEl.style.color = bt.status === 'counting' ? 'var(--gold)' : (bt.status === 'open' || bt.status === 'buzzed') ? 'var(--green)' : 'var(--muted)';
+
+  const colors = {
+    yellow: { bg: 'rgba(251,191,36,0.2)', border: '#fbbf24', text: '#fbbf24', label: '等待' },
+    red: { bg: 'rgba(239,68,68,0.2)', border: '#ef4444', text: '#ef4444', label: '提前抢答' },
+    green: { bg: 'rgba(34,197,94,0.2)', border: '#22c55e', text: '#22c55e', label: '首个抢答' },
+    blue: { bg: 'rgba(59,130,246,0.2)', border: '#3b82f6', text: '#3b82f6', label: '抢答成功' },
+  };
+
+  const teams = state.companies;
+  const row1 = teams.slice(0, 7);
+  const row2 = teams.slice(7, 14);
+
+  function renderRow(rowTeams) {
+    return `<div style="display:flex;gap:8px;justify-content:center;">${rowTeams.map(c => {
+      const r = bt.results[c.id] || { status: 'yellow', time: null };
+      const col = colors[r.status] || colors.yellow;
+      return `<div style="flex:1;text-align:center;padding:12px 8px;border-radius:10px;background:${col.bg};border:2px solid ${col.border};color:${col.text};font-size:16px;font-weight:bold;">
+        ${c.name}<div style="font-size:11px;margin-top:4px;">${col.label}${r.time ? ' ' + r.time + 'ms' : ''}</div>
+      </div>`;
+    }).join('')}</div>`;
+  }
+
+  gridEl.innerHTML = renderRow(row1) + renderRow(row2);
+}
+
+function renderTeams() {
+  const grid = document.getElementById('team-grid');
+  const sorted = [...state.companies].sort((a,b) => b.score - a.score);
+  grid.innerHTML = sorted.map((c, i) => {
+    let cls = 'team-card';
+    if (c.eliminated) cls += ' eliminated';
+    if (c.disqualified) cls += ' disqualified';
+    return `<div class="${cls}">
+      <div class="tc-name">${i+1}. ${c.name} ${c.disqualified?'(判负)':''}</div>
+      <div class="tc-score">${c.score}</div>
+      <div class="tc-btns">
+        <button class="btn green" onclick="send('score_update',{teamId:${c.id},delta:5})">+5</button>
+        <button class="btn green" onclick="send('score_update',{teamId:${c.id},delta:10})">+10</button>
+        <button class="btn green" onclick="send('score_update',{teamId:${c.id},delta:15})">+15</button>
+        <button class="btn blue" onclick="send('score_update',{teamId:${c.id},delta:-5})">-5</button>
+        <button class="btn blue" onclick="send('score_update',{teamId:${c.id},delta:-10})">-10</button>
+        <button class="btn blue" onclick="send('score_update',{teamId:${c.id},delta:-15})">-15</button>
+      </div>
+      <div class="tc-btns" style="margin-top:4px;">
+        <input class="input" id="custom-${c.id}" placeholder="±分" style="width:50px;">
+        <button class="btn" onclick="customScore(${c.id})">确认</button>
+        <input class="input" id="overwrite-${c.id}" placeholder="改分" style="width:50px;">
+        <button class="btn gold" onclick="overwriteScore(${c.id})">覆盖</button>
+      </div>
+      <div class="tc-btns" style="margin-top:4px;">
+        <button class="btn" onclick="send('team_status',{teamId:${c.id},field:'active',value:${!c.active}})">${c.active?'淘汰':'激活'}</button>
+        <button class="btn red" onclick="confirmAction('确定判定${c.name}作弊判负？此操作不可撤销！', () => send('disqualify', { teamId: ${c.id} }))">判负</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+function customScore(id) {
+  const val = parseInt(document.getElementById('custom-' + id).value);
+  if (!isNaN(val)) send('score_update', { teamId: id, delta: val });
+}
+function overwriteScore(id) {
+  const val = parseInt(document.getElementById('overwrite-' + id).value);
+  if (!isNaN(val)) send('score_set', { teamId: id, score: val });
+}
+function batchTeamStatus(field, value) {
+  state.companies.forEach(c => send('team_status', { teamId: c.id, field, value }));
+}
+
+function renderRequired() {
+  // 仅在必答题阶段更新此区域
+  if (state.phase !== 'round1_required') return;
+  const q = state._currentQuestion;
+  const total = state._currentQuestions?.round1_required?.length || 5;
+  const current = state.currentQuestionIndex + 1;
+  document.getElementById('req-qnum').textContent = `(${current}/${total})`;
+  // Progress bar
+  const pb = document.getElementById('req-progress');
+  if (pb) {
+    const pct = (current / total) * 100;
+    const allDone = current >= total;
+    pb.innerHTML = `<div class="pb-fill" style="width:${pct}%;"></div><div class="pb-text">${current} / ${total}</div>`;
+    // Auto-advance prompt
+    const existingPrompt = pb.nextElementSibling;
+    if (existingPrompt && existingPrompt.classList.contains('advance-prompt')) existingPrompt.remove();
+    if (allDone) {
+      const prompt = document.createElement('div');
+      prompt.className = 'advance-prompt';
+      prompt.innerHTML = `<span class="ap-text">必答题已全部完成，请进入下一阶段</span><button class="btn green" onclick="send('change_phase',{phase:'round1_buzzer'})">进入抢答阶段</button>`;
+      pb.parentNode.insertBefore(prompt, pb.nextSibling);
+    }
+  }
+  if (q) {
+    document.getElementById('req-preview').innerHTML = `
+      <div class="qp-text">${q.question}</div>
+      <div class="qp-options">${['A','B','C','D'].map(o => q.options[o] ? `${o}. ${q.options[o]}` : '').join(' | ')}</div>
+      ${state.showAnswer ? `<div class="qp-answer">答案: ${q.answer}</div>` : ''}
+    `;
+  }
+  const grid = document.getElementById('req-teams');
+  const active = state.companies.filter(c => c.active && !c.eliminated);
+  const currentQAnswers = state.requiredAnswers[state.currentQuestionIndex] || {};
+  grid.innerHTML = active.map(c => {
+    const ans = currentQAnswers[c.id];
+    return `<div class="team-card ${ans?'judged-'+ans:''}">
+      <div class="tc-name">${c.name}</div>
+      <div class="tc-score">${c.score}</div>
+      <div class="tc-btns">
+        <button class="btn green" onclick="send('required_answer',{teamId:${c.id},result:'correct'})" ${ans==='correct'?'style="opacity:1;border-width:2px;"':''}>答对+10</button>
+        <button class="btn blue" onclick="send('required_answer',{teamId:${c.id},result:'wrong'})" ${ans==='wrong'?'style="opacity:1;border-width:2px;"':''}>答错0分</button>
+        <button class="btn red" onclick="send('required_answer',{teamId:${c.id},result:'violation'})" ${ans==='violation'?'style="opacity:1;border-width:2px;"':''}>违规-10</button>
+        <button class="btn red" onclick="confirmAction('确定判定${c.name}作弊判负？', () => send('disqualify', { teamId: ${c.id} }))">判负</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderBuzzer() {
+  // 仅在抢答题阶段更新此区域
+  if (state.phase !== 'round1_buzzer') return;
+  const bz = state.buzzer;
+  // Progress bar
+  const total = state._currentQuestions?.round1_buzzer?.length || 20;
+  const current = state.currentQuestionIndex + 1;
+  const pb = document.getElementById('bz-progress');
+  if (pb) {
+    const pct = (current / total) * 100;
+    const allDone = current >= total;
+    pb.innerHTML = `<div class="pb-fill" style="width:${pct}%;"></div><div class="pb-text">${current} / ${total}</div>`;
+    const existingPrompt = pb.nextElementSibling;
+    if (existingPrompt && existingPrompt.classList.contains('advance-prompt')) existingPrompt.remove();
+    if (allDone) {
+      const prompt = document.createElement('div');
+      prompt.className = 'advance-prompt';
+      prompt.innerHTML = `<span class="ap-text">抢答题已全部完成，请进入排名确认</span><button class="btn green" onclick="send('change_phase',{phase:'ranking'})">进入排名确认</button>`;
+      pb.parentNode.insertBefore(prompt, pb.nextSibling);
+    }
+  }
+  const statusEl = document.getElementById('bz-status');
+  const teamEl = document.getElementById('bz-team');
+  const statusMap = { idle:'待开始', counting:'倒计时中...', open:'抢答开放!', buzzed:'已抢答', judged:'已判分', timeout:'⏰ 无人抢答' };
+  statusEl.textContent = statusMap[bz.status] || '待开始';
+  statusEl.className = 'buzzer-status ' + bz.status;
+  if (bz.buzzedTeamId) {
+    const t = state.companies.find(c => c.id === bz.buzzedTeamId);
+    const resultText = bz.judgeResult === 'correct' ? ' ✓ 答对' : bz.judgeResult === 'wrong' ? ' ✗ 答错' : '';
+    teamEl.textContent = (t?.name || '') + resultText;
+    teamEl.style.color = bz.judgeResult === 'correct' ? 'var(--green)' : bz.judgeResult === 'wrong' ? 'var(--red)' : '';
+    teamEl.style.display = 'block';
+  } else { teamEl.style.display = 'none'; }
+  const q = state._currentQuestion;
+  document.getElementById('bz-preview').innerHTML = q ? `
+    <div class="qp-text">${q.question}</div>
+    <div class="qp-options">${['A','B','C','D'].map(o => q.options[o] ? `${o}. ${q.options[o]}` : '').join(' | ')}</div>
+    ${state.showAnswer ? `<div class="qp-answer">答案: ${q.answer}</div>` : ''}
+  ` : '无题目';
+  // Manual team select
+  const sel = document.getElementById('manual-team');
+  const active = getActiveTeams();
+  sel.innerHTML = active.map(id => { const c = state.companies.find(c=>c.id===id); return `<option value="${id}">${c?.name}</option>`; }).join('');
+  // Disable buttons based on status
+  document.getElementById('btn-correct').disabled = bz.status !== 'buzzed';
+  document.getElementById('btn-wrong').disabled = bz.status !== 'buzzed';
+  const timeoutRow = document.getElementById('timeout-row');
+  if (timeoutRow) timeoutRow.style.display = bz.status === 'timeout' ? 'flex' : 'none';
+}
+
+function getDisplayRanking() {
+  return [...state.companies].filter(c => !c.disqualified).sort((a,b) => {
+    if (b.score !== a.score) return b.score - a.score;
+    if (a.tiebreakerRank !== null && b.tiebreakerRank !== null) return a.tiebreakerRank - b.tiebreakerRank;
+    return 0;
+  });
+}
+function renderRanking() {
+  const sorted = getDisplayRanking();
+  let html = '';
+  sorted.forEach((c, i) => {
+    const tied = (i > 0 && c.score === sorted[i-1].score);
+    const advance = i < 8;
+    let extraStyle = '';
+    if (advance) extraStyle += 'border-left:3px solid var(--green);';
+    if (tied) extraStyle += 'background:rgba(248,113,113,0.06);';
+    html += `<div class="rank-row" style="${extraStyle}">
+      <span class="rr-pos">${i+1}</span>
+      <span class="rr-name">${c.name}${advance ? ' <small style="color:var(--green);">晋级</small>' : ''}${c.tiebreakerRank ? ` <small style="color:var(--gold);">(加赛${c.tiebreakerRank})</small>` : ''}</span>
+      <span class="rr-score">${c.score}</span>
+      ${tied && !c.tiebreakerRank ? '<span class="rr-tied">平分</span>' : ''}
+      <button class="btn red" style="font-size:11px;padding:3px 10px;" onclick="confirmAction('确定判定${c.name}作弊判负？', () => send('disqualify', { teamId: ${c.id} }))">判负</button>
+    </div>`;
+  });
+  document.getElementById('ranking-list-admin').innerHTML = html || '<div style="color:var(--muted);">暂无排名数据</div>';
+  // Check for ties in top 8
+  const tieNotice = document.getElementById('tie-notice');
+  if (!tieNotice) return;
+  const top8 = sorted.slice(0, 8);
+  const tiesInTop8 = [];
+  for (let i = 0; i < top8.length - 1; i++) {
+    if (top8[i].score === top8[i+1].score && !top8[i].tiebreakerRank) {
+      let group = [top8[i].name, top8[i+1].name];
+      let j = i + 2;
+      while (j < top8.length && top8[j].score === top8[i].score) {
+        group.push(top8[j].name);
+        j++;
+      }
+      tiesInTop8.push({ score: top8[i].score, teams: group });
+      i = j - 1;
+    }
+  }
+  if (tiesInTop8.length > 0) {
+    const tieText = tiesInTop8.map(t => `${t.teams.join('、')}（${t.score}分）`).join('；');
+    tieNotice.innerHTML = `⚠ 前八名有同分：${tieText}。请点击「开始加赛」决定排名。`;
+    tieNotice.style.display = 'block';
+  } else {
+    tieNotice.style.display = 'none';
+  }
+}
+
+function renderBracket() {
+  const container = document.getElementById('bracket-admin');
+  const startBar = document.getElementById('bracket-start-bar');
+  const startTitle = document.getElementById('bracket-start-title');
+  const startSub = document.getElementById('bracket-start-sub');
+
+  // 对阵图展示阶段显示开始按钮
+  if (state.phase === 'bracket' && state.bracket.currentRound) {
+    if (startBar) {
+      startBar.style.display = 'flex';
+      if (state.bracket.currentRound === 'round2') {
+        if (startTitle) startTitle.textContent = '八强对阵已就绪';
+        if (startSub) startSub.textContent = '四分之一决赛即将开始，点击按钮进入答题';
+      } else if (state.bracket.currentRound === 'round3') {
+        if (startTitle) startTitle.textContent = '半决赛对阵已就绪';
+        if (startSub) startSub.textContent = '四强争霸即将开始，点击按钮进入答题';
+      }
+    }
+  } else if (startBar) {
+    startBar.style.display = 'none';
+  }
+
+  if (!state.bracket.round2) {
+    container.innerHTML = '<div style="color:var(--muted);">点击"自动生成对阵"按钮</div>';
+    return;
+  }
+  let html = '';
+  state.bracket.round2.forEach((m, i) => {
+    const t1 = state.companies.find(c => c.id === m.team1Id);
+    const t2 = state.companies.find(c => c.id === m.team2Id);
+    const status = m.winnerId ? '已完成' : (state.pk.currentMatch === i && state.phase === 'round2_pk' ? '进行中' : '待开始');
+    html += `<div class="bracket-row">
+      <span class="br-label">${m.matchLabel}</span>
+      <span>${t1?.name||'?'}</span> vs <span>${t2?.name||'?'}</span>
+      <span style="color:var(--muted);">${m.score1||0}-${m.score2||0}</span>
+      <span style="color:${m.winnerId?'var(--green)':'var(--muted)'}">${status}</span>
+      ${!m.winnerId ? `<button class="btn gold" style="font-size:12px;" onclick="enterPk(${i})">进入PK</button>` : ''}
+      ${!m.winnerId ? `<button class="btn red" style="font-size:11px;" onclick="confirmAction('确定判定${t1?.name||''}作弊判负？对手自动晋级！', () => send('disqualify', { teamId: ${m.team1Id} }))">${t1?.name||''}判负</button>` : ''}
+      ${!m.winnerId ? `<button class="btn red" style="font-size:11px;" onclick="confirmAction('确定判定${t2?.name||''}作弊判负？对手自动晋级！', () => send('disqualify', { teamId: ${m.team2Id} }))">${t2?.name||''}判负</button>` : ''}
+    </div>`;
+  });
+  if (state.bracket.round2.every(m => m.winnerId)) {
+    html += `<div class="advance-prompt" style="margin-top:12px;"><span class="ap-text">八进四已全部完成，系统已自动进入半决赛</span></div>`;
+  }
+  container.innerHTML = html;
+}
+
+function renderPK() {
+  const isRound2 = state.phase === 'round2_pk';
+  const currentRound = isRound2 ? state.bracket.round2 : state.bracket.round3;
+  const match = currentRound?.[state.pk.currentMatch];
+  if (!match) { document.getElementById('pk-display').innerHTML = '<span style="color:var(--muted);">等待对阵生成</span>'; return; }
+  const t1 = state.companies.find(c => c.id === match.team1Id);
+  const t2 = state.companies.find(c => c.id === match.team2Id);
+  const roundLabel = isRound2 ? '八进四' : '半决赛';
+  document.getElementById('pk-match-label').textContent = `${roundLabel} 第${state.pk.currentMatch+1}场 / 共${currentRound.length}场 · ${match.matchLabel}`;
+  // PK question progress
+  const pkQs = isRound2 ? (state._currentQuestions?.round2_pk?.[state.pk.currentMatch] || []) : (state._currentQuestions?.round3_semifinal?.[state.pk.currentMatch] || []);
+  const qProgress = `第${state.currentQuestionIndex+1}题 / 共${pkQs.length}题`;
+  document.getElementById('pk-display').innerHTML = `
+    <div class="pk-side"><div class="pk-name">${t1?.name||''}</div><div class="pk-score">${state.pk.scores[match.team1Id]||0}</div></div>
+    <div class="pk-vs">VS</div>
+    <div class="pk-side"><div class="pk-name">${t2?.name||''}</div><div class="pk-score">${state.pk.scores[match.team2Id]||0}</div></div>
+    <div style="position:absolute;top:-20px;left:50%;transform:translateX(-50%);font-size:12px;color:var(--muted);">${qProgress}</div>
+  `;
+  const bz = state.buzzer;
+  document.getElementById('pk-bz-status').textContent = {idle:'待开始',counting:'倒计时中...',open:'抢答开放!',buzzed:'已抢答',judged:'已判分',timeout:'⏰ 无人抢答'}[bz.status]||'';
+  document.getElementById('pk-bz-status').className = 'buzzer-status ' + bz.status;
+  if (bz.buzzedTeamId) {
+    const t = state.companies.find(c => c.id === bz.buzzedTeamId);
+    const resultText = bz.judgeResult === 'correct' ? ' ✓ 答对' : bz.judgeResult === 'wrong' ? ' ✗ 答错' : '';
+    document.getElementById('pk-bz-team').textContent = (t?.name || '') + resultText;
+    document.getElementById('pk-bz-team').style.color = bz.judgeResult === 'correct' ? 'var(--green)' : bz.judgeResult === 'wrong' ? 'var(--red)' : '';
+    document.getElementById('pk-bz-team').style.display = 'block';
+  } else { document.getElementById('pk-bz-team').style.display = 'none'; }
+  const s1 = state.pk.scores[match.team1Id] || 0;
+  const s2 = state.pk.scores[match.team2Id] || 0;
+  document.getElementById('pk-mark-winner').disabled = s1 === s2 || match.winnerId;
+  const pkTimeoutRow = document.getElementById('pk-timeout-row');
+  if (pkTimeoutRow) pkTimeoutRow.style.display = bz.status === 'timeout' ? 'flex' : 'none';
+  // Populate PK manual team dropdown
+  const pkSel = document.getElementById('pk-manual-team');
+  if (pkSel) {
+    pkSel.innerHTML = [match.team1Id, match.team2Id].map(id => { const c = state.companies.find(c=>c.id===id); return `<option value="${id}">${c?.name||''}</option>`; }).join('');
+  }
+}
+
+function renderFinal() {
+  const finalists = state.bracket.round3?.filter(m => m.winnerId).map(m => m.winnerId) || [];
+  if (finalists.length < 2) {
+    document.getElementById('final-display').innerHTML = '<span style="color:var(--muted);">等待半决赛结果</span>';
+    return;
+  }
+  const t1 = state.companies.find(c => c.id === finalists[0]);
+  const t2 = state.companies.find(c => c.id === finalists[1]);
+  const selOrder = state.final.selectionOrder || [];
+  const currentSel = state.final.currentSelection || 0;
+  const currentTeamId = selOrder[currentSel];
+  const currentTeam = state.companies.find(c => c.id === currentTeamId);
+
+  // 猜丁壳面板
+  const coinTossPanel = document.getElementById('coin-toss-panel');
+  if (coinTossPanel) {
+    if (state.final.needsCoinToss) {
+      coinTossPanel.style.display = '';
+      const btnsEl = document.getElementById('coin-toss-btns');
+      if (btnsEl) {
+        btnsEl.innerHTML = [t1, t2].map(t => `<button class="btn gold" onclick="send('final_set_coin_toss_winner',{teamId:${t.id}})">${t.name} 获得优先选题权</button>`).join('');
+      }
+    } else {
+      coinTossPanel.style.display = 'none';
+    }
+  }
+  const t1Total = selOrder.filter(id => id === finalists[0]).length;
+  const t2Total = selOrder.filter(id => id === finalists[1]).length;
+
+  // 决赛结果页
+  if (state.phase === 'final_result') {
+    const champId = state.final?.pendingChampion;
+    const champ = state.companies.find(c => c.id === champId);
+    document.getElementById('final-display').innerHTML = `
+      <div style="text-align:center;">
+        <div style="font-size:20px;color:var(--gold);margin-bottom:8px;">🏆 决赛结果 🏆</div>
+        <div style="font-size:32px;font-weight:800;color:var(--gold);margin-bottom:16px;">${champ?.name || ''} 夺冠！</div>
+        <div style="display:flex;justify-content:center;gap:40px;margin-bottom:16px;">
+          <div style="text-align:center;opacity:${champId===finalists[0]?'1':'0.5'};">
+            <div style="font-size:18px;">${t1?.name||''}</div>
+            <div style="font-size:28px;font-weight:800;color:var(--gold);">${state.final.scores ? (state.final.scores[finalists[0]]||0) : (t1?.score||0)}</div>
+          </div>
+          <div style="font-size:20px;color:var(--muted);align-self:center;">VS</div>
+          <div style="text-align:center;opacity:${champId===finalists[1]?'1':'0.5'};">
+            <div style="font-size:18px;">${t2?.name||''}</div>
+            <div style="font-size:28px;font-weight:800;color:var(--gold);">${state.final.scores ? (state.final.scores[finalists[1]]||0) : (t2?.score||0)}</div>
+          </div>
+        </div>
+        <button class="btn gold big" onclick="send('final_confirm_result')">✓ 确认冠军，进入颁奖</button>
+      </div>
+    `;
+    // 隐藏其他控制
+    const btnRows = document.querySelectorAll('#sec-final .btn-row');
+    btnRows.forEach(row => row.style.display = 'none');
+    document.getElementById('final-grid-admin').style.display = 'none';
+    document.getElementById('final-order-display').style.display = 'none';
+    return;
+  } else {
+    // 恢复显示
+    const btnRows = document.querySelectorAll('#sec-final .btn-row');
+    btnRows.forEach(row => row.style.display = '');
+    document.getElementById('final-grid-admin').style.display = '';
+    document.getElementById('final-order-display').style.display = '';
+  }
+
+  // 选题阶段显示
+  let turnInfo = '';
+  if (state.phase === 'final_select' && currentTeam) {
+    turnInfo = `<div style="font-size:13px;color:var(--gold);margin-top:6px;">第 ${currentSel + 1}/${selOrder.length} 题 · 轮到 ${currentTeam.name} 选题</div>`;
+  } else if (state.phase === 'final_tiebreak') {
+    turnInfo = `<div style="font-size:13px;color:var(--red);margin-top:6px;">第9题平局抢答 · 答对赢 答错输</div>`;
+  }
+
+  const fs1 = state.final.scores ? (state.final.scores[finalists[0]] || 0) : (t1?.score || 0);
+  const fs2 = state.final.scores ? (state.final.scores[finalists[1]] || 0) : (t2?.score || 0);
+
+  document.getElementById('final-display').innerHTML = `
+    <div class="pk-side"><div class="pk-name" style="${currentTeamId===finalists[0]?'color:var(--gold);':''}">${t1?.name||''}${currentTeamId===finalists[0]?' ◀':''}</div><div class="pk-score">${fs1}</div><div style="font-size:12px;color:var(--muted);">已答${state.final.teamAnswered[finalists[0]]||0}/${t1Total || '-'}</div></div>
+    <div style="font-size:32px;color:var(--muted);">VS</div>
+    <div class="pk-side"><div class="pk-name" style="${currentTeamId===finalists[1]?'color:var(--gold);':''}">${t2?.name||''}${currentTeamId===finalists[1]?' ◀':''}</div><div class="pk-score">${fs2}</div><div style="font-size:12px;color:var(--muted);">已答${state.final.teamAnswered[finalists[1]]||0}/${t2Total || '-'}</div></div>
+    ${turnInfo ? `<div style="width:100%;">${turnInfo}</div>` : ''}
+  `;
+  // Questions grid
+  const qs = state._currentQuestions?.round4_final || [];
+  const grid = document.getElementById('final-grid-admin');
+  const canSelect = state.phase === 'final_select';
+  grid.innerHTML = qs.map((q, i) => {
+    const diff = q.difficulty || 'medium';
+    const selected = state.final.selectedQuestions.includes(i);
+    const current = state.currentQuestionIndex === i;
+    let cls = `fg-cell ${diff}`;
+    if (selected) cls += ' selected';
+    if (current) cls += ' current';
+    const onclick = (selected || !canSelect) ? '' : `send('final_select',{questionIndex:${i}})`;
+    const cursorStyle = (selected || !canSelect) ? 'cursor:not-allowed;' : 'cursor:pointer;';
+    return `<div class="${cls}" onclick="${onclick}" style="${cursorStyle}">
+      <div>第${i+1}题</div><div>${diff==='easy'?'简单':diff==='medium'?'中等':'难题'}</div><div>${q.points}分</div>
+    </div>`;
+  }).join('');
+  document.getElementById('final-order-display').innerHTML = `选题顺序: ${selOrder.map((id, idx) => {
+    const t = state.companies.find(c=>c.id===id)?.name || '';
+    const done = idx < currentSel;
+    const current = idx === currentSel;
+    if (done) return `<span style="opacity:0.4;text-decoration:line-through;">${t}</span>`;
+    if (current) return `<span style="color:var(--gold);font-weight:700;">${t}</span>`;
+    return t;
+  }).join(' → ')}`;
+  // 在 final_tiebreak 阶段隐藏选题网格和选题顺序
+  const gridContainer = document.getElementById('final-grid-admin');
+  const orderDisplay = document.getElementById('final-order-display');
+  if (state.phase === 'final_tiebreak') {
+    if (gridContainer) gridContainer.parentElement.style.display = 'none';
+    if (orderDisplay) orderDisplay.style.display = 'none';
+  } else if (state.phase === 'final_result') {
+    if (gridContainer) gridContainer.parentElement.style.display = 'none';
+    if (orderDisplay) orderDisplay.style.display = 'none';
+  } else {
+    if (gridContainer) gridContainer.parentElement.style.display = '';
+    if (orderDisplay) orderDisplay.style.display = '';
+  }
+  // 选题阶段和结果阶段隐藏答题按钮
+  const finalBtnRows = document.querySelectorAll('#sec-final .btn-row');
+  // final_tiebreak 阶段：显示抢答按钮行，隐藏正常答题按钮行
+  const tiebreakCtrls = document.getElementById('final-tiebreak-controls');
+  if (state.phase === 'final_tiebreak') {
+    // 显示抢答按钮行，隐藏正常答题行
+    if (tiebreakCtrls) tiebreakCtrls.style.display = 'flex';
+    // 隐藏第一行（正常答题按钮）
+    if (finalBtnRows[1]) finalBtnRows[1].style.display = 'none';
+    // 隐藏猜丁壳面板
+    if (coinTossPanel) coinTossPanel.style.display = 'none';
+    // 显示第9题题目
+    const ftbQ = document.getElementById('final-tiebreak-question');
+    if (ftbQ) {
+      ftbQ.style.display = '';
+      const q = state._currentQuestion;
+      const qText = document.getElementById('ftb-question-text');
+      const qOpts = document.getElementById('ftb-question-options');
+      const qAns = document.getElementById('ftb-question-answer');
+      if (q && qText) {
+        qText.textContent = q.question || '';
+        if (qOpts && q.options) {
+          qOpts.textContent = ['A','B','C','D'].map(o => q.options[o] ? `${o}. ${q.options[o]}` : '').filter(Boolean).join('  |  ');
+        } else if (qOpts) { qOpts.textContent = ''; }
+        if (qAns) {
+          qAns.textContent = '答案: ' + (q.answer || '');
+          qAns.style.display = state.showAnswer ? '' : 'none';
+        }
+      }
+    }
+    // timeout 行
+    const timeoutRow = document.getElementById('timeout-row');
+    if (timeoutRow) timeoutRow.style.display = state.buzzer.status === 'timeout' ? 'flex' : 'none';
+  } else if (state.phase === 'final_select' || state.phase === 'final_result') {
+    if (tiebreakCtrls) tiebreakCtrls.style.display = 'none';
+    if (finalBtnRows[1]) finalBtnRows[1].style.display = 'none';
+    const ftbQ2 = document.getElementById('final-tiebreak-question');
+    if (ftbQ2) ftbQ2.style.display = 'none';
+  } else {
+    if (tiebreakCtrls) tiebreakCtrls.style.display = 'none';
+    if (finalBtnRows[1]) finalBtnRows[1].style.display = '';
+    const ftbQ3 = document.getElementById('final-tiebreak-question');
+    if (ftbQ3) ftbQ3.style.display = 'none';
+  }
+  // final_tiebreak 阶段需要抢答按钮
+  // final_tiebreak 阶段不需要选题按钮和冠军按钮
+  const confirmOrderBtn = document.getElementById('btn-confirm-order');
+  if (confirmOrderBtn) {
+    confirmOrderBtn.style.display = (state.phase === 'final_select' && !state.final.needsCoinToss) ? '' : 'none';
+  }
+  // Enable champion button when all questions have been answered
+  const totalAnswered = Object.values(state.final.teamAnswered).reduce((a,b) => a+b, 0);
+  const champBtn = document.getElementById('btn-champion');
+  if (champBtn) champBtn.disabled = totalAnswered < qs.length;
+  // Show awards button if champion confirmed
+  const awardsBtn = document.getElementById('btn-awards');
+  if (awardsBtn) awardsBtn.style.display = state.bracket.final?.winnerId ? 'inline-block' : 'none';
+}
+
+function renderTiebreaker() {
+  const tb = state.tiebreaker;
+  const actionsEl = document.getElementById('tb-result-actions');
+  // 加赛结果展示模式
+  if (state.phase === 'tiebreaker_result' && tb.lastResult) {
+    const depth = tb.recursionDepth || 0;
+    const maxDepth = tb.maxDepth || 2;
+    let statusText = '';
+    let actionBtns = '';
+
+    if (tb.context === 'round1_ranking') {
+      if (tb.queue && tb.queue.length > 0) {
+        statusText = `第 ${depth + 1}/${maxDepth + 1} 轮 · 剩余 ${tb.queue.length} 组待加赛`;
+        actionBtns = `<button class="btn gold" onclick="send('tiebreaker_next_group')">▶ 开始下一组加赛</button>
+                     <button class="btn red" onclick="send('tiebreaker_force_ranking')">⚠ 强制排名结束</button>`;
+      } else {
+        statusText = tb.allDone ? `已达最大深度（${maxDepth + 1}轮），强制排名完成` : '全部加赛结束';
+        actionBtns = `<button class="btn green big" onclick="send('tiebreaker_confirm_ranking')">✓ 确认排名，进入对阵</button>`;
+      }
+    } else if (tb.context === 'round2_pk' || tb.context === 'round3_semifinal') {
+      statusText = 'PK加赛结束，等待确认获胜者';
+      actionBtns = `<button class="btn green big" onclick="send('tiebreaker_confirm_pk_winner')">✓ 确认获胜者，继续</button>`;
+    } else if (tb.context === 'round4_final') {
+      statusText = '决赛加赛结束，等待确认冠军';
+      actionBtns = `<button class="btn gold big" onclick="send('tiebreaker_confirm_champion')">🏆 确认冠军</button>`;
+    } else {
+      // 兜底：context 为空时根据其他状态推断
+      statusText = '加赛结束，请选择操作';
+      if (tb.queue && tb.queue.length > 0) {
+        actionBtns = `<button class="btn gold" onclick="send('tiebreaker_next_group')">▶ 开始下一组加赛</button>
+                     <button class="btn red" onclick="send('tiebreaker_force_ranking')">⚠ 强制排名结束</button>`;
+      } else if (tb.pendingWinnerId) {
+        actionBtns = `<button class="btn green big" onclick="send('tiebreaker_confirm_pk_winner')">✓ 确认获胜者，继续</button>`;
+      } else if (tb.pendingChampionId) {
+        actionBtns = `<button class="btn gold big" onclick="send('tiebreaker_confirm_champion')">🏆 确认冠军</button>`;
+      } else {
+        actionBtns = `<button class="btn green big" onclick="send('tiebreaker_confirm_ranking')">✓ 确认排名，进入对阵</button>`;
+      }
+    }
+
+    document.getElementById('tb-info-admin').innerHTML = `
+      <div style="color:var(--green);font-size:20px;font-weight:700;margin-bottom:6px;">加赛结果</div>
+      <div style="font-size:13px;color:var(--gold);">${statusText}</div>
+    `;
+    document.getElementById('tb-scores-admin').innerHTML = tb.lastResult.map((r, i) => {
+      const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i+1}.`;
+      const tiedMark = r.isTied ? '<div style="font-size:11px;color:var(--red);">⚠ 同分</div>' : '';
+      return `<div class="pk-side"><div class="pk-name">${medal} ${r.name}</div><div class="pk-score" style="font-size:28px;color:var(--gold);">${r.tbScore}</div><div style="font-size:11px;color:var(--muted);">本轮 +${r.tbScore} / 累计 ${r.cumulativeTbScore||0} / 总分 ${r.totalScore||r.score}</div>${tiedMark}</div>`;
+    }).join('');
+    // 把按钮放到独立的操作区
+    if (actionsEl) {
+      actionsEl.style.display = 'block';
+      actionsEl.innerHTML = `<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">${actionBtns}</div>`;
+    }
+    document.getElementById('tb-bz-status').textContent = '已完成';
+    document.getElementById('tb-bz-team').style.display = 'none';
+    // 隐藏抢答控制区和底部导航
+    const bzControl = document.querySelector('#sec-tiebreaker .buzzer-control');
+    if (bzControl) bzControl.style.display = 'none';
+    const navBtns = document.querySelector('#sec-tiebreaker .btn-row:last-of-type');
+    if (navBtns) navBtns.style.display = 'none';
+    return;
+  } else {
+    // 非结果页，隐藏操作区，显示抢答控制区
+    if (actionsEl) actionsEl.style.display = 'none';
+    const bzControl = document.querySelector('#sec-tiebreaker .buzzer-control');
+    if (bzControl) bzControl.style.display = '';
+    const navBtns = document.querySelector('#sec-tiebreaker .btn-row:last-of-type');
+    if (navBtns) navBtns.style.display = '';
+  }
+  if (tb.currentGroupIndex === null) {
+    document.getElementById('tb-info-admin').innerHTML = '<div style="color:var(--muted);">无进行中的加赛</div>';
+    document.getElementById('tb-scores-admin').innerHTML = '';
+    return;
+  }
+  const total = (state._currentQuestions?.tiebreaker || []).length;
+  const qNum = tb.currentQuestionIndex + 1;
+  document.getElementById('tb-info-admin').innerHTML = `
+    <div>加赛第${tb.currentGroupIndex + 1}组 / 共${total}组 | 第${qNum}/5题 ${tb.recursionDepth > 0 ? '| 递归第'+tb.recursionDepth+'层' : ''}</div>
+    <div style="font-size:12px;color:var(--muted);">原因: ${tb.context || ''}</div>
+    <div style="font-size:12px;color:var(--muted);">已用: 第${tb.usedGroups.map(g=>g+1).join('、') || '无'}组</div>
+    ${qNum >= 5 ? '<div style="color:var(--gold);font-size:12px;">⚠ 第5题，判分后自动结算</div>' : ''}
+  `;
+  const teams = tb.teams;
+  document.getElementById('tb-scores-admin').innerHTML = teams.map(id => {
+    const t = state.companies.find(c => c.id === id);
+    return `<div class="pk-side"><div class="pk-name">${t?.name||''}</div><div class="pk-score" style="font-size:36px;">${tb.scores[id]||0}</div></div>`;
+  }).join('');
+  const bz = state.buzzer;
+  document.getElementById('tb-bz-status').textContent = {idle:'待开始',counting:'倒计时中...',open:'抢答开放!',buzzed:'已抢答',judged:'已判分',timeout:'⏰ 无人抢答'}[bz.status]||'';
+  document.getElementById('tb-bz-status').className = 'buzzer-status ' + bz.status;
+  if (bz.buzzedTeamId) {
+    const t = state.companies.find(c => c.id === bz.buzzedTeamId);
+    const resultText = bz.judgeResult === 'correct' ? ' ✓ 答对' : bz.judgeResult === 'wrong' ? ' ✗ 答错' : '';
+    document.getElementById('tb-bz-team').textContent = (t?.name || '') + resultText;
+    document.getElementById('tb-bz-team').style.color = bz.judgeResult === 'correct' ? 'var(--green)' : bz.judgeResult === 'wrong' ? 'var(--red)' : '';
+    document.getElementById('tb-bz-team').style.display = 'block';
+  } else { document.getElementById('tb-bz-team').style.display = 'none'; }
+  // Populate TB manual team dropdown
+  const tbSel = document.getElementById('tb-manual-team');
+  if (tbSel) {
+    tbSel.innerHTML = tb.teams.map(id => { const c = state.companies.find(c=>c.id===id); return `<option value="${id}">${c?.name||''}</option>`; }).join('');
+  }
+  const tbTimeoutRow = document.getElementById('tb-timeout-row');
+  if (tbTimeoutRow) tbTimeoutRow.style.display = bz.status === 'timeout' ? 'flex' : 'none';
+}
+
+function renderSettings() {
+  if (!state) return;
+  document.getElementById('set-dll-addr').value = state.settings.dllAddress || '127.0.0.1';
+  document.getElementById('set-dll-port').value = state.settings.dllPort || 9999;
+  document.getElementById('set-dll-cmdport').value = state.settings.dllCmdPort || 9998;
+  document.getElementById('set-bz-timeout').value = state.settings.buzzerTimeout || 10;
+  document.getElementById('set-ans-timeout').value = state.settings.answerTimeout || 3;
+  const container = document.getElementById('team-names-admin');
+  container.innerHTML = state.companies.map(c =>
+    `<div class="setting-row"><div class="sr-label">${c.id}.</div><input class="input" data-id="${c.id}" value="${c.name}" style="width:160px;"></div>`
+  ).join('');
+  // Key ID mapping (mapping[hardware_key_id] = team_id)
+  const keyMap = state.settings.keyIdMapping || {};
+  const keyContainer = document.getElementById('key-id-mapping');
+  if (keyContainer) {
+    // Build reverse map for display: team_id -> hardware_key_id
+    const revMap = {};
+    Object.keys(keyMap).forEach(k => { revMap[keyMap[k]] = parseInt(k); });
+    keyContainer.innerHTML = state.companies.map(c =>
+      `<div class="setting-row"><div class="sr-label">${c.name}</div><input class="input" data-teamid="${c.id}" value="${revMap[c.id]||c.id}" placeholder="抢答器编号" style="width:80px;"></div>`
+    ).join('');
+  }
+  // Shortcuts toggle
+  const scBtn = document.getElementById('btn-shortcuts');
+  if (scBtn) { scBtn.textContent = state.settings.shortcutsEnabled ? '已开启 (点击关闭)' : '已关闭 (点击开启)'; scBtn.className = 'btn ' + (state.settings.shortcutsEnabled ? 'green' : 'red'); }
+}
+function saveKeyIdMapping() {
+  const inputs = document.querySelectorAll('#key-id-mapping input');
+  const mapping = {};
+  let count = 0;
+  inputs.forEach(inp => {
+    const teamId = parseInt(inp.dataset.teamid);
+    const keyId = parseInt(inp.value);
+    if (keyId > 0) {
+      mapping[keyId] = teamId;
+      count++;
+    }
+  });
+  send('settings_update', { keyIdMapping: mapping });
+  alert(`映射已保存！共 ${count} 支队伍的映射已更新。\n\n保存内容：抢答器台号 → 对应队伍\n例如：台号15 → 一连，台号7 → 七连\n\n如需更换损坏的抢答器，直接修改对应队伍的台号后保存即可。`);
+}
+
+function showIntroPage() {
+  const sel = document.getElementById('intro-select');
+  const target = sel?.value || 'round1_required';
+  send('show_intro', { target });
+}
+
+function scanDevices() {
+  const resultEl = document.getElementById('scan-result');
+  resultEl.style.display = 'block';
+  resultEl.textContent = '正在扫描设备...';
+  resultEl.style.color = 'var(--muted)';
+  send('buzzer_scan');
+}
+function toggleShortcuts() {
+  send('settings_update', { shortcutsEnabled: !state.settings.shortcutsEnabled });
+}
+
+// Keyboard shortcuts
+document.addEventListener('keydown', (e) => {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+  if (!state?.settings?.shortcutsEnabled) return;
+  switch(e.key) {
+    case 'ArrowRight': case ' ': navQuestion(1); break;
+    case 'ArrowLeft': navQuestion(-1); break;
+    case 'Escape': closeModal(); break;
+    case 'z': if (e.ctrlKey) { e.preventDefault(); send('undo'); } break;
+  }
+});
+
+// Auto-render on load
+// No polling needed - state sync handles all updates
+</script>
+</body>
+</html>

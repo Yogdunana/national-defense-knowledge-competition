@@ -1,0 +1,1255 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>全场景过场动画 - 国防知识竞赛</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0a0e1a;
+    color: #e2e8f0;
+    font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+    min-height: 100vh;
+    padding: 16px;
+  }
+  .container { max-width: 1600px; margin: 0 auto; }
+  h1 { text-align: center; color: #fbbf24; margin-bottom: 4px; font-size: 22px; }
+  .subtitle { text-align: center; color: #94a3b8; margin-bottom: 12px; font-size: 12px; }
+
+  /* 分类标签 */
+  .category-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+  }
+  .cat-btn {
+    padding: 6px 14px;
+    background: #1e293b;
+    border: 1px solid #334155;
+    color: #94a3b8;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.2s;
+  }
+  .cat-btn:hover { border-color: #fbbf24; color: #fbbf24; }
+  .cat-btn.active { background: #fbbf24; color: #0f172a; border-color: #fbbf24; font-weight: bold; }
+
+  /* 子标签 */
+  .scene-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+  }
+  .scene-btn {
+    padding: 5px 10px;
+    background: #0f172a;
+    border: 1px solid #1e293b;
+    color: #64748b;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 11px;
+    transition: all 0.2s;
+  }
+  .scene-btn:hover { border-color: #64748b; color: #cbd5e1; }
+  .scene-btn.active { background: #334155; color: #e2e8f0; border-color: #475569; }
+
+  /* 主舞台 */
+  .stage-wrap {
+    display: flex;
+    gap: 12px;
+    max-width: 1200px;
+    margin: 0 auto 16px;
+  }
+  .screen-stage {
+    flex: 1;
+    position: relative;
+    background: #000;
+    border: 2px solid #334155;
+    border-radius: 10px;
+    overflow: hidden;
+    aspect-ratio: 16 / 9;
+  }
+  .screen {
+    position: absolute;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 3% 4%;
+    overflow: hidden;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+  }
+  .screen.active { display: flex; }
+
+  .screen-tag {
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    background: rgba(0,0,0,0.7);
+    color: #64748b;
+    font-size: 9px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    z-index: 100;
+    font-family: monospace;
+  }
+
+  /* 控制台 */
+  .control-panel {
+    width: 200px;
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  .cp-title {
+    font-size: 12px;
+    color: #fbbf24;
+    font-weight: bold;
+    margin-bottom: 2px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #334155;
+  }
+  .cp-label {
+    font-size: 10px;
+    color: #64748b;
+    margin-top: 4px;
+  }
+  .cp-btn {
+    padding: 8px 10px;
+    background: #334155;
+    border: 1px solid #475569;
+    color: #e2e8f0;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 11px;
+    transition: all 0.2s;
+    text-align: left;
+  }
+  .cp-btn:hover { background: #475569; border-color: #64748b; }
+  .cp-btn.primary {
+    background: #fbbf24;
+    color: #0f172a;
+    border-color: #fbbf24;
+    font-weight: bold;
+  }
+  .cp-btn.primary:hover { background: #f59e0b; }
+  .cp-btn.danger {
+    background: #ef4444;
+    color: #fff;
+    border-color: #ef4444;
+  }
+  .cp-btn.success {
+    background: #22c55e;
+    color: #0f172a;
+    border-color: #22c55e;
+    font-weight: bold;
+  }
+  .cp-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  /* 通用装饰 */
+  .glow-top, .glow-bottom {
+    position: absolute;
+    left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent 0%, #fbbf24 50%, transparent 100%);
+    filter: blur(1px);
+  }
+  .glow-top { top: 0; }
+  .glow-bottom { bottom: 0; }
+
+  .stage-label {
+    display: inline-block;
+    background: rgba(251,191,36,0.12);
+    color: #fbbf24;
+    border: 1px solid rgba(251,191,36,0.5);
+    font-size: clamp(10px, 1vw, 13px);
+    padding: 3px 14px;
+    border-radius: 14px;
+    font-weight: bold;
+    margin-bottom: 8px;
+    letter-spacing: 1px;
+  }
+  .stage-label.recursive { background: rgba(239,68,68,0.12); color: #f87171; border-color: rgba(239,68,68,0.5); }
+  .stage-label.pk { background: rgba(59,130,246,0.12); color: #60a5fa; border-color: rgba(59,130,246,0.5); }
+  .stage-label.final { background: rgba(239,68,68,0.12); color: #f87171; border-color: rgba(239,68,68,0.5); }
+
+  .main-title {
+    font-size: clamp(26px, 3.5vw, 44px);
+    color: #fbbf24;
+    letter-spacing: clamp(2px, 0.6vw, 8px);
+    margin-bottom: 4px;
+    font-weight: bold;
+    text-shadow: 0 0 20px rgba(251,191,36,0.3);
+  }
+  .sub-title {
+    font-size: clamp(11px, 1vw, 15px);
+    color: #94a3b8;
+    margin-bottom: 14px;
+    letter-spacing: 2px;
+  }
+
+  /* 排名列表 */
+  .rank-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: 100%;
+    max-width: 500px;
+  }
+  .rank-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    background: rgba(30,41,59,0.9);
+    border-radius: 6px;
+    border: 1px solid #334155;
+    transition: all 0.3s;
+  }
+  .rank-row.advance { border-color: #22c55e; background: rgba(34,197,94,0.06); }
+  .rank-row.eliminate { opacity: 0.5; }
+  .rank-row.tied {
+    border-color: #f59e0b;
+    background: rgba(245,158,11,0.06);
+    animation: tiedPulse 2s ease-in-out infinite;
+  }
+  @keyframes tiedPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(245,158,11,0.2); }
+    50% { box-shadow: 0 0 8px 1px rgba(245,158,11,0.15); }
+  }
+  .rr-pos {
+    font-size: clamp(13px, 1.2vw, 17px);
+    font-weight: bold;
+    color: #fbbf24;
+    min-width: 26px;
+    text-align: center;
+  }
+  .rank-row.advance .rr-pos { color: #22c55e; }
+  .rank-row.tied .rr-pos { color: #f59e0b; }
+  .rr-name { flex: 1; font-size: clamp(12px, 1.1vw, 15px); color: #e2e8f0; font-weight: bold; }
+  .rr-score { font-size: clamp(11px, 1vw, 13px); color: #fbbf24; font-weight: bold; min-width: 50px; text-align: right; }
+  .rr-tb { font-size: clamp(9px, 0.8vw, 11px); color: #94a3b8; min-width: 55px; text-align: right; }
+  .rr-badge {
+    font-size: 9px;
+    padding: 2px 7px;
+    border-radius: 8px;
+    font-weight: bold;
+    min-width: 36px;
+    text-align: center;
+  }
+  .rr-badge.adv { background: #22c55e; color: #0f172a; }
+  .rr-badge.elim { background: #475569; color: #cbd5e1; }
+  .rr-badge.tied-b { background: #f59e0b; color: #0f172a; }
+  .rr-badge.force { background: #ef4444; color: #fff; }
+
+  /* 结果状态栏 */
+  .result-status {
+    margin-top: 12px;
+    text-align: center;
+  }
+  .rs-main { font-size: clamp(14px, 1.4vw, 20px); color: #e2e8f0; margin-bottom: 3px; }
+  .rs-main .highlight { color: #22c55e; font-weight: bold; }
+  .rs-main .warn { color: #f59e0b; font-weight: bold; }
+  .rs-sub { font-size: clamp(10px, 0.9vw, 13px); color: #64748b; }
+
+  /* 进度指示器 */
+  .progress-hint {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 10px;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .ph-dot { width: 7px; height: 7px; border-radius: 50%; background: #334155; }
+  .ph-dot.done { background: #22c55e; }
+  .ph-dot.current { background: #fbbf24; animation: dotPulse 1.5s infinite; }
+  @keyframes dotPulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.3); opacity: 0.7; }
+  }
+  .ph-text { font-size: 10px; color: #64748b; }
+
+  /* 小型领奖台 */
+  .mini-podium {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 8px;
+    margin-bottom: 12px;
+    height: 75px;
+  }
+  .mp-pod {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 60px;
+    height: 100%;
+    justify-content: flex-end;
+  }
+  .mp-pod .mp-name { font-size: 11px; font-weight: bold; margin-bottom: 2px; }
+  .mp-pod .mp-col {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #0f172a;
+    font-weight: bold;
+    font-size: 18px;
+    border-radius: 4px 4px 0 0;
+    flex-shrink: 0;
+  }
+  .mp-pod.p1 { order: 2; }
+  .mp-pod.p1 .mp-name { color: #fbbf24; }
+  .mp-pod.p1 .mp-col { background: linear-gradient(180deg, #fbbf24, #d97706); height: 80%; }
+  .mp-pod.p2 { order: 1; }
+  .mp-pod.p2 .mp-name { color: #cbd5e1; }
+  .mp-pod.p2 .mp-col { background: linear-gradient(180deg, #cbd5e1, #94a3b8); height: 65%; }
+  .mp-pod.p3 { order: 3; }
+  .mp-pod.p3 .mp-name { color: #d97706; }
+  .mp-pod.p3 .mp-col { background: linear-gradient(180deg, #d97706, #92400e); height: 50%; }
+
+  /* PK赛加赛 - 双方对比 */
+  .pk-tiebreaker {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: clamp(25px, 4vw, 50px);
+    margin-bottom: 16px;
+  }
+  .pkt-team {
+    text-align: center;
+    width: clamp(120px, 13vw, 170px);
+    padding: 16px 12px;
+    border-radius: 10px;
+  }
+  .pkt-team.winner {
+    background: rgba(34,197,94,0.06);
+    border: 2px solid #22c55e;
+    box-shadow: 0 0 25px rgba(34,197,94,0.15);
+    transform: scale(1.08);
+  }
+  .pkt-team.loser {
+    background: rgba(71,85,105,0.02);
+    border: 2px solid #334155;
+    opacity: 0.5;
+    transform: scale(0.95);
+  }
+  .pkt-team .pkt-label { font-size: 11px; color: #64748b; margin-bottom: 4px; }
+  .pkt-team .pkt-name { font-size: clamp(18px, 2vw, 24px); font-weight: bold; margin-bottom: 8px; }
+  .pkt-team.winner .pkt-name { color: #22c55e; }
+  .pkt-team.loser .pkt-name { color: #64748b; text-decoration: line-through; text-decoration-color: #ef4444; }
+  .pkt-team .pkt-score { font-size: clamp(30px, 4vw, 48px); font-weight: bold; color: #fbbf24; }
+  .pkt-team.loser .pkt-score { color: #475569; }
+  .pkt-vs { font-size: 18px; color: #475569; font-weight: bold; letter-spacing: 2px; }
+
+  /* 对阵图 */
+  .bracket-tree {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(15px, 2.5vw, 40px);
+    width: 100%;
+    max-width: 780px;
+    margin-bottom: 12px;
+  }
+  .bracket-col {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(8px, 1.2vw, 16px);
+    flex: 1;
+  }
+  .bc-title {
+    text-align: center;
+    font-size: clamp(10px, 0.9vw, 12px);
+    color: #64748b;
+    margin-bottom: 6px;
+    letter-spacing: 1px;
+  }
+  .match-card {
+    background: rgba(30,41,59,0.9);
+    border: 1px solid #334155;
+    border-radius: 6px;
+    padding: 6px 8px;
+    position: relative;
+  }
+  .match-card.done { border-color: #22c55e; opacity: 0.7; }
+  .match-card.live { border-color: #fbbf24; box-shadow: 0 0 12px rgba(251,191,36,0.2); animation: livePulse 2s infinite; }
+  @keyframes livePulse {
+    0%, 100% { box-shadow: 0 0 12px rgba(251,191,36,0.2); }
+    50% { box-shadow: 0 0 20px rgba(251,191,36,0.4); }
+  }
+  .match-card.pending { opacity: 0.5; }
+  .mc-status {
+    position: absolute;
+    top: -7px;
+    right: 6px;
+    font-size: 9px;
+    padding: 1px 6px;
+    border-radius: 6px;
+    font-weight: bold;
+  }
+  .mc-status.done { background: #22c55e; color: #0f172a; }
+  .mc-status.live { background: #fbbf24; color: #0f172a; }
+  .mc-status.pending { background: #475569; color: #cbd5e1; }
+  .mc-team {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 0;
+    font-size: clamp(10px, 0.9vw, 12px);
+  }
+  .mc-team.winner { color: #22c55e; font-weight: bold; }
+  .mc-team.loser { color: #475569; text-decoration: line-through; text-decoration-color: #ef4444; }
+  .mc-team .mc-seed { font-size: 9px; color: #64748b; min-width: 14px; }
+  .mc-team .mc-name { flex: 1; }
+  .mc-team .mc-pts { font-weight: bold; font-size: 11px; color: #fbbf24; }
+  .mc-team.winner .mc-pts { color: #22c55e; }
+  .mc-team.loser .mc-pts { color: #475569; }
+
+  /* 冠军页面 */
+  .champion-crown {
+    font-size: clamp(50px, 7vw, 80px);
+    margin-bottom: 6px;
+    animation: crownBounce 2s ease-in-out infinite;
+  }
+  @keyframes crownBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+  .champion-name {
+    font-size: clamp(36px, 5vw, 64px);
+    color: #fbbf24;
+    font-weight: bold;
+    text-shadow: 0 0 30px rgba(251,191,36,0.5);
+    margin-bottom: 6px;
+    letter-spacing: 4px;
+  }
+  .champion-sub {
+    font-size: clamp(14px, 1.4vw, 18px);
+    color: #e2e8f0;
+    margin-bottom: 12px;
+  }
+  .confetti {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  .confetti-piece {
+    position: absolute;
+    width: 6px;
+    height: 8px;
+    top: -10px;
+    animation: confettiFall 3s linear forwards;
+  }
+  @keyframes confettiFall {
+    0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(600px) rotate(720deg); opacity: 0; }
+  }
+
+  /* 开场动画 */
+  .opening-logo {
+    font-size: clamp(60px, 9vw, 100px);
+    margin-bottom: 10px;
+    animation: logoGlow 3s ease-in-out infinite;
+  }
+  @keyframes logoGlow {
+    0%, 100% { filter: drop-shadow(0 0 20px rgba(251,191,36,0.5)); }
+    50% { filter: drop-shadow(0 0 40px rgba(251,191,36,0.8)); }
+  }
+  .opening-title {
+    font-size: clamp(32px, 5vw, 56px);
+    color: #fbbf24;
+    font-weight: bold;
+    letter-spacing: clamp(4px, 1vw, 12px);
+    text-shadow: 0 0 30px rgba(251,191,36,0.4);
+    margin-bottom: 8px;
+  }
+  .opening-sub {
+    font-size: clamp(14px, 1.5vw, 20px);
+    color: #94a3b8;
+    letter-spacing: 6px;
+  }
+
+  /* 14进8总排名 */
+  .full-ranking-14 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px 16px;
+    width: 100%;
+    max-width: 580px;
+    margin-bottom: 12px;
+  }
+  .fr-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 10px;
+    background: rgba(30,41,59,0.7);
+    border-radius: 5px;
+    border: 1px solid transparent;
+    font-size: clamp(10px, 0.9vw, 12px);
+  }
+  .fr-row.top8 { border-color: #22c55e; background: rgba(34,197,94,0.06); }
+  .fr-row.out { opacity: 0.5; }
+  .fr-pos { font-weight: bold; color: #64748b; min-width: 18px; }
+  .fr-row.top8 .fr-pos { color: #22c55e; }
+  .fr-name { flex: 1; font-weight: bold; color: #e2e8f0; }
+  .fr-pts { color: #fbbf24; font-weight: bold; }
+
+  /* 粒子背景 */
+  .particles {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  .particle {
+    position: absolute;
+    width: 3px;
+    height: 3px;
+    background: #fbbf24;
+    border-radius: 50%;
+    opacity: 0.3;
+    animation: floatUp 6s linear infinite;
+  }
+  @keyframes floatUp {
+    0% { transform: translateY(100%); opacity: 0; }
+    10% { opacity: 0.3; }
+    90% { opacity: 0.3; }
+    100% { transform: translateY(-100%); opacity: 0; }
+  }
+
+  /* 场景说明 */
+  .scene-desc {
+    max-width: 1200px;
+    margin: 0 auto 12px;
+    padding: 8px 14px;
+    background: #1e293b;
+    border-left: 3px solid #fbbf24;
+    border-radius: 0 6px 6px 0;
+    font-size: 11px;
+    color: #94a3b8;
+    line-height: 1.6;
+  }
+  .scene-desc strong { color: #fbbf24; }
+
+  /* 音效按钮 */
+  .sound-toggle {
+    position: fixed;
+    bottom: 16px;
+    right: 16px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #1e293b;
+    border: 1px solid #334155;
+    color: #fbbf24;
+    cursor: pointer;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    transition: all 0.2s;
+  }
+  .sound-toggle:hover { background: #334155; transform: scale(1.1); }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>🎯 全场景过场动画</h1>
+  <p class="subtitle">手动控制 · 含音效动画 · 覆盖全部比赛环节</p>
+
+  <!-- 一级分类 -->
+  <div class="category-tabs">
+    <button class="cat-btn active" onclick="switchCat('opening')">开场/排名</button>
+    <button class="cat-btn" onclick="switchCat('tiebreaker')">加赛场景</button>
+    <button class="cat-btn" onclick="switchCat('bracket')">对阵晋级</button>
+    <button class="cat-btn" onclick="switchCat('final')">决赛/冠军</button>
+  </div>
+
+  <!-- 二级场景标签（动态生成） -->
+  <div id="sceneTabs" class="scene-tabs"></div>
+
+  <!-- 场景描述 -->
+  <div id="sceneDesc" class="scene-desc"></div>
+
+  <!-- 主舞台 + 控制台 -->
+  <div class="stage-wrap">
+    <div class="screen-stage">
+      <!-- 开场 -->
+      <div id="scr_opening" class="screen">
+        <div class="screen-tag">开场动画</div>
+        <div class="glow-top"></div><div class="glow-bottom"></div>
+        <div class="particles" id="openingParticles"></div>
+        <div class="opening-logo">🛡️</div>
+        <div class="opening-title">国防知识竞赛</div>
+        <div class="opening-sub">第 一 届</div>
+      </div>
+
+      <!-- 14进8排名（无同分） -->
+      <div id="scr_ranking" class="screen">
+        <div class="screen-tag">14进8 · 排名公布</div>
+        <div class="glow-top"></div><div class="glow-bottom"></div>
+        <div class="stage-label">第一环节结束</div>
+        <div class="main-title">排名公布</div>
+        <div class="sub-title">十四支队伍 · 八强晋级</div>
+        <div class="full-ranking-14">
+          <div class="fr-row top8"><span class="fr-pos">1</span><span class="fr-name">一连</span><span class="fr-pts">150</span></div>
+          <div class="fr-row top8"><span class="fr-pos">2</span><span class="fr-name">二连</span><span class="fr-pts">140</span></div>
+          <div class="fr-row top8"><span class="fr-pos">3</span><span class="fr-name">三连</span><span class="fr-pts">130</span></div>
+          <div class="fr-row top8"><span class="fr-pos">4</span><span class="fr-name">四连</span><span class="fr-pts">120</span></div>
+          <div class="fr-row top8"><span class="fr-pos">5</span><span class="fr-name">五连</span><span class="fr-pts">110</span></div>
+          <div class="fr-row top8"><span class="fr-pos">6</span><span class="fr-name">六连</span><span class="fr-pts">100</span></div>
+          <div class="fr-row top8"><span class="fr-pos">7</span><span class="fr-name">七连</span><span class="fr-pts">90</span></div>
+          <div class="fr-row top8"><span class="fr-pos">8</span><span class="fr-name">八连</span><span class="fr-pts">80</span></div>
+          <div class="fr-row out"><span class="fr-pos">9</span><span class="fr-name">九连</span><span class="fr-pts">70</span></div>
+          <div class="fr-row out"><span class="fr-pos">10</span><span class="fr-name">十连</span><span class="fr-pts">60</span></div>
+          <div class="fr-row out"><span class="fr-pos">11</span><span class="fr-name">十一连</span><span class="fr-pts">50</span></div>
+          <div class="fr-row out"><span class="fr-pos">12</span><span class="fr-name">十二连</span><span class="fr-pts">40</span></div>
+          <div class="fr-row out"><span class="fr-pos">13</span><span class="fr-name">十三连</span><span class="fr-pts">30</span></div>
+          <div class="fr-row out"><span class="fr-pos">14</span><span class="fr-name">十四连</span><span class="fr-pts">20</span></div>
+        </div>
+        <div class="result-status">
+          <div class="rs-main">🏆 八强诞生</div>
+          <div class="rs-sub">恭喜以上队伍晋级第二环节 · 突围淘汰赛</div>
+        </div>
+      </div>
+
+      <!-- 加赛场景1：单组全部分出 -->
+      <div id="scr_tb1" class="screen">
+        <div class="screen-tag">加赛 · 单组全部分出</div>
+        <div class="glow-top"></div><div class="glow-bottom"></div>
+        <div class="stage-label">第一环节 · 加赛结果</div>
+        <div class="main-title">加赛结果</div>
+        <div class="sub-title">同分组 70分档 · 第1轮加赛</div>
+        <div class="mini-podium">
+          <div class="mp-pod p1"><div class="mp-name">六连</div><div class="mp-col">1</div></div>
+          <div class="mp-pod p2"><div class="mp-name">七连</div><div class="mp-col">2</div></div>
+          <div class="mp-pod p3"><div class="mp-name">八连</div><div class="mp-col">3</div></div>
+        </div>
+        <div class="rank-list">
+          <div class="rank-row advance"><span class="rr-pos">7</span><span class="rr-name">六连</span><span class="rr-tb">加赛 +30</span><span class="rr-score">100分</span><span class="rr-badge adv">晋级</span></div>
+          <div class="rank-row advance"><span class="rr-pos">8</span><span class="rr-name">七连</span><span class="rr-tb">加赛 +20</span><span class="rr-score">90分</span><span class="rr-badge adv">晋级</span></div>
+          <div class="rank-row eliminate"><span class="rr-pos">9</span><span class="rr-name">八连</span><span class="rr-tb">加赛 +10</span><span class="rr-score">80分</span><span class="rr-badge elim">淘汰</span></div>
+          <div class="rank-row eliminate"><span class="rr-pos">10</span><span class="rr-name">九连</span><span class="rr-tb">加赛 +0</span><span class="rr-score">70分</span><span class="rr-badge elim">淘汰</span></div>
+        </div>
+        <div class="result-status">
+          <div class="rs-main">🏆 前八名次已全部确定</div>
+          <div class="rs-sub">即将进入第二环节 · 突围淘汰赛（8进4）</div>
+        </div>
+      </div>
+
+      <!-- 加赛场景2：递归加赛 -->
+      <div id="scr_tb2" class="screen">
+        <div class="screen-tag">加赛 · 递归加赛</div>
+        <div class="glow-top"></div><div class="glow-bottom"></div>
+        <div class="stage-label recursive">加赛 · 第1轮结束 · 仍有同分</div>
+        <div class="main-title">加赛结果</div>
+        <div class="sub-title">第1轮 · 5队同分 · 部分名次已确定</div>
+        <div class="progress-hint">
+          <span class="ph-dot done"></span><span class="ph-text">第1轮完成</span>
+          <span class="ph-dot current"></span><span class="ph-text">第2轮（待开始）</span>
+          <span class="ph-dot"></span><span class="ph-text">第3轮（备用）</span>
+        </div>
+        <div class="rank-list">
+          <div class="rank-row advance"><span class="rr-pos">6</span><span class="rr-name">一连</span><span class="rr-tb">加赛 +30</span><span class="rr-score">100分</span><span class="rr-badge adv">✓ 已确定</span></div>
+          <div class="rank-row tied"><span class="rr-pos">7-8</span><span class="rr-name">二连 / 三连</span><span class="rr-tb">加赛 +20</span><span class="rr-score">90分</span><span class="rr-badge tied-b">仍同分</span></div>
+          <div class="rank-row tied"><span class="rr-pos">9-10</span><span class="rr-name">四连 / 五连</span><span class="rr-tb">加赛 +10</span><span class="rr-score">80分</span><span class="rr-badge tied-b">仍同分</span></div>
+        </div>
+        <div class="result-status">
+          <div class="rs-main">⚠ <span class="warn">仍有4队同分</span>，即将进行第2轮加赛</div>
+          <div class="rs-sub">下一组：二连 VS 三连（高分组优先）· 决出第7-8名</div>
+        </div>
+      </div>
+
+      <!-- 加赛场景3：多组同分 -->
+      <div id="scr_tb3" class="screen">
+        <div class="screen-tag">加赛 · 多组同分</div>
+        <div class="glow-top"></div><div class="glow-bottom"></div>
+        <div class="stage-label">加赛 · 第1组完成</div>
+        <div class="main-title">加赛结果</div>
+        <div class="sub-title">120分档 · 第3-5名已决出 · 剩余1组待加赛</div>
+        <div class="progress-hint">
+          <span class="ph-dot done"></span><span class="ph-text">120分档 ✓</span>
+          <span class="ph-dot current"></span><span class="ph-text">80分档（待开始）</span>
+        </div>
+        <div class="rank-list">
+          <div class="rank-row advance"><span class="rr-pos">3</span><span class="rr-name">三连</span><span class="rr-tb">加赛 +30</span><span class="rr-score">150分</span><span class="rr-badge adv">✓ 已确定</span></div>
+          <div class="rank-row advance"><span class="rr-pos">4</span><span class="rr-name">四连</span><span class="rr-tb">加赛 +20</span><span class="rr-score">140分</span><span class="rr-badge adv">✓ 已确定</span></div>
+          <div class="rank-row advance"><span class="rr-pos">5</span><span class="rr-name">五连</span><span class="rr-tb">加赛 +10</span><span class="rr-score">130分</span><span class="rr-badge adv">✓ 已确定</span></div>
+          <div class="rank-row tied"><span class="rr-pos">7-8</span><span class="rr-name">七连 / 八连</span><span class="rr-tb">待加赛</span><span class="rr-score">80分</span><span class="rr-badge tied-b">待加赛</span></div>
+        </div>
+        <div class="result-status">
+          <div class="rs-main">✅ 120分档排名已确定</div>
+          <div class="rs-sub">即将进行下一组加赛：七连 VS 八连（80分档）</div>
+        </div>
+      </div>
+
+      <!-- 加赛场景4：最大深度强制排名 -->
+      <div id="scr_tb4" class="screen">
+        <div class="screen-tag">加赛 · 最大深度强制排名</div>
+        <div class="glow-top"></div><div class="glow-bottom"></div>
+        <div class="stage-label recursive">加赛 · 第3轮 · 最大深度</div>
+        <div class="main-title">加赛结束</div>
+        <div class="sub-title">已达最大递归深度 · 按总分强制排名</div>
+        <div class="progress-hint">
+          <span class="ph-dot done"></span><span class="ph-text">第1轮</span>
+          <span class="ph-dot done"></span><span class="ph-text">第2轮</span>
+          <span class="ph-dot done" style="background:#ef4444;"></span><span class="ph-text" style="color:#f87171;">第3轮（最大深度）</span>
+        </div>
+        <div class="rank-list">
+          <div class="rank-row advance"><span class="rr-pos">6</span><span class="rr-name">一连</span><span class="rr-tb">累计 +50</span><span class="rr-score">120分</span><span class="rr-badge adv">✓ 晋级</span></div>
+          <div class="rank-row advance"><span class="rr-pos">7</span><span class="rr-name">二连</span><span class="rr-tb">累计 +30</span><span class="rr-score">100分</span><span class="rr-badge force">强制排名</span></div>
+          <div class="rank-row advance"><span class="rr-pos">8</span><span class="rr-name">三连</span><span class="rr-tb">累计 +30</span><span class="rr-score">100分</span><span class="rr-badge force">强制排名</span></div>
+          <div class="rank-row eliminate"><span class="rr-pos">9</span><span class="rr-name">四连</span><span class="rr-tb">累计 +10</span><span class="rr-score">80分</span><span class="rr-badge elim">淘汰</span></div>
+        </div>
+        <div class="result-status">
+          <div class="rs-main">⚠ <span class="warn">达最大加赛轮次</span>，排名已强制确定</div>
+          <div class="rs-sub">二连、三连三轮加赛总分相同，按答题先后顺序排名 · 即将进入PK赛</div>
+        </div>
+      </div>
+
+      <!-- 加赛场景5：PK赛加赛 -->
+      <div id="scr_tb5" class="screen">
+        <div class="screen-tag">加赛 · PK赛加赛</div>
+        <div class="glow-top"></div><div class="glow-bottom"></div>
+        <div class="stage-label pk">8进4 · 第3场 · 加赛结果</div>
+        <div class="main-title">加赛决胜</div>
+        <div class="sub-title">双方5题战平 · 加赛决出胜者</div>
+        <div class="pk-tiebreaker">
+          <div class="pkt-team winner">
+            <div class="pkt-label">第3名种子</div>
+            <div class="pkt-name">三连</div>
+            <div class="pkt-score">20</div>
+          </div>
+          <div class="pkt-vs">VS</div>
+          <div class="pkt-team loser">
+            <div class="pkt-label">第6名种子</div>
+            <div class="pkt-name">六连</div>
+            <div class="pkt-score">0</div>
+          </div>
+        </div>
+        <div class="result-status">
+          <div class="rs-main">🎉 <span class="highlight">三连</span> 晋级四强！</div>
+          <div class="rs-sub">下一场：四连 VS 五连 · 等待主持人宣布</div>
+        </div>
+      </div>
+
+      <!-- 8进4对阵图 -->
+      <div id="scr_bracket8" class="screen">
+        <div class="screen-tag">8进4对阵图</div>
+        <div class="glow-top"></div><div class="glow-bottom"></div>
+        <div class="stage-label pk">第二环节 · 突围淘汰赛</div>
+        <div class="main-title">八强对阵</div>
+        <div class="sub-title">8进4 · 五局三胜制</div>
+        <div class="bracket-tree">
+          <div class="bracket-col">
+            <div class="bc-title">四分之一决赛</div>
+            <div class="match-card done">
+              <span class="mc-status done">已结束</span>
+              <div class="mc-team winner"><span class="mc-seed">1</span><span class="mc-name">一连</span><span class="mc-pts">3</span></div>
+              <div class="mc-team loser"><span class="mc-seed">8</span><span class="mc-name">八连</span><span class="mc-pts">1</span></div>
+            </div>
+            <div class="match-card done">
+              <span class="mc-status done">已结束</span>
+              <div class="mc-team winner"><span class="mc-seed">4</span><span class="mc-name">四连</span><span class="mc-pts">3</span></div>
+              <div class="mc-team loser"><span class="mc-seed">5</span><span class="mc-name">五连</span><span class="mc-pts">2</span></div>
+            </div>
+            <div class="match-card live">
+              <span class="mc-status live">进行中</span>
+              <div class="mc-team"><span class="mc-seed">3</span><span class="mc-name">三连</span><span class="mc-pts">2</span></div>
+              <div class="mc-team"><span class="mc-seed">6</span><span class="mc-name">六连</span><span class="mc-pts">1</span></div>
+            </div>
+            <div class="match-card pending">
+              <span class="mc-status pending">待开始</span>
+              <div class="mc-team"><span class="mc-seed">2</span><span class="mc-name">二连</span><span class="mc-pts">-</span></div>
+              <div class="mc-team"><span class="mc-seed">7</span><span class="mc-name">七连</span><span class="mc-pts">-</span></div>
+            </div>
+          </div>
+          <div class="bracket-col">
+            <div class="bc-title">半决赛</div>
+            <div class="match-card pending" style="margin-top: 25px;">
+              <span class="mc-status pending">待开始</span>
+              <div class="mc-team"><span class="mc-seed">W1</span><span class="mc-name">一连</span><span class="mc-pts">-</span></div>
+              <div class="mc-team"><span class="mc-seed">W2</span><span class="mc-name">?</span><span class="mc-pts">-</span></div>
+            </div>
+            <div class="match-card pending" style="margin-top: 25px;">
+              <span class="mc-status pending">待开始</span>
+              <div class="mc-team"><span class="mc-seed">W3</span><span class="mc-name">?</span><span class="mc-pts">-</span></div>
+              <div class="mc-team"><span class="mc-seed">W4</span><span class="mc-name">?</span><span class="mc-pts">-</span></div>
+            </div>
+          </div>
+          <div class="bracket-col">
+            <div class="bc-title">决赛</div>
+            <div class="match-card pending" style="margin-top: 60px;">
+              <span class="mc-status pending">待开始</span>
+              <div class="mc-team"><span class="mc-seed">?</span><span class="mc-name">?</span><span class="mc-pts">-</span></div>
+              <div class="mc-team"><span class="mc-seed">?</span><span class="mc-name">?</span><span class="mc-pts">-</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="result-status">
+          <div class="rs-main">当前进行：<span class="highlight">三连 VS 六连</span></div>
+          <div class="rs-sub">三连 2:1 领先 · 赛点</div>
+        </div>
+      </div>
+
+      <!-- 4进2对阵图 -->
+      <div id="scr_bracket4" class="screen">
+        <div class="screen-tag">4进2对阵图</div>
+        <div class="glow-top"></div><div class="glow-bottom"></div>
+        <div class="stage-label pk">第三环节 · 半决赛</div>
+        <div class="main-title">四强对阵</div>
+        <div class="sub-title">4进2 · 五局三胜制</div>
+        <div class="bracket-tree" style="max-width: 600px;">
+          <div class="bracket-col">
+            <div class="bc-title">半决赛</div>
+            <div class="match-card done">
+              <span class="mc-status done">已结束</span>
+              <div class="mc-team winner"><span class="mc-seed">1</span><span class="mc-name">一连</span><span class="mc-pts">3</span></div>
+              <div class="mc-team loser"><span class="mc-seed">4</span><span class="mc-name">四连</span><span class="mc-pts">0</span></div>
+            </div>
+            <div class="match-card live">
+              <span class="mc-status live">进行中</span>
+              <div class="mc-team"><span class="mc-seed">2</span><span class="mc-name">二连</span><span class="mc-pts">1</span></div>
+              <div class="mc-team"><span class="mc-seed">3</span><span class="mc-name">三连</span><span class="mc-pts">2</span></div>
+            </div>
+          </div>
+          <div class="bracket-col">
+            <div class="bc-title">决赛</div>
+            <div class="match-card pending" style="margin-top: 45px;">
+              <span class="mc-status pending">待开始</span>
+              <div class="mc-team"><span class="mc-seed">W1</span><span class="mc-name">一连</span><span class="mc-pts">-</span></div>
+              <div class="mc-team"><span class="mc-seed">W2</span><span class="mc-name">?</span><span class="mc-pts">-</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="result-status">
+          <div class="rs-main">一连率先晋级决赛</div>
+          <div class="rs-sub">二连 VS 三连 · 三连 2:1 拿到赛点</div>
+        </div>
+      </div>
+
+      <!-- 决赛 -->
+      <div id="scr_final" class="screen">
+        <div class="screen-tag">决赛</div>
+        <div class="glow-top"></div><div class="glow-bottom"></div>
+        <div class="stage-label final">第四环节 · 巅峰对决</div>
+        <div class="main-title">决 赛</div>
+        <div class="sub-title">冠军争夺战 · 七局四胜制</div>
+        <div class="pk-tiebreaker" style="gap: clamp(40px, 6vw, 80px); margin-bottom: 16px;">
+          <div class="pkt-team" style="border: 2px solid #fbbf24; background: rgba(251,191,36,0.05);">
+            <div class="pkt-label">第1名种子</div>
+            <div class="pkt-name" style="color: #fbbf24;">一连</div>
+            <div class="pkt-score">2</div>
+            <div style="font-size: 10px; color: #64748b; margin-top: 4px;">大比分</div>
+          </div>
+          <div class="pkt-vs" style="font-size: 24px; color: #fbbf24;">VS</div>
+          <div class="pkt-team" style="border: 2px solid #fbbf24; background: rgba(251,191,36,0.05);">
+            <div class="pkt-label">第2名种子</div>
+            <div class="pkt-name" style="color: #fbbf24;">二连</div>
+            <div class="pkt-score">1</div>
+            <div style="font-size: 10px; color: #64748b; margin-top: 4px;">大比分</div>
+          </div>
+        </div>
+        <div class="result-status">
+          <div class="rs-main">第4局 · 进行中</div>
+          <div class="rs-sub">若一连获胜则夺冠 · 若二连获胜则战成2:2</div>
+        </div>
+      </div>
+
+      <!-- 冠军加冕 -->
+      <div id="scr_champion" class="screen">
+        <div class="screen-tag">冠军加冕</div>
+        <div class="glow-top"></div><div class="glow-bottom"></div>
+        <div class="confetti" id="championConfetti"></div>
+        <div class="champion-crown">👑</div>
+        <div class="champion-name">一 连</div>
+        <div class="champion-sub">🏆 第一届国防知识竞赛 总冠军 🏆</div>
+        <div style="display: flex; gap: 30px; margin-top: 10px;">
+          <div style="text-align: center;">
+            <div style="font-size: 12px; color: #94a3b8;">亚军</div>
+            <div style="font-size: 20px; color: #cbd5e1; font-weight: bold; margin-top: 4px;">🥈 二连</div>
+          </div>
+          <div style="text-align: center;">
+            <div style="font-size: 12px; color: #94a3b8;">季军</div>
+            <div style="font-size: 20px; color: #d97706; font-weight: bold; margin-top: 4px;">🥉 三连</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 单场比赛结果（PK赛） -->
+      <div id="scr_matchResult" class="screen">
+        <div class="screen-tag">单场结果</div>
+        <div class="glow-top"></div><div class="glow-bottom"></div>
+        <div class="stage-label pk">8进4 · 第1场 · 比赛结束</div>
+        <div class="main-title">比赛结果</div>
+        <div class="sub-title">一连 3:1 战胜八连</div>
+        <div class="pk-tiebreaker">
+          <div class="pkt-team winner">
+            <div class="pkt-label">第1名种子</div>
+            <div class="pkt-name">一连</div>
+            <div class="pkt-score">3</div>
+          </div>
+          <div class="pkt-vs">VS</div>
+          <div class="pkt-team loser">
+            <div class="pkt-label">第8名种子</div>
+            <div class="pkt-name">八连</div>
+            <div class="pkt-score">1</div>
+          </div>
+        </div>
+        <div class="result-status">
+          <div class="rs-main">🎉 <span class="highlight">一连</span> 晋级四强！</div>
+          <div class="rs-sub">下一场：四连 VS 五连 · 等待主持人宣布</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 控制台 -->
+    <div class="control-panel">
+      <div class="cp-title">🎮 控制台</div>
+      
+      <div class="cp-label">当前场景</div>
+      <div id="curSceneLabel" style="font-size: 11px; color: #e2e8f0; font-weight: bold;">开场动画</div>
+
+      <div class="cp-label" style="margin-top: 8px;">场景操作</div>
+      <button class="cp-btn primary" id="btnPlay" onclick="playSceneAnim()">▶ 播放入场动画</button>
+      <button class="cp-btn" id="btnSound" onclick="playDing()">🔔 播放提示音</button>
+      <button class="cp-btn" id="btnFanfare" onclick="playFanfare()">🎺 播放胜利号角</button>
+
+      <div class="cp-label" style="margin-top: 8px;">流程推进</div>
+      <button class="cp-btn success" onclick="nextScene()">⏭ 进入下一场</button>
+      <button class="cp-btn" onclick="prevScene()">⏮ 返回上一场</button>
+
+      <div class="cp-label" style="margin-top: 8px;">加赛专用</div>
+      <button class="cp-btn" onclick="startNextTiebreaker()">⚔ 开始下一组加赛</button>
+      <button class="cp-btn danger" onclick="forceRanking()">⚠ 强制排名</button>
+
+      <div class="cp-label" style="margin-top: 8px;">状态</div>
+      <div id="statusText" style="font-size: 10px; color: #64748b; line-height: 1.5;">
+        等待操作...
+      </div>
+    </div>
+  </div>
+
+  <div class="scene-desc" style="border-left-color: #22c55e;">
+    <strong>设计说明：</strong>
+    所有过场动画均改为<strong>手动控制</strong>模式——动画播完后保持显示，直到管理员在控制台点击"进入下一场"才切换。
+    每个场景配有独立的入场动画和音效。加赛场景支持"开始下一组加赛"和"强制排名"操作。
+    顶部可切换场景分类（开场/排名、加赛场景、对阵晋级、决赛/冠军）。
+  </div>
+</div>
+
+<button class="sound-toggle" onclick="toggleSound()" id="soundBtn">🔊</button>
+
+<script>
+// ========= 场景配置 =========
+const scenes = {
+  opening: [
+    { id: 'scr_opening', name: '开场动画', desc: '比赛开始前的开场动画，展示赛事标题和logo。粒子背景配合发光效果，营造庄严氛围。', sound: 'fanfare' },
+    { id: 'scr_ranking', name: '14进8排名', desc: '第一环节结束后，公布14支队伍的完整排名。前八名绿色边框高亮，后六名灰色淡化。无同分情况，直接进入PK赛。', sound: 'result' },
+  ],
+  tiebreaker: [
+    { id: 'scr_tb1', name: '① 单组全部分出', desc: '一组加赛后所有队伍排名明确，无同分且无更多同分组。直接进入PK赛。展示领奖台+完整排名+晋级/淘汰状态。', sound: 'victory' },
+    { id: 'scr_tb2', name: '② 递归加赛', desc: '加赛后部分队伍排名明确，但仍有几队同分，需进行下一轮递归加赛。进度指示器显示当前轮次，同分队伍橙色脉冲高亮。', sound: 'warning' },
+    { id: 'scr_tb3', name: '③ 多组同分', desc: '有多个不同分数级别的同分组，高分组先解决。展示已解决组的结果，并预告下一组待加赛。', sound: 'result' },
+    { id: 'scr_tb4', name: '④ 最大深度强制排名', desc: '3轮加赛后仍有同分，达到最大递归深度。按三轮加赛累计总分强制排名，标注"强制排名"红色徽章。', sound: 'warning' },
+    { id: 'scr_tb5', name: '⑤ PK赛加赛', desc: '8进4/4进2/决赛中双方5题后同分，加赛决出胜者。双方对比布局，胜者放大绿色高亮，败者淡化删除线。', sound: 'victory' },
+  ],
+  bracket: [
+    { id: 'scr_bracket8', name: '8进4对阵图', desc: '八强对阵树形结构图。四场比赛分三列展示（1/4决赛→半决赛→决赛），状态分为已结束/进行中/待开始，进度一目了然。', sound: 'result' },
+    { id: 'scr_matchResult', name: '单场比赛结果', desc: 'PK赛单场结束后的结果展示。胜者放大绿色高亮，败者淡化+删除线。显示大比分和下一场预告。', sound: 'victory' },
+    { id: 'scr_bracket4', name: '4进2对阵图', desc: '四强对阵图。两场半决赛+一场决赛。已结束的比赛绿色完成标记，进行中的金色脉冲，待开始的灰色淡化。', sound: 'result' },
+  ],
+  final: [
+    { id: 'scr_final', name: '决赛进行中', desc: '冠军争夺战。七局四胜制，双方金色边框对垒，显示当前大比分。', sound: 'drumroll' },
+    { id: 'scr_champion', name: '冠军加冕', desc: '冠军诞生！皇冠跳动动画+彩纸飘落特效+冠亚季军展示。全场最高规格视觉效果。', sound: 'champion' },
+  ]
+};
+
+let currentCat = 'opening';
+let currentSceneIdx = 0;
+let soundEnabled = true;
+
+// ========= Web Audio API 音效 =========
+let audioCtx = null;
+function getAudioCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+
+function playTone(freq, duration, type = 'sine', volume = 0.3) {
+  if (!soundEnabled) return;
+  try {
+    const ctx = getAudioCtx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, ctx.currentTime);
+    gain.gain.setValueAtTime(volume, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + duration);
+  } catch(e) {}
+}
+
+function playDing() {
+  playTone(880, 0.15, 'sine', 0.4);
+  setTimeout(() => playTone(1100, 0.2, 'sine', 0.3), 80);
+  setStatus('🔔 提示音');
+}
+
+function playFanfare() {
+  const notes = [523, 659, 784, 1047]; // C5 E5 G5 C6
+  notes.forEach((f, i) => {
+    setTimeout(() => playTone(f, 0.2, 'triangle', 0.3), i * 120);
+  });
+  setStatus('🎺 胜利号角');
+}
+
+function playVictory() {
+  const notes = [523, 659, 784, 659, 784, 1047];
+  notes.forEach((f, i) => {
+    setTimeout(() => playTone(f, 0.15, 'sine', 0.25), i * 100);
+  });
+  setStatus('🎉 胜利音效');
+}
+
+function playWarning() {
+  playTone(440, 0.15, 'square', 0.2);
+  setTimeout(() => playTone(330, 0.2, 'square', 0.2), 150);
+  setStatus('⚠ 提示音');
+}
+
+function playResult() {
+  playTone(660, 0.1, 'sine', 0.3);
+  setTimeout(() => playTone(880, 0.15, 'sine', 0.3), 100);
+  setStatus('📊 结果公布');
+}
+
+function playChampion() {
+  const notes = [523, 659, 784, 1047, 1319, 1047, 1319];
+  notes.forEach((f, i) => {
+    setTimeout(() => playTone(f, 0.25, 'triangle', 0.3), i * 150);
+  });
+  // 和声
+  setTimeout(() => {
+    playTone(262, 0.5, 'sine', 0.2);
+    playTone(330, 0.5, 'sine', 0.15);
+  }, 600);
+  setStatus('👑 冠军加冕！');
+}
+
+function playDrumroll() {
+  // 模拟鼓点
+  for (let i = 0; i < 8; i++) {
+    setTimeout(() => playTone(150 + Math.random()*50, 0.05, 'sawtooth', 0.15), i * 60);
+  }
+  setStatus('🥁 战鼓擂动');
+}
+
+function toggleSound() {
+  soundEnabled = !soundEnabled;
+  document.getElementById('soundBtn').textContent = soundEnabled ? '🔊' : '🔇';
+}
+
+// ========= 场景切换 =========
+function switchCat(cat) {
+  currentCat = cat;
+  currentSceneIdx = 0;
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  renderSceneTabs();
+  showScene(0);
+}
+
+function renderSceneTabs() {
+  const tabs = document.getElementById('sceneTabs');
+  tabs.innerHTML = scenes[currentCat].map((s, i) => 
+    `<button class="scene-btn ${i===0?'active':''}" onclick="showScene(${i})">${s.name}</button>`
+  ).join('');
+}
+
+function showScene(idx) {
+  currentSceneIdx = idx;
+  const scene = scenes[currentCat][idx];
+  
+  // 隐藏所有screen
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(scene.id).classList.add('active');
+  
+  // 更新标签
+  document.querySelectorAll('.scene-btn').forEach((b, i) => {
+    b.classList.toggle('active', i === idx);
+  });
+  
+  // 更新描述和标签
+  document.getElementById('sceneDesc').innerHTML = `<strong>场景说明：</strong>${scene.desc}`;
+  document.getElementById('curSceneLabel').textContent = scene.name;
+  
+  // 播放场景音效
+  if (scene.sound) {
+    setTimeout(() => {
+      switch(scene.sound) {
+        case 'fanfare': playFanfare(); break;
+        case 'victory': playVictory(); break;
+        case 'warning': playWarning(); break;
+        case 'result': playResult(); break;
+        case 'champion': playChampion(); break;
+        case 'drumroll': playDrumroll(); break;
+      }
+    }, 200);
+  }
+  
+  // 场景特殊效果
+  if (scene.id === 'scr_champion') {
+    spawnConfetti();
+  }
+  
+  setStatus('切换到：' + scene.name);
+}
+
+function nextScene() {
+  const list = scenes[currentCat];
+  if (currentSceneIdx < list.length - 1) {
+    showScene(currentSceneIdx + 1);
+  } else {
+    // 跳到下一个分类
+    const cats = Object.keys(scenes);
+    const catIdx = cats.indexOf(currentCat);
+    if (catIdx < cats.length - 1) {
+      switchCat(cats[catIdx + 1]);
+      document.querySelectorAll('.cat-btn')[catIdx + 1].classList.add('active');
+    } else {
+      setStatus('⚠ 已是最后一个场景');
+    }
+  }
+}
+
+function prevScene() {
+  if (currentSceneIdx > 0) {
+    showScene(currentSceneIdx - 1);
+  } else {
+    const cats = Object.keys(scenes);
+    const catIdx = cats.indexOf(currentCat);
+    if (catIdx > 0) {
+      switchCat(cats[catIdx - 1]);
+      document.querySelectorAll('.cat-btn')[catIdx - 1].classList.add('active');
+      // 跳到最后一个场景
+      const list = scenes[currentCat];
+      showScene(list.length - 1);
+    }
+  }
+}
+
+function startNextTiebreaker() {
+  playDing();
+  setStatus('⚔ 下一组加赛即将开始...');
+  // 模拟：如果是递归场景，切换到下一组加赛画面
+}
+
+function forceRanking() {
+  playWarning();
+  setStatus('⚠ 已触发强制排名');
+}
+
+function playSceneAnim() {
+  const scene = scenes[currentCat][currentSceneIdx];
+  const scr = document.getElementById(scene.id);
+  
+  // 重新触发动画
+  scr.style.animation = 'none';
+  setTimeout(() => {
+    scr.style.animation = '';
+  }, 10);
+  
+  // 播放对应音效
+  if (scene.sound) {
+    switch(scene.sound) {
+      case 'fanfare': playFanfare(); break;
+      case 'victory': playVictory(); break;
+      case 'warning': playWarning(); break;
+      case 'result': playResult(); break;
+      case 'champion': playChampion(); break;
+      case 'drumroll': playDrumroll(); break;
+    }
+  }
+  
+  if (scene.id === 'scr_champion') {
+    spawnConfetti();
+  }
+  
+  setStatus('▶ 播放入场动画');
+}
+
+// ========= 粒子效果 =========
+function spawnParticles(containerId, count = 15) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  container.innerHTML = '';
+  for (let i = 0; i < count; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.left = Math.random() * 100 + '%';
+    p.style.animationDelay = Math.random() * 6 + 's';
+    p.style.animationDuration = (4 + Math.random() * 4) + 's';
+    p.style.width = p.style.height = (2 + Math.random() * 3) + 'px';
+    container.appendChild(p);
+  }
+}
+
+// ========= 彩纸效果 =========
+function spawnConfetti() {
+  const container = document.getElementById('championConfetti');
+  if (!container) return;
+  container.innerHTML = '';
+  const colors = ['#fbbf24', '#22c55e', '#3b82f6', '#ef4444', '#a855f7', '#ec4899'];
+  for (let i = 0; i < 60; i++) {
+    const c = document.createElement('div');
+    c.className = 'confetti-piece';
+    c.style.left = Math.random() * 100 + '%';
+    c.style.background = colors[Math.floor(Math.random() * colors.length)];
+    c.style.animationDelay = Math.random() * 2 + 's';
+    c.style.animationDuration = (2 + Math.random() * 2) + 's';
+    c.style.transform = `rotate(${Math.random() * 360}deg)`;
+    container.appendChild(c);
+  }
+}
+
+// ========= 状态提示 =========
+function setStatus(text) {
+  const el = document.getElementById('statusText');
+  el.textContent = text;
+  el.style.color = '#e2e8f0';
+  setTimeout(() => { el.style.color = '#64748b'; }, 1500);
+}
+
+// ========= 初始化 =========
+window.onload = function() {
+  renderSceneTabs();
+  showScene(0);
+  spawnParticles('openingParticles', 20);
+};
+</script>
+</body>
+</html>

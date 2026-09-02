@@ -1,0 +1,10 @@
+version: "3"
+services:
+  contest:
+    build: .
+    container_name: defense-contest
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./state.json:/app/state.json
+    restart: unless-stopped

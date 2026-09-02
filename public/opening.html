@@ -1,0 +1,1314 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>长征薪火，青春卫国 - 国防知识竞赛片头</title>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@500;700;900&family=Noto+Serif+SC:wght@700;900&family=ZCOOL+XiaoWei&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --red-deep: #6B0F1A;
+    --red-primary: #C41E3A;
+    --red-bright: #FF2D3E;
+    --gold-deep: #B8860B;
+    --gold: #DAA520;
+    --gold-bright: #FFD700;
+    --orange: #FF6B2C;
+    --cream: #F5E6C8;
+  }
+
+  body {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background: #0a0508;
+    font-family: 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
+    color: #fff;
+    cursor: pointer;
+  }
+
+  #stage {
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+    overflow: hidden;
+    perspective: 1000px;
+  }
+
+  /* ===== SKY BACKGROUND ===== */
+  .sky {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 50% at 50% 100%, rgba(196, 30, 58, 0.25) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 50% 30%, rgba(218, 165, 32, 0.08) 0%, transparent 70%),
+      linear-gradient(180deg, #1a0a0f 0%, #2a0d15 40%, #1a0a0f 100%);
+    z-index: 1;
+  }
+
+  /* ===== MOUNTAIN SILHOUETTES ===== */
+  .mountains {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 45%;
+    z-index: 5;
+  }
+
+  .mountain-layer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .mountain-back {
+    background:
+      linear-gradient(180deg, transparent 0%, #0f0609 30%);
+    z-index: 2;
+  }
+
+  .mountain-mid svg,
+  .mountain-front svg {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: auto;
+  }
+
+  .mountain-mid { z-index: 3; }
+  .mountain-front { z-index: 4; }
+
+  /* ===== FOG / MIST ===== */
+  .fog {
+    position: absolute;
+    bottom: 20%;
+    left: -50%;
+    width: 200%;
+    height: 30%;
+    background:
+      radial-gradient(ellipse 30% 50% at 20% 50%, rgba(196, 30, 58, 0.08) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 60% at 60% 40%, rgba(218, 165, 32, 0.06) 0%, transparent 70%);
+    z-index: 6;
+    pointer-events: none;
+  }
+
+  /* ===== LIGHT RAYS ===== */
+  .light-rays {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 150%;
+    height: 100%;
+    z-index: 8;
+    pointer-events: none;
+    opacity: 0;
+  }
+
+  .ray {
+    position: absolute;
+    top: -10%;
+    width: 80px;
+    height: 120%;
+    background: linear-gradient(180deg, rgba(255, 215, 0, 0.12) 0%, rgba(255, 107, 44, 0.06) 50%, transparent 100%);
+    transform-origin: top center;
+  }
+
+  /* ===== EMBER / FIRE PARTICLES ===== */
+  .ember {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  /* ===== GIANT STAR ===== */
+  .star-wrapper {
+    position: absolute;
+    top: 35%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 20;
+  }
+
+  .star-svg {
+    filter: drop-shadow(0 0 40px rgba(255, 107, 44, 0.6)) drop-shadow(0 0 80px rgba(196, 30, 58, 0.4));
+  }
+
+  .star-halo {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  .star-halo-1 {
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(255, 215, 0, 0.15) 0%, rgba(255, 107, 44, 0.08) 40%, transparent 70%);
+  }
+
+  .star-halo-2 {
+    width: 250px;
+    height: 250px;
+    background: radial-gradient(circle, rgba(255, 215, 0, 0.3) 0%, rgba(255, 107, 44, 0.15) 50%, transparent 70%);
+  }
+
+  .star-ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    border: 1px solid rgba(218, 165, 32, 0.4);
+    pointer-events: none;
+  }
+
+  /* ===== RED RIBBON / FLAG ===== */
+  .ribbon {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 15;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .ribbon-top {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 6px;
+    background: linear-gradient(90deg, var(--red-deep), var(--red-primary), var(--red-bright), var(--gold), var(--red-bright), var(--red-primary), var(--red-deep));
+    box-shadow: 0 2px 20px rgba(196, 30, 58, 0.5), 0 0 40px rgba(255, 45, 62, 0.3);
+    transform: scaleX(0);
+    transform-origin: center;
+  }
+
+  .ribbon-bottom {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 6px;
+    background: linear-gradient(90deg, var(--red-deep), var(--red-primary), var(--red-bright), var(--gold), var(--red-bright), var(--red-primary), var(--red-deep));
+    box-shadow: 0 -2px 20px rgba(196, 30, 58, 0.5), 0 0 40px rgba(255, 45, 62, 0.3);
+    transform: scaleX(0);
+    transform-origin: center;
+  }
+
+  /* ===== CORNER FRAMES ===== */
+  .corner-frame {
+    position: absolute;
+    width: 120px;
+    height: 120px;
+    z-index: 30;
+    opacity: 0;
+  }
+
+  .corner-tl { top: 60px; left: 60px; }
+  .corner-tr { top: 60px; right: 60px; transform: scaleX(-1); }
+  .corner-bl { bottom: 60px; left: 60px; transform: scaleY(-1); }
+  .corner-br { bottom: 60px; right: 60px; transform: scale(-1, -1); }
+
+  /* ===== TEXT CONTENT ===== */
+  .content-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 25;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+  }
+
+  .scene {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+  }
+
+  /* ===== SCENE 1: STAR + TAGLINE ===== */
+  #scene1 .tagline-year {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 1.8rem;
+    font-weight: 900;
+    letter-spacing: 0.8em;
+    color: var(--gold);
+    margin-top: 340px;
+    padding-left: 0.8em;
+    opacity: 0;
+    text-shadow: 0 0 20px rgba(218, 165, 32, 0.5);
+  }
+
+  #scene1 .tagline-year .num {
+    color: var(--red-bright);
+    font-size: 2.2rem;
+    text-shadow: 0 0 20px rgba(255, 45, 62, 0.6);
+  }
+
+  #scene1 .tagline-desc {
+    font-size: 1rem;
+    letter-spacing: 0.4em;
+    color: rgba(245, 230, 200, 0.7);
+    margin-top: 1rem;
+    padding-left: 0.4em;
+    opacity: 0;
+  }
+
+  /* ===== SCENE 2: MAIN TITLE ===== */
+  #scene2 {
+    gap: 0;
+  }
+
+  .title-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .title-zh {
+    font-family: 'Noto Serif SC', serif;
+    font-weight: 900;
+    font-size: 7.5rem;
+    line-height: 1;
+    letter-spacing: 0.2em;
+    text-align: center;
+    padding-left: 0.2em;
+    position: relative;
+  }
+
+  .title-zh .line {
+    display: block;
+    position: relative;
+  }
+
+  .title-zh .line-top {
+    background: linear-gradient(180deg, #FFF8DC 0%, #FFD700 30%, #DAA520 60%, #B8860B 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5)) drop-shadow(0 0 30px rgba(255, 215, 0, 0.3));
+  }
+
+  .title-zh .line-bottom {
+    background: linear-gradient(180deg, #FF4444 0%, #C41E3A 50%, #6B0F1A 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5)) drop-shadow(0 0 30px rgba(196, 30, 58, 0.4));
+    margin-top: 0.3em;
+  }
+
+  .title-divider {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 1rem 0 0.5rem;
+    opacity: 0;
+  }
+
+  .divider-line {
+    width: 120px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold));
+  }
+
+  .divider-line.right {
+    background: linear-gradient(90deg, var(--gold), transparent);
+  }
+
+  .divider-star {
+    width: 16px;
+    height: 16px;
+    fill: var(--gold);
+    filter: drop-shadow(0 0 6px rgba(255, 215, 0, 0.6));
+  }
+
+  .title-sub {
+    font-size: 1.6rem;
+    font-weight: 700;
+    letter-spacing: 0.5em;
+    color: var(--cream);
+    padding-left: 0.5em;
+    opacity: 0;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+  }
+
+  .title-sub .accent {
+    color: var(--red-bright);
+  }
+
+  /* ===== SCENE 3: COMPETITION ROUNDS ===== */
+  #scene3 {
+    gap: 2.5rem;
+  }
+
+  .rounds-title {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 2.5rem;
+    font-weight: 900;
+    letter-spacing: 0.4em;
+    padding-left: 0.4em;
+    color: var(--cream);
+    opacity: 0;
+    text-shadow: 0 2px 15px rgba(0,0,0,0.6);
+  }
+
+  .rounds-title .highlight {
+    color: var(--gold);
+    text-shadow: 0 0 20px rgba(218, 165, 32, 0.5);
+  }
+
+  .rounds-grid {
+    display: flex;
+    gap: 2rem;
+    opacity: 0;
+  }
+
+  .round-card {
+    width: 240px;
+    padding: 1.8rem 1.5rem;
+    background:
+      linear-gradient(180deg, rgba(196, 30, 58, 0.15) 0%, rgba(139, 22, 42, 0.1) 100%);
+    border: 1px solid rgba(218, 165, 32, 0.35);
+    border-radius: 4px;
+    position: relative;
+    text-align: center;
+    backdrop-filter: blur(4px);
+  }
+
+  .round-card::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: 20px;
+    right: 20px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+
+  .round-card::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 20px;
+    right: 20px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+
+  .round-card .card-num {
+    font-size: 0.8rem;
+    letter-spacing: 0.3em;
+    color: var(--red-bright);
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+
+  .round-card .card-name {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 1.8rem;
+    font-weight: 900;
+    color: var(--gold);
+    letter-spacing: 0.15em;
+    padding-left: 0.15em;
+    text-shadow: 0 0 15px rgba(218, 165, 32, 0.4);
+    margin-bottom: 0.3rem;
+  }
+
+  .round-card .card-desc {
+    font-size: 0.85rem;
+    color: rgba(245, 230, 200, 0.6);
+    letter-spacing: 0.1em;
+  }
+
+  .round-card .card-icon {
+    font-size: 1.8rem;
+    margin-bottom: 0.3rem;
+    opacity: 0.7;
+  }
+
+  /* ===== SCENE 4: FINAL ===== */
+  #scene4 {
+    gap: 1.5rem;
+  }
+
+  .final-slogan {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 3.5rem;
+    font-weight: 900;
+    letter-spacing: 0.2em;
+    padding-left: 0.2em;
+    text-align: center;
+    line-height: 1.4;
+    opacity: 0;
+  }
+
+  .final-slogan .red {
+    color: var(--red-bright);
+    text-shadow: 0 0 20px rgba(255, 45, 62, 0.5);
+  }
+
+  .final-slogan .gold {
+    color: var(--gold);
+    text-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+  }
+
+  .final-slogan .white {
+    color: var(--cream);
+    text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+  }
+
+  .final-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.6rem;
+    opacity: 0;
+    margin-top: 1rem;
+  }
+
+  .info-line {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    font-size: 1.05rem;
+  }
+
+  .info-line .label {
+    color: var(--gold);
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    min-width: 3.5rem;
+    text-align: right;
+  }
+
+  .info-line .value {
+    color: var(--cream);
+    letter-spacing: 0.1em;
+  }
+
+  .info-sep {
+    width: 1px;
+    height: 16px;
+    background: rgba(218, 165, 32, 0.3);
+  }
+
+  .final-credit {
+    font-size: 0.9rem;
+    letter-spacing: 0.25em;
+    color: rgba(245, 230, 200, 0.5);
+    padding-left: 0.25em;
+    opacity: 0;
+    margin-top: 0.5rem;
+  }
+
+  .final-credit strong {
+    color: var(--gold);
+    font-weight: 700;
+  }
+
+  /* ===== VIGNETTE ===== */
+  .vignette {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 50% 50%, transparent 30%, rgba(0,0,0,0.5) 80%, rgba(0,0,0,0.8) 100%);
+    z-index: 50;
+    pointer-events: none;
+  }
+
+  /* ===== FILM GRAIN ===== */
+  .grain {
+    position: absolute;
+    inset: 0;
+    opacity: 0.04;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.8' numOctaves='2'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)'/%3E%3C/svg%3E");
+    z-index: 49;
+    pointer-events: none;
+    mix-blend-mode: overlay;
+  }
+
+  /* ===== PROGRESS BAR ===== */
+  #progress-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 0%;
+    height: 3px;
+    background: linear-gradient(90deg, var(--red-primary), var(--gold));
+    z-index: 100;
+  }
+
+  /* ===== REPLAY ===== */
+  #replay-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: rgba(196, 30, 58, 0.9);
+    color: var(--cream);
+    border: 1px solid var(--gold);
+    border-radius: 4px;
+    padding: 10px 24px;
+    font-size: 0.9rem;
+    letter-spacing: 0.15em;
+    cursor: pointer;
+    z-index: 200;
+    opacity: 0;
+    pointer-events: none;
+    font-family: inherit;
+    transition: all 0.3s;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.5);
+  }
+
+  #replay-btn:hover {
+    background: var(--red-primary);
+    transform: translateY(-1px);
+  }
+
+  #replay-btn.visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 900px) {
+    .title-zh { font-size: 4.5rem; }
+    .title-sub { font-size: 1.2rem; }
+    .rounds-grid { flex-wrap: wrap; justify-content: center; }
+    .round-card { width: 180px; padding: 1.2rem 1rem; }
+    .round-card .card-name { font-size: 1.4rem; }
+    .final-slogan { font-size: 2.2rem; }
+    .corner-frame { width: 60px; height: 60px; }
+    .corner-tl { top: 20px; left: 20px; }
+    .corner-tr { top: 20px; right: 20px; }
+    .corner-bl { bottom: 20px; left: 20px; }
+    .corner-br { bottom: 20px; right: 20px; }
+  }
+</style>
+</head>
+<body>
+<div id="stage">
+  <!-- Sky -->
+  <div class="sky"></div>
+
+  <!-- Light rays -->
+  <div class="light-rays" id="light-rays">
+    <div class="ray" style="left:20%;transform:rotate(-15deg)"></div>
+    <div class="ray" style="left:35%;transform:rotate(-6deg)"></div>
+    <div class="ray" style="left:47%;transform:rotate(-2deg)"></div>
+    <div class="ray" style="left:53%;transform:rotate(2deg)"></div>
+    <div class="ray" style="left:65%;transform:rotate(6deg)"></div>
+    <div class="ray" style="left:80%;transform:rotate(15deg)"></div>
+  </div>
+
+  <!-- Mountains -->
+  <div class="mountains">
+    <div class="mountain-layer mountain-back"></div>
+    <div class="mountain-layer mountain-mid">
+      <svg viewBox="0 0 1920 400" preserveAspectRatio="none">
+        <path d="M0,400 L0,280 L150,200 L280,250 L400,150 L550,220 L700,120 L850,200 L1000,100 L1150,180 L1300,80 L1450,160 L1600,60 L1750,140 L1920,50 L1920,400 Z" fill="url(#mountainMidGrad)" opacity="0.6"></path>
+        <defs>
+          <linearGradient id="mountainMidGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#2a1015"></stop>
+            <stop offset="100%" stop-color="#1a080c"></stop>
+          </linearGradient>
+        </defs>
+      </svg>
+    </div>
+    <div class="mountain-layer mountain-front">
+      <svg viewBox="0 0 1920 300" preserveAspectRatio="none">
+        <path d="M0,300 L0,220 L100,180 L220,200 L350,130 L480,170 L620,90 L750,150 L900,60 L1050,130 L1200,50 L1350,110 L1500,30 L1650,100 L1800,20 L1920,80 L1920,300 Z" fill="url(#mountainFrontGrad)"></path>
+        <path d="M0,300 L0,270 L80,250 L180,260 L300,220 L420,240 L550,200 L680,230 L820,180 L960,220 L1100,170 L1240,210 L1380,160 L1520,200 L1660,150 L1800,190 L1920,170 L1920,300 Z" fill="#0a0406"></path>
+        <defs>
+          <linearGradient id="mountainFrontGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#1a080c"></stop>
+            <stop offset="100%" stop-color="#0d0407"></stop>
+          </linearGradient>
+        </defs>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Fog -->
+  <div class="fog" id="fog"></div>
+
+  <!-- Star halo -->
+  <div class="star-wrapper" id="star-wrapper">
+    <div class="star-halo star-halo-1"></div>
+    <div class="star-halo star-halo-2"></div>
+    <div class="star-ring" id="star-ring1" style="width:280px;height:280px;opacity:0"></div>
+    <div class="star-ring" id="star-ring2" style="width:380px;height:380px;opacity:0;border-color:rgba(218,165,32,0.2)"></div>
+
+    <svg class="star-svg" width="220" height="220" viewBox="0 0 100 100">
+      <defs>
+        <linearGradient id="starGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" style="stop-color:#FFF8DC"></stop>
+          <stop offset="20%" style="stop-color:#FFD700"></stop>
+          <stop offset="60%" style="stop-color:#FF6B2C"></stop>
+          <stop offset="100%" style="stop-color:#C41E3A"></stop>
+        </linearGradient>
+        <filter id="starInnerGlow">
+          <feGaussianBlur stdDeviation="1.5" result="blur"></feGaussianBlur>
+          <feMerge>
+            <feMergeNode in="blur"></feMergeNode>
+            <feMergeNode in="SourceGraphic"></feMergeNode>
+          </feMerge>
+        </filter>
+      </defs>
+      <polygon points="50,3 61,38 96,38 68,59 79,92 50,72 21,92 32,59 4,38 39,38" fill="url(#starGrad)" filter="url(#starInnerGlow)"></polygon>
+    </svg>
+  </div>
+
+  <!-- Ribbon bars -->
+  <div class="ribbon">
+    <div class="ribbon-top" id="ribbon-top"></div>
+    <div class="ribbon-bottom" id="ribbon-bottom"></div>
+  </div>
+
+  <!-- Corner frames -->
+  <div class="corner-frame corner-tl">
+    <svg viewBox="0 0 120 120" fill="none">
+      <path d="M8,40 L8,8 L40,8" stroke="#DAA520" stroke-width="2" opacity="0.7"></path>
+      <path d="M8,60 L8,48" stroke="#DAA520" stroke-width="1" opacity="0.4"></path>
+      <path d="M48,8 L60,8" stroke="#DAA520" stroke-width="1" opacity="0.4"></path>
+      <path d="M25,25 L25,18" stroke="#DAA520" stroke-width="1" opacity="0.5"></path>
+      <path d="M18,25 L25,25" stroke="#DAA520" stroke-width="1" opacity="0.5"></path>
+      <circle cx="8" cy="8" r="3" fill="#DAA520"></circle>
+    </svg>
+  </div>
+  <div class="corner-frame corner-tr">
+    <svg viewBox="0 0 120 120" fill="none">
+      <path d="M8,40 L8,8 L40,8" stroke="#DAA520" stroke-width="2" opacity="0.7"></path>
+      <path d="M8,60 L8,48" stroke="#DAA520" stroke-width="1" opacity="0.4"></path>
+      <path d="M48,8 L60,8" stroke="#DAA520" stroke-width="1" opacity="0.4"></path>
+      <path d="M25,25 L25,18" stroke="#DAA520" stroke-width="1" opacity="0.5"></path>
+      <path d="M18,25 L25,25" stroke="#DAA520" stroke-width="1" opacity="0.5"></path>
+      <circle cx="8" cy="8" r="3" fill="#DAA520"></circle>
+    </svg>
+  </div>
+  <div class="corner-frame corner-bl">
+    <svg viewBox="0 0 120 120" fill="none">
+      <path d="M8,40 L8,8 L40,8" stroke="#DAA520" stroke-width="2" opacity="0.7"></path>
+      <path d="M8,60 L8,48" stroke="#DAA520" stroke-width="1" opacity="0.4"></path>
+      <path d="M48,8 L60,8" stroke="#DAA520" stroke-width="1" opacity="0.4"></path>
+      <path d="M25,25 L25,18" stroke="#DAA520" stroke-width="1" opacity="0.5"></path>
+      <path d="M18,25 L25,25" stroke="#DAA520" stroke-width="1" opacity="0.5"></path>
+      <circle cx="8" cy="8" r="3" fill="#DAA520"></circle>
+    </svg>
+  </div>
+  <div class="corner-frame corner-br">
+    <svg viewBox="0 0 120 120" fill="none">
+      <path d="M8,40 L8,8 L40,8" stroke="#DAA520" stroke-width="2" opacity="0.7"></path>
+      <path d="M8,60 L8,48" stroke="#DAA520" stroke-width="1" opacity="0.4"></path>
+      <path d="M48,8 L60,8" stroke="#DAA520" stroke-width="1" opacity="0.4"></path>
+      <path d="M25,25 L25,18" stroke="#DAA520" stroke-width="1" opacity="0.5"></path>
+      <path d="M18,25 L25,25" stroke="#DAA520" stroke-width="1" opacity="0.5"></path>
+      <circle cx="8" cy="8" r="3" fill="#DAA520"></circle>
+    </svg>
+  </div>
+
+  <!-- ===== CONTENT LAYERS ===== -->
+  <div class="content-layer">
+    <!-- Scene 1: Star + tagline -->
+    <div class="scene" id="scene1">
+      <div class="tagline-year" id="s1-year">
+        纪念长征胜利 <span class="num">90</span> 周年
+      </div>
+      <div class="tagline-desc" id="s1-desc">
+        一 九 三 六 — 二 〇 二 六
+      </div>
+    </div>
+
+    <!-- Scene 2: Main title -->
+    <div class="scene" id="scene2">
+      <div class="title-group">
+        <div class="title-zh" id="title-zh">
+          <span class="line line-top" id="title-top">长征薪火</span>
+          <span class="line line-bottom" id="title-bottom">青春卫国</span>
+        </div>
+        <div class="title-divider" id="title-divider">
+          <div class="divider-line"></div>
+          <svg class="divider-star" viewBox="0 0 24 24"><polygon points="12,2 14.5,9 22,9 16,13.5 18.5,21 12,16.5 5.5,21 8,13.5 2,9 9.5,9"></polygon></svg>
+          <div class="divider-line right"></div>
+        </div>
+        <div class="title-sub" id="title-sub">
+          <span class="accent">国 防 知 识 竞 赛</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scene 3: Rounds -->
+    <div class="scene" id="scene3">
+      <div class="rounds-title" id="rounds-title">
+        赛 <span class="highlight">制</span> 环 <span class="highlight">节</span>
+      </div>
+      <div class="rounds-grid" id="rounds-grid">
+        <div class="round-card" id="card1">
+          <div class="card-num">第 一 环 节</div>
+          <div class="card-name">同心协力</div>
+          <div class="card-desc">必答题 · 抢答题</div>
+        </div>
+        <div class="round-card" id="card2">
+          <div class="card-num">第 二 环 节</div>
+          <div class="card-name">突围时刻</div>
+          <div class="card-desc">单场淘汰制</div>
+        </div>
+        <div class="round-card" id="card3">
+          <div class="card-num">第 三 环 节</div>
+          <div class="card-name">巅峰对决</div>
+          <div class="card-desc">半决赛 · 决赛</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scene 4: Final -->
+    <div class="scene" id="scene4">
+      <div class="final-slogan" id="s4-slogan">
+        <span class="red">以</span><span class="white">智</span><span class="red">卫</span><span class="white">国</span>
+        &nbsp;<span class="gold">·</span>&nbsp;
+        <span class="red">以</span><span class="white">知</span><span class="red">强</span><span class="white">军</span>
+      </div>
+      <div class="final-info" id="s4-info">
+        <div class="info-line">
+          <span class="label">时间</span>
+          <span class="value">2026 年 8 月 30 日 &nbsp; 19:00</span>
+        </div>
+        <div class="info-line">
+          <span class="label">地点</span>
+          <span class="value">学 校 礼 堂</span>
+        </div>
+        <div class="info-line">
+          <span class="label">参与</span>
+          <span class="value">2025 级军事训练全体学生</span>
+        </div>
+      </div>
+      <div class="final-credit" id="s4-credit">
+        <strong>计算机协会</strong> 技术支持 &nbsp;·&nbsp; <strong>2025 级本科生军训指挥部</strong> 监制
+      </div>
+    </div>
+  </div>
+
+  <!-- Overlays -->
+  <div class="grain"></div>
+  <div class="vignette"></div>
+</div>
+
+<div id="progress-bar"></div>
+<button id="replay-btn">重 播 动 画</button>
+
+<script>
+(function() {
+  'use strict';
+
+  // Seeded PRNG
+  function mulberry32(seed) {
+    return function() {
+      var t = seed += 0x6D2B79F5;
+      t = Math.imul(t ^ t >>> 15, t | 1);
+      t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+  }
+
+  var rng = mulberry32(90);
+  var stage = document.getElementById('stage');
+
+  // ===== Create ember particles =====
+  var embers = [];
+  var emberCount = 80;
+
+  for (var i = 0; i < emberCount; i++) {
+    var e = document.createElement('div');
+    e.className = 'ember';
+
+    var size = rng() * 3 + 1;
+    var hue = rng() < 0.6 ? 'gold' : 'red';
+    var bgColor = hue === 'gold'
+      ? 'rgba(255, 215, 0, ' + (rng() * 0.5 + 0.3) + ')'
+      : 'rgba(255, 80, 50, ' + (rng() * 0.5 + 0.3) + ')';
+    var shadowColor = hue === 'gold'
+      ? 'rgba(255, 215, 0, 0.6)'
+      : 'rgba(255, 80, 50, 0.6)';
+
+    e.style.width = size + 'px';
+    e.style.height = size + 'px';
+    e.style.background = bgColor;
+    e.style.boxShadow = '0 0 ' + (size * 3) + 'px ' + shadowColor;
+    e.style.left = (rng() * 100) + '%';
+    e.style.bottom = (rng() * 10) + '%';
+    e.style.opacity = 0;
+
+    stage.appendChild(e);
+    embers.push({
+      el: e,
+      startX: rng() * 100,
+      startY: rng() * 10,
+      drift: (rng() - 0.5) * 30,
+      rise: rng() * 60 + 40,
+      duration: rng() * 4 + 3,
+      delay: rng() * 2,
+      size: size
+    });
+  }
+
+  // ===== Main Timeline =====
+  function createTimeline() {
+    var tl = gsap.timeline({
+      paused: true,
+      onUpdate: function() {
+        document.getElementById('progress-bar').style.width = (tl.progress() * 100) + '%';
+      },
+      onComplete: function() {
+        document.getElementById('replay-btn').classList.add('visible');
+      }
+    });
+
+    var star = document.getElementById('star-wrapper');
+    var lightRays = document.getElementById('light-rays');
+    var fog = document.getElementById('fog');
+    var ring1 = document.getElementById('star-ring1');
+    var ring2 = document.getElementById('star-ring2');
+
+    // ===== PHASE 1: Dark intro + embers rising (0 - 2s) =====
+    // Fog drifts
+    tl.to(fog, {
+      x: '10%',
+      duration: 6,
+      ease: 'none'
+    }, 0);
+
+    // Embers start rising
+    embers.forEach(function(ember, i) {
+      tl.to(ember.el, {
+        opacity: rng() * 0.7 + 0.2,
+        y: -ember.rise + 'vh',
+        x: ember.drift + 'vw',
+        duration: ember.duration,
+        ease: 'power1.out'
+      }, ember.delay);
+
+      // Fade out at end of rise
+      tl.to(ember.el, {
+        opacity: 0,
+        duration: 0.8,
+        ease: 'power1.in'
+      }, ember.delay + ember.duration - 0.8);
+    });
+
+    // ===== PHASE 2: Star explosion in (1.5 - 3.5s) =====
+    // Ring shockwave
+    tl.fromTo(ring1, {
+      width: 0, height: 0,
+      opacity: 0.8
+    }, {
+      width: '500px',
+      height: '500px',
+      opacity: 0,
+      duration: 1.2,
+      ease: 'power2.out'
+    }, 1.5);
+
+    tl.fromTo(ring2, {
+      width: 0, height: 0,
+      opacity: 0.5
+    }, {
+      width: '700px',
+      height: '700px',
+      opacity: 0,
+      duration: 1.5,
+      ease: 'power2.out'
+    }, 1.7);
+
+    // Star scale in with explosion
+    tl.fromTo(star, {
+      scale: 0,
+      rotation: -90,
+      opacity: 0
+    }, {
+      scale: 1,
+      rotation: 0,
+      opacity: 1,
+      duration: 1,
+      ease: 'back.out(1.6)'
+    }, 1.6);
+
+    // Light rays fade in
+    tl.to(lightRays, {
+      opacity: 1,
+      duration: 1,
+      ease: 'power2.out'
+    }, 2.0);
+
+    // Star pulse
+    tl.to(star, {
+      scale: 1.08,
+      duration: 0.4,
+      ease: 'power1.inOut',
+      yoyo: true,
+      repeat: 1
+    }, 2.8);
+
+    // ===== PHASE 3: Year tagline (3 - 4.5s) =====
+    tl.to('#scene1', { opacity: 1, duration: 0.01 }, 0);
+
+    tl.fromTo('#s1-year', {
+      y: 30,
+      opacity: 0,
+      filter: 'blur(8px)'
+    }, {
+      y: 0,
+      opacity: 1,
+      filter: 'blur(0px)',
+      duration: 0.8,
+      ease: 'power3.out'
+    }, 3.0);
+
+    tl.to('#s1-desc', {
+      opacity: 1,
+      duration: 0.6,
+      ease: 'power2.out'
+    }, 3.6);
+    tl.from('#s1-desc', {
+      y: 15,
+      duration: 0.6,
+      ease: 'power2.out'
+    }, 3.6);
+
+    // ===== PHASE 4: Transition to title (5 - 6s) =====
+    tl.to(star, {
+      scale: 0.45,
+      y: '-60px',
+      opacity: 0.08,
+      duration: 1,
+      ease: 'power2.inOut'
+    }, 4.8);
+
+    tl.to('#s1-year', {
+      opacity: 0,
+      y: -20,
+      duration: 0.5,
+      ease: 'power2.in'
+    }, 4.8);
+
+    tl.to('#s1-desc', {
+      opacity: 0,
+      duration: 0.4,
+      ease: 'power2.in'
+    }, 4.9);
+
+    // Ribbons expand
+    tl.to('#ribbon-top', {
+      scaleX: 1,
+      duration: 0.8,
+      ease: 'power3.out'
+    }, 5.0);
+    tl.to('#ribbon-bottom', {
+      scaleX: 1,
+      duration: 0.8,
+      ease: 'power3.out'
+    }, 5.1);
+
+    // Corners appear
+    tl.to('.corner-frame', {
+      opacity: 1,
+      duration: 0.6,
+      ease: 'power2.out',
+      stagger: 0.08
+    }, 5.3);
+
+    // ===== PHASE 5: Title reveal (5.5 - 8s) =====
+    tl.to('#scene2', { opacity: 1, duration: 0.01 }, 5.5);
+
+    // Title top line
+    tl.fromTo('#title-top', {
+      y: 80,
+      opacity: 0,
+      filter: 'blur(12px)',
+      clipPath: 'inset(0 0 100% 0)'
+    }, {
+      y: 0,
+      opacity: 1,
+      filter: 'blur(0px)',
+      clipPath: 'inset(0 0 0% 0)',
+      duration: 1,
+      ease: 'power4.out'
+    }, 5.8);
+
+    // Title bottom line
+    tl.fromTo('#title-bottom', {
+      y: 80,
+      opacity: 0,
+      filter: 'blur(12px)',
+      clipPath: 'inset(100% 0 0 0)'
+    }, {
+      y: 0,
+      opacity: 1,
+      filter: 'blur(0px)',
+      clipPath: 'inset(0% 0 0 0)',
+      duration: 1,
+      ease: 'power4.out'
+    }, 6.2);
+
+    // Divider
+    tl.to('#title-divider', {
+      opacity: 1,
+      duration: 0.5,
+      ease: 'power2.out'
+    }, 7.0);
+    tl.from('.divider-line', {
+      scaleX: 0,
+      transformOrigin: 'center',
+      duration: 0.6,
+      ease: 'power2.out',
+      stagger: 0.1
+    }, 7.0);
+    tl.from('.divider-star', {
+      scale: 0,
+      rotation: -180,
+      duration: 0.5,
+      ease: 'back.out(1.5)'
+    }, 7.1);
+
+    // Subtitle
+    tl.to('#title-sub', {
+      opacity: 1,
+      duration: 0.6,
+      ease: 'power2.out'
+    }, 7.4);
+    tl.from('#title-sub', {
+      y: 15,
+      letterSpacing: '0.8em',
+      duration: 0.6,
+      ease: 'power2.out'
+    }, 7.4);
+
+    // ===== PHASE 6: Transition to rounds (9 - 10s) =====
+    tl.to('#scene2', {
+      opacity: 0,
+      scale: 0.92,
+      duration: 0.8,
+      ease: 'power2.in'
+    }, 9.0);
+
+    tl.to(star, {
+      opacity: 0,
+      scale: 0.3,
+      duration: 0.8,
+      ease: 'power2.in'
+    }, 9.0);
+
+    tl.to(lightRays, {
+      opacity: 0.3,
+      duration: 0.8,
+      ease: 'power2.in'
+    }, 9.0);
+
+    // ===== PHASE 7: Rounds reveal (10 - 13s) =====
+    tl.to('#scene3', { opacity: 1, duration: 0.01 }, 10.0);
+
+    tl.fromTo('#rounds-title', {
+      y: 50,
+      opacity: 0,
+      filter: 'blur(10px)'
+    }, {
+      y: 0,
+      opacity: 1,
+      filter: 'blur(0px)',
+      duration: 0.8,
+      ease: 'power3.out'
+    }, 10.2);
+
+    tl.to('#rounds-grid', {
+      opacity: 1,
+      duration: 0.3,
+      ease: 'power2.out'
+    }, 10.8);
+
+    // Cards stagger in with more impact
+    var cards = document.querySelectorAll('.round-card');
+    tl.from(cards, {
+      y: 60,
+      opacity: 0,
+      scale: 0.9,
+      duration: 0.7,
+      ease: 'back.out(1.4)',
+      stagger: 0.25
+    }, 10.8);
+
+    // ===== PHASE 8: Transition to final (13.5 - 14.5s) =====
+    tl.to('#scene3', {
+      opacity: 0,
+      scale: 0.92,
+      duration: 0.8,
+      ease: 'power2.in'
+    }, 13.5);
+
+    // ===== PHASE 9: Final slogan (14.5 - 17s) =====
+    tl.to('#scene4', { opacity: 1, duration: 0.01 }, 14.5);
+
+    tl.fromTo('#s4-slogan', {
+      y: 60,
+      opacity: 0,
+      filter: 'blur(10px)'
+    }, {
+      y: 0,
+      opacity: 1,
+      filter: 'blur(0px)',
+      duration: 1,
+      ease: 'power4.out'
+    }, 14.8);
+
+    tl.to('#s4-info', {
+      opacity: 1,
+      duration: 0.6,
+      ease: 'power2.out'
+    }, 15.5);
+    tl.from('#s4-info .info-line', {
+      x: -40,
+      opacity: 0,
+      duration: 0.5,
+      ease: 'power2.out',
+      stagger: 0.12
+    }, 15.5);
+
+    tl.to('#s4-credit', {
+      opacity: 1,
+      duration: 0.6,
+      ease: 'power2.out'
+    }, 16.2);
+    tl.from('#s4-credit', {
+      y: 15,
+      duration: 0.6,
+      ease: 'power2.out'
+    }, 16.2);
+
+    // Star subtly returns in background
+    tl.to(star, {
+      opacity: 0.06,
+      scale: 0.4,
+      y: '-20px',
+      duration: 1.5,
+      ease: 'power2.out'
+    }, 15.0);
+
+    tl.to(lightRays, {
+      opacity: 0.5,
+      duration: 1,
+      ease: 'power2.out'
+    }, 15.0);
+
+    // ===== PHASE 10: Hold + fade (17 - 20s) =====
+    // Hold for 3 seconds
+    tl.to({}, { duration: 2.5, ease: 'none' }, 17.5);
+
+    // Fade everything
+    tl.to('#scene4', {
+      opacity: 0,
+      scale: 0.95,
+      duration: 1,
+      ease: 'power2.inOut'
+    }, 20.0);
+
+    tl.to(star, {
+      opacity: 0,
+      scale: 0.7,
+      duration: 1,
+      ease: 'power2.inOut'
+    }, 20.0);
+
+    tl.to(lightRays, {
+      opacity: 0,
+      duration: 1,
+      ease: 'power2.inOut'
+    }, 20.0);
+
+    tl.to('#ribbon-top, #ribbon-bottom', {
+      scaleX: 0,
+      duration: 0.8,
+      ease: 'power2.inOut'
+    }, 20.1);
+
+    tl.to('.corner-frame', {
+      opacity: 0,
+      duration: 0.6,
+      ease: 'power2.inOut'
+    }, 20.1);
+
+    tl.to(embers.map(function(e){ return e.el; }), {
+      opacity: 0,
+      duration: 0.8,
+      ease: 'power2.out'
+    }, 20.0);
+
+    return tl;
+  }
+
+  // ===== Init =====
+  var mainTL = null;
+
+  function play() {
+    if (mainTL) mainTL.kill();
+
+    // Reset
+    gsap.set('.scene', { opacity: 0 });
+    gsap.set('#star-wrapper', { scale: 0, opacity: 0, rotation: -90, y: 0, top: '35%' });
+    gsap.set('#light-rays', { opacity: 0 });
+    gsap.set('.corner-frame', { opacity: 0 });
+    gsap.set('#ribbon-top, #ribbon-bottom', { scaleX: 0 });
+    gsap.set('#star-ring1, #star-ring2', { width: 0, height: 0, opacity: 0 });
+    gsap.set('#progress-bar', { width: '0%' });
+
+    // Reset embers
+    embers.forEach(function(ember) {
+      gsap.set(ember.el, {
+        opacity: 0,
+        x: 0,
+        y: 0,
+        left: ember.startX + '%',
+        bottom: ember.startY + '%'
+      });
+    });
+
+    document.getElementById('replay-btn').classList.remove('visible');
+
+    mainTL = createTimeline();
+    mainTL.play();
+  }
+
+  window.addEventListener('load', function() {
+    setTimeout(play, 200);
+  });
+
+  document.getElementById('replay-btn').addEventListener('click', play);
+  document.getElementById('stage').addEventListener('click', function() {
+    if (document.getElementById('replay-btn').classList.contains('visible')) play();
+  });
+  document.addEventListener('keydown', function(e) {
+    if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); play(); }
+  });
+
+})();
+</script>
+
+
+</body></html>

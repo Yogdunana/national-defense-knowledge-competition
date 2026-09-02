@@ -1,0 +1,1233 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>国防知识竞赛 — 页面规划文档</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif; background: #0a1628; color: #e0e0e0; line-height: 1.7; }
+
+/* Header */
+.header { background: linear-gradient(135deg, #0d2137, #102845); padding: 40px 0; text-align: center; border-bottom: 2px solid #ffd700; }
+.header h1 { font-size: 32px; color: #ffd700; margin-bottom: 8px; letter-spacing: 4px; }
+.header p { font-size: 14px; color: rgba(255,255,255,0.5); }
+
+/* Container */
+.container { max-width: 1100px; margin: 0 auto; padding: 30px 20px 60px; }
+
+/* Section */
+.section { margin-bottom: 50px; }
+.section-title { font-size: 24px; color: #ffd700; border-left: 4px solid #ffd700; padding-left: 14px; margin-bottom: 20px; letter-spacing: 2px; }
+.subsection-title { font-size: 18px; color: #64b5f6; margin: 24px 0 14px; padding-left: 10px; border-left: 3px solid #2196f3; }
+
+/* Phase Card */
+.phase-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; margin-bottom: 16px; overflow: hidden; }
+.phase-header { background: rgba(255,215,0,0.06); padding: 12px 18px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid rgba(255,215,0,0.1); }
+.phase-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 32px; height: 32px; border-radius: 50%; background: #ffd700; color: #000; font-weight: bold; font-size: 14px; flex-shrink: 0; }
+.phase-name { font-size: 16px; color: #ffd700; font-weight: 600; }
+.phase-timing { font-size: 12px; color: rgba(255,255,255,0.4); margin-left: auto; }
+.phase-body { padding: 16px 18px; }
+
+/* Page Card */
+.page-card { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; margin-bottom: 12px; overflow: hidden; transition: all 0.2s; }
+.page-card:hover { border-color: rgba(255,215,0,0.2); background: rgba(255,215,0,0.02); }
+.page-header { padding: 10px 16px; display: flex; align-items: center; gap: 10px; cursor: pointer; }
+.page-num { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 6px; font-size: 13px; font-weight: bold; flex-shrink: 0; }
+.page-num.display { background: rgba(255,215,0,0.15); color: #ffd700; border: 1px solid rgba(255,215,0,0.3); }
+.page-num.admin { background: rgba(33,150,243,0.15); color: #64b5f6; border: 1px solid rgba(33,150,243,0.3); }
+.page-title { font-size: 15px; font-weight: 600; color: #fff; }
+.page-trigger { font-size: 12px; color: rgba(255,255,255,0.35); margin-left: auto; white-space: nowrap; }
+.page-body { padding: 0 16px 14px 52px; }
+.page-body ul { list-style: none; }
+.page-body li { font-size: 13px; color: rgba(255,255,255,0.65); padding: 3px 0; padding-left: 14px; position: relative; }
+.page-body li::before { content: '·'; color: #ffd700; position: absolute; left: 0; font-weight: bold; }
+
+/* Tags */
+.tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; margin-right: 4px; }
+.tag-display { background: rgba(255,215,0,0.12); color: #ffd700; border: 1px solid rgba(255,215,0,0.2); }
+.tag-admin { background: rgba(33,150,243,0.12); color: #64b5f6; border: 1px solid rgba(33,150,243,0.2); }
+.tag-sync { background: rgba(0,230,118,0.12); color: #00e676; border: 1px solid rgba(0,230,118,0.2); }
+.tag-buzzer { background: rgba(255,82,82,0.12); color: #ff5252; border: 1px solid rgba(255,82,82,0.2); }
+
+/* Table */
+table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+th { background: rgba(255,215,0,0.06); color: #ffd700; padding: 8px 12px; text-align: left; border-bottom: 1px solid rgba(255,215,0,0.15); font-weight: 600; }
+td { padding: 8px 12px; border-bottom: 1px solid rgba(255,255,255,0.04); color: rgba(255,255,255,0.7); }
+tr:hover td { background: rgba(255,255,255,0.02); }
+
+/* Color legend */
+.color-legend { display: flex; flex-wrap: wrap; gap: 10px; margin: 14px 0; }
+.color-item { display: flex; align-items: center; gap: 8px; padding: 6px 14px; border-radius: 6px; font-size: 13px; }
+.color-swatch { width: 16px; height: 16px; border-radius: 4px; flex-shrink: 0; }
+.cl-green { background: rgba(0,200,83,0.15); border: 1px solid #00c853; }
+.cl-green .color-swatch { background: #00c853; }
+.cl-blue { background: rgba(33,150,243,0.15); border: 1px solid #2196f3; }
+.cl-blue .color-swatch { background: #2196f3; }
+.cl-red { background: rgba(244,67,54,0.15); border: 1px solid #f44336; }
+.cl-red .color-swatch { background: #f44336; }
+
+/* Flow diagram */
+.flow { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; margin: 14px 0; }
+.flow-step { padding: 8px 16px; background: rgba(255,215,0,0.08); border: 1px solid rgba(255,215,0,0.2); border-radius: 6px; font-size: 13px; color: #ffd700; }
+.flow-arrow { color: rgba(255,255,255,0.3); font-size: 18px; }
+
+/* Note */
+.note { padding: 12px 16px; background: rgba(255,193,7,0.06); border-left: 3px solid #ffc107; border-radius: 0 6px 6px 0; margin: 12px 0; font-size: 13px; color: rgba(255,255,255,0.6); }
+
+/* Architecture */
+.arch-box { display: inline-block; padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 600; text-align: center; }
+.arch-node { background: rgba(33,150,243,0.15); border: 1px solid #2196f3; color: #64b5f6; }
+.arch-server { background: rgba(0,230,118,0.15); border: 1px solid #00e676; color: #00e676; }
+.arch-dll { background: rgba(255,82,82,0.15); border: 1px solid #ff5252; color: #ff5252; }
+
+/* Divider */
+.divider { height: 1px; background: linear-gradient(90deg, transparent, rgba(255,215,0,0.2), transparent); margin: 30px 0; }
+</style>
+</head>
+<body>
+
+<div class="header">
+    <h1>"长征薪火，青春卫国" 国防知识竞赛</h1>
+    <p>展示端 & 管理端 页面规划文档 · 2026年8月</p>
+</div>
+
+<div class="container">
+
+<!-- ===================== 技术架构 ===================== -->
+<div class="section">
+    <div class="section-title">技术架构</div>
+    <div class="phase-card">
+        <div class="phase-body" style="text-align: center; padding: 30px;">
+            <div class="arch-box arch-node">管理端 (admin.html)<br><small style="opacity:0.6">电脑主屏 · localhost:3000/admin</small></div>
+            <span style="color:rgba(255,255,255,0.2); margin: 0 15px;">⇄ WebSocket</span>
+            <div class="arch-box arch-server">Node.js 本地服务<br><small style="opacity:0.6">Express + WebSocket + TCP Client</small></div>
+            <span style="color:rgba(255,255,255,0.2); margin: 0 15px;">⇄ WebSocket</span>
+            <div class="arch-box arch-node">展示端 (display.html)<br><small style="opacity:0.6">副屏/投影 · localhost:3000</small></div>
+            <br><br>
+            <div style="margin-top: 10px;">
+                <div class="arch-box arch-dll" style="display:block; max-width:300px; margin:0 auto;">
+                    DLL TCP Server (127.0.0.1:9999)<br>
+                    <small style="opacity:0.6">抢答器事件 → JSON</small>
+                </div>
+                <p style="font-size: 12px; color: rgba(255,255,255,0.3); margin-top: 6px;">↑ Node.js TCP Client 连接</p>
+            </div>
+        </div>
+    </div>
+    <div class="note">
+        <strong>同步机制：</strong>管理端切换题目/环节时，展示端自动同步跟随。答案显示、得分变化均由管理端控制，实时推送到展示端。<br>
+        <strong>DLL降级：</strong>DLL未就绪时，管理端可手动选择抢答队伍，系统功能不受影响。<br>
+        <strong>状态持久化：</strong>所有状态实时写入 state.json，浏览器刷新可恢复当前进度。
+    </div>
+</div>
+
+<!-- ===================== 计分规则总表 ===================== -->
+<div class="section">
+    <div class="section-title">计分规则总表</div>
+    <table>
+        <thead>
+            <tr>
+                <th>环节</th>
+                <th>题型</th>
+                <th>分值</th>
+                <th>答对</th>
+                <th>答错</th>
+                <th>抢答犯规</th>
+                <th>必答题违规</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td>一·必答</td><td>5道</td><td>10分</td><td style="color:#00e676">+10</td><td style="color:#64b5f6">0分(不扣)</td><td>—</td><td style="color:#f44336">-10</td></tr>
+            <tr><td>一·抢答</td><td>20道</td><td>10分</td><td style="color:#00e676">+10</td><td style="color:#64b5f6">-10</td><td style="color:#f44336">取消本题资格</td><td>—</td></tr>
+            <tr><td>二·PK</td><td>每组5道</td><td>10分</td><td style="color:#00e676">+10</td><td style="color:#64b5f6">-10</td><td style="color:#f44336">取消本题资格</td><td>—</td></tr>
+            <tr><td>三·半决赛</td><td>5道</td><td>10分</td><td style="color:#00e676">+10</td><td style="color:#64b5f6">-10</td><td style="color:#f44336">取消本题资格</td><td>—</td></tr>
+            <tr><td>四·简单</td><td>3道</td><td>5分</td><td style="color:#00e676">+5</td><td style="color:#64b5f6">-5</td><td style="color:#f44336">取消本题资格</td><td>—</td></tr>
+            <tr><td>四·中等</td><td>3道</td><td>10分</td><td style="color:#00e676">+10</td><td style="color:#64b5f6">-10</td><td style="color:#f44336">取消本题资格</td><td>—</td></tr>
+            <tr><td>四·难题</td><td>3道</td><td>15分</td><td style="color:#00e676">+15</td><td style="color:#64b5f6">-15</td><td style="color:#f44336">取消本题资格</td><td>—</td></tr>
+            <tr><td>五·加赛</td><td>每组5道</td><td>10分</td><td style="color:#00e676">+10</td><td style="color:#64b5f6">-10</td><td style="color:#f44336">取消本题资格</td><td>—</td></tr>
+        </tbody>
+    </table>
+
+    <div class="subsection-title">分值颜色标识</div>
+    <div class="color-legend">
+        <div class="color-item cl-green"><span class="color-swatch"></span>绿色 — 答对得分（+10分 / +5分 / +15分）</div>
+        <div class="color-item cl-blue"><span class="color-swatch"></span>蓝色"0分" — 必答题答错，不扣分</div>
+        <div class="color-item cl-blue"><span class="color-swatch"></span>蓝色负值 — 抢答/决赛答错，扣对应分值</div>
+        <div class="color-item cl-red"><span class="color-swatch"></span>红色"-10分" — 必答题违规</div>
+        <div class="color-item cl-red"><span class="color-swatch"></span>红色"取消资格" — 抢答犯规（提前抢答），不扣分</div>
+    </div>
+
+    <div class="subsection-title">每轮计分方式</div>
+    <table>
+        <thead><tr><th>轮次</th><th>计分方式</th><th>说明</th></tr></thead>
+        <tbody>
+            <tr><td>第一环节</td><td>总分累加</td><td>必答+抢答所有得分累加，按总分排名，前8名晋级</td></tr>
+            <tr><td>第二环节(8进4)</td><td>从0分开始</td><td>每组PK独立计分，不带入第一环节分数，高分者晋级</td></tr>
+            <tr><td>第三环节(4进2)</td><td>从0分开始</td><td>半决赛独立计分，高分者晋级决赛</td></tr>
+            <tr><td>第四环节(决赛)</td><td>从0分开始</td><td>决赛独立计分，交替选题，总分高者夺冠</td></tr>
+            <tr><td>加赛</td><td>分数不计入总分</td><td>仅用于决定排名/胜负，5题抢答</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- ===================== 比赛流程 ===================== -->
+<div class="section">
+    <div class="section-title">完整比赛流程</div>
+
+    <div class="phase-card">
+        <div class="phase-header">
+            <span class="phase-badge">1</span>
+            <span class="phase-name">第一环节：同心协力（14进8）</span>
+            <span class="phase-timing">必答5道 + 抢答20道</span>
+        </div>
+        <div class="phase-body">
+            <div class="flow">
+                <span class="flow-step">必答题5道</span><span class="flow-arrow">→</span>
+                <span class="flow-step">全部队伍统一作答</span><span class="flow-arrow">→</span>
+                <span class="flow-step">管理端逐队判分</span><span class="flow-arrow">→</span>
+                <span class="flow-step">抢答题20道</span><span class="flow-arrow">→</span>
+                <span class="flow-step">3-2-1倒计时抢答</span><span class="flow-arrow">→</span>
+                <span class="flow-step">排名展示</span><span class="flow-arrow">→</span>
+                <span class="flow-step" style="background:rgba(255,82,82,0.08); border-color:rgba(255,82,82,0.2); color:#ff5252">平分?加赛</span><span class="flow-arrow">→</span>
+                <span class="flow-step" style="background:rgba(0,230,118,0.08); border-color:rgba(0,230,118,0.2); color:#00e676">前8名晋级</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="phase-card">
+        <div class="phase-header">
+            <span class="phase-badge">2</span>
+            <span class="phase-name">第二环节：突围时刻（8进4）</span>
+            <span class="phase-timing">4组PK · 每组5题</span>
+        </div>
+        <div class="phase-body">
+            <div class="flow">
+                <span class="flow-step">展示对阵图</span><span class="flow-arrow">→</span>
+                <span class="flow-step">1v8 PK(5题)</span><span class="flow-arrow">→</span>
+                <span class="flow-step">2v7 PK(5题)</span><span class="flow-arrow">→</span>
+                <span class="flow-step">3v6 PK(5题)</span><span class="flow-arrow">→</span>
+                <span class="flow-step">4v5 PK(5题)</span><span class="flow-arrow">→</span>
+                <span class="flow-step" style="background:rgba(0,230,118,0.08); border-color:rgba(0,230,118,0.2); color:#00e676">4胜者晋级半决赛</span>
+            </div>
+            <p style="font-size:12px; color:rgba(255,255,255,0.4); margin-top:8px;">每组PK从0分开始，抢答5题(+10/-10)，平局则加赛</p>
+        </div>
+    </div>
+
+    <div class="phase-card">
+        <div class="phase-header">
+            <span class="phase-badge">3</span>
+            <span class="phase-name">第三环节：半决赛（4进2）</span>
+            <span class="phase-timing">2组PK · 每组5题</span>
+        </div>
+        <div class="phase-body">
+            <div class="flow">
+                <span class="flow-step">半决赛A组PK(5题)</span><span class="flow-arrow">→</span>
+                <span class="flow-step">半决赛B组PK(5题)</span><span class="flow-arrow">→</span>
+                <span class="flow-step" style="background:rgba(255,193,7,0.08); border-color:rgba(255,193,7,0.2); color:#ffc107">两人分数相同?</span><span class="flow-arrow">→</span>
+                <span class="flow-step" style="background:rgba(255,82,82,0.08); border-color:rgba(255,82,82,0.2); color:#ff5252">加赛定选题顺序</span><span class="flow-arrow">→</span>
+                <span class="flow-step" style="background:rgba(0,230,118,0.08); border-color:rgba(0,230,118,0.2); color:#00e676">2胜者晋级决赛</span>
+            </div>
+            <p style="font-size:12px; color:rgba(255,255,255,0.4); margin-top:8px;">半决赛分数不带入决赛，但决定决赛选题顺序。两人分数相同时先加赛排名。</p>
+        </div>
+    </div>
+
+    <div class="phase-card">
+        <div class="phase-header">
+            <span class="phase-badge">4</span>
+            <span class="phase-name">第四环节：决赛（2进1）</span>
+            <span class="phase-timing">9题 · 交替选题</span>
+        </div>
+        <div class="phase-body">
+            <div class="flow">
+                <span class="flow-step">展示9题总览</span><span class="flow-arrow">→</span>
+                <span class="flow-step">A选题→B选题→A→B→A→B→A→B(共8题)</span><span class="flow-arrow">→</span>
+                <span class="flow-step" style="background:rgba(255,193,7,0.08); border-color:rgba(255,193,7,0.2); color:#ffc107">平分?</span><span class="flow-arrow">→</span>
+                <span class="flow-step" style="background:rgba(255,82,82,0.08); border-color:rgba(255,82,82,0.2); color:#ff5252">第9题抢答定胜负</span><span class="flow-arrow">→</span>
+                <span class="flow-step" style="background:rgba(255,215,0,0.08); border-color:rgba(255,215,0,0.2); color:#ffd700">冠军诞生</span>
+            </div>
+            <p style="font-size:12px; color:rgba(255,255,255,0.4); margin-top:8px;">简单3道(5分)/中等3道(10分)/难题3道(15分)，每队答4题交替选题</p>
+        </div>
+    </div>
+
+    <div class="phase-card">
+        <div class="phase-header">
+            <span class="phase-badge" style="background:#ff5252; color:#fff;">!</span>
+            <span class="phase-name" style="color:#ff5252;">加赛环节：锦上添花（任意平局时触发）</span>
+            <span class="phase-timing">4组备用题 · 每组5题</span>
+        </div>
+        <div class="phase-body">
+            <table>
+                <thead><tr><th>触发场景</th><th>参与者</th><th>题目来源</th><th>计分</th></tr></thead>
+                <tbody>
+                    <tr><td>第一环节排名平分</td><td>所有平分队伍</td><td>第1组(首次)→第2组→...</td><td>不计入总分，仅定排名</td></tr>
+                    <tr><td>第二环节PK平局</td><td>平局的两支队伍</td><td>未使用的下一组</td><td>不计入总分，仅定胜负</td></tr>
+                    <tr><td>半决赛平局</td><td>平局的两支队伍</td><td>未使用的下一组</td><td>不计入总分，仅定胜负/选题顺序</td></tr>
+                    <tr><td>决赛平局</td><td>决赛两支队伍</td><td>第9题抢答/未使用的下一组</td><td>不计入总分，一局定胜负</td></tr>
+                </tbody>
+            </table>
+            <div class="note"><strong>题目不重复原则：</strong>4组加赛题按顺序使用（第1次加赛用第1组，第2次用第2组），已使用的题目不再出现。</div>
+        </div>
+    </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ===================== 展示端页面 ===================== -->
+<div class="section">
+    <div class="section-title">展示端（大屏）页面规划</div>
+    <p style="color:rgba(255,255,255,0.4); font-size:13px; margin-bottom:20px;">
+        <span class="tag tag-display">展示端</span>
+        运行于副屏/投影仪，由管理端自动控制内容切换。左右两侧固定显示14支连队实时分数（第一环节）或当前PK双方分数（后续环节）。
+    </p>
+
+    <!-- 展示端 - 封面页 -->
+    <div class="page-card">
+        <div class="page-header">
+            <span class="page-num display">1</span>
+            <span class="page-title">封面页</span>
+            <span class="page-trigger">开场 · 管理端点击"开始竞赛"</span>
+        </div>
+        <div class="page-body">
+            <ul>
+                <li>大标题："长征薪火，青春卫国" 国防知识竞赛</li>
+                <li>副标题：2025级本科生军训 · 2026年8月30日</li>
+                <li>14支连队名称分两列展示，带入场动画</li>
+                <li>底部：计算机协会 提供技术支持 / 军训指挥部 监制</li>
+                <li>背景效果：红色/金色主题，长征元素装饰</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- 展示端 - 环节介绍页 -->
+    <div class="page-card">
+        <div class="page-header">
+            <span class="page-num display">2</span>
+            <span class="page-title">环节介绍页</span>
+            <span class="page-trigger">每个环节开始时 · 自动或手动触发</span>
+        </div>
+        <div class="page-body">
+            <ul>
+                <li>环节名称大字显示（第一环节"同心协力"等）</li>
+                <li>规则说明文字（简短摘要）</li>
+                <li>题型分值提示（如"必答题5道·每题10分"）</li>
+                <li>参与队伍信息（14支 / 8支 / 4支 / 2支）</li>
+                <li>过渡动画效果</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- 展示端 - 必答题展示页 -->
+    <div class="page-card">
+        <div class="page-header">
+            <span class="page-num display">3</span>
+            <span class="page-title">必答题展示页</span>
+            <span class="page-trigger">第一环节 · 必答题阶段</span>
+        </div>
+        <div class="page-body">
+            <ul>
+                <li>顶部：环节标识 + 题号（如"第一环节 · 必答题 · 第3题"）</li>
+                <li>分值标识：绿色"10分"（右侧角标）</li>
+                <li>题干文字居中大字显示</li>
+                <li>4个选项（A/B/C/D）纵向排列</li>
+                <li>答案默认隐藏，管理端控制"显示答案"后高亮正确选项</li>
+                <li>底部规则提示："答对+10分 · 答错不扣分 · 违规-10分"</li>
+                <li>左右侧栏：14连队实时分数（分数变化时绿色闪烁动画）</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- 展示端 - 抢答题展示页 -->
+    <div class="page-card">
+        <div class="page-header">
+            <span class="page-num display">4</span>
+            <span class="page-title">抢答题展示页 <span class="tag tag-buzzer">抢答</span></span>
+            <span class="page-trigger">第一/二/三环节 · 抢答题阶段</span>
+        </div>
+        <div class="page-body">
+            <ul>
+                <li>顶部：环节标识 + 题号 + 分值标识</li>
+                <li>题干 + 4选项</li>
+                <li><strong>倒计时状态区（中央覆盖层）：</strong>
+                    <ul style="margin-left:20px; margin-top:4px;">
+                        <li>管理端点"开始抢答" → 大屏显示大数字 3→2→1（配合音效）</li>
+                        <li>倒计时结束后显示"抢答开始！"（等待抢答）</li>
+                        <li>DLL返回抢答者 → 显示"X连 抢答成功！"（绿色高亮+提示音）</li>
+                        <li>提前抢答 → 显示"X连 犯规！取消本题资格"（红色+警告音）</li>
+                    </ul>
+                </li>
+                <li><strong>3秒答题计时：</strong>抢答成功后显示3秒倒计时（有显示，<u>无声音</u>，超时算答错）</li>
+                <li><strong>判分结果标识：</strong>
+                    <ul style="margin-left:20px; margin-top:4px;">
+                        <li>绿色"+10分" — 答对</li>
+                        <li>蓝色"-10分" — 答错</li>
+                        <li>红色"取消资格" — 犯规</li>
+                    </ul>
+                </li>
+                <li>答案显示：管理端控制，高亮正确选项</li>
+                <li>无人抢答超时 → 显示"无人抢答，跳过本题"</li>
+                <li>左右侧栏：参与队伍实时分数</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- 展示端 - 排名展示页 -->
+    <div class="page-card">
+        <div class="page-header">
+            <span class="page-num display">5</span>
+            <span class="page-title">排名展示页（第一环节后）</span>
+            <span class="page-trigger">第一环节结束 · 管理端确认排名</span>
+        </div>
+        <div class="page-body">
+            <ul>
+                <li>标题："第一环节 — 最终排名"</li>
+                <li>14支连队按分数从高到低排列，两列布局</li>
+                <li>前8名：金色边框 + "晋级"标识</li>
+                <li>第9-14名：灰色半透明 + "优秀奖"标识</li>
+                <li>第1/2/3名特殊样式（金/银/铜）</li>
+                <li>平分队伍：红色高亮标注 + "加赛"提示</li>
+                <li>平分检测后自动提示"即将进入加赛"</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- 展示端 - 对阵图展示页 -->
+    <div class="page-card">
+        <div class="page-header">
+            <span class="page-num display">6</span>
+            <span class="page-title">对阵图展示页（8进4）</span>
+            <span class="page-trigger">第二环节开始</span>
+        </div>
+        <div class="page-body">
+            <ul>
+                <li>树形对阵图：左侧8支队伍，右侧4个晋级位</li>
+                <li>对阵配对：1v8 / 2v7 / 3v6 / 4v5</li>
+                <li>每组显示：连队名 vs 连队名 + 当前PK分数</li>
+                <li>正在进行PK的场次：高亮闪烁</li>
+                <li>已完成的场次：胜者绿色高亮，负者灰色</li>
+                <li>晋级路径连线动画</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- 展示端 - 半决赛对阵图 -->
+    <div class="page-card">
+        <div class="page-header">
+            <span class="page-num display">7</span>
+            <span class="page-title">半决赛对阵图（4进2）</span>
+            <span class="page-trigger">第三环节</span>
+        </div>
+        <div class="page-body">
+            <ul>
+                <li>简化树形对阵图：4支队伍 → 2个决赛位</li>
+                <li>两组PK实时分数展示（从0开始，不显示第一环节总分）</li>
+                <li>胜者进入决赛路径</li>
+                <li>两人半决赛分数相同时 → 提示"加赛决定选题顺序"（注意：两人均晋级决赛，加赛仅决定谁先选题，不淘汰任何人）</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- 展示端 - 决赛选题展示页 -->
+    <div class="page-card">
+        <div class="page-header">
+            <span class="page-num display">8</span>
+            <span class="page-title">决赛选题展示页</span>
+            <span class="page-trigger">第四环节</span>
+        </div>
+        <div class="page-body">
+            <ul>
+                <li>9题总览网格（3×3布局）：
+                    <ul style="margin-left:20px; margin-top:4px;">
+                        <li>绿色方块 — 简单题（5分）</li>
+                        <li>蓝色方块 — 中等题（10分）</li>
+                        <li>红色方块 — 难题（15分）</li>
+                    </ul>
+                </li>
+                <li>已选题目：划线 + 灰色半透明</li>
+                <li>当前选题队伍标识（A队/B队交替高亮）</li>
+                <li>选题顺序指示器（如"A1→B2→A3→B4→..."）</li>
+                <li>每队已答题数/4统计</li>
+                <li>双方实时分数（从0开始）</li>
+                <li>剩余第9题特殊标识（"平局抢答专用"）</li>
+                <li>题目展示时同抢答题展示页格式</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- 展示端 - 加赛展示页 -->
+    <div class="page-card">
+        <div class="page-header">
+            <span class="page-num display">9</span>
+            <span class="page-title">加赛展示页 <span class="tag tag-buzzer">抢答</span></span>
+            <span class="page-trigger">任意环节出现平局时</span>
+        </div>
+        <div class="page-body">
+            <ul>
+                <li><strong>加赛信息区（顶部）：</strong>
+                    <ul style="margin-left:20px; margin-top:4px;">
+                        <li>加赛原因：如"第一环节排名 — 第7/8名平分加赛" / "第二环节PK — 一连 vs 八连 平局加赛"</li>
+                        <li>参与队伍：平分的所有队伍名称高亮，非参与队伍灰色淡化</li>
+                        <li>题组编号：显示当前使用第几组（如"第2组 / 共4组"），已用题组灰色划线</li>
+                        <li>说明文字："加赛分数不计入总分，仅决定排名/胜负"</li>
+                        <li>如果是第一环节多处平分：显示当前处理的是第几处（如"第1处/共2处：第3-4名平分"）</li>
+                    </ul>
+                </li>
+                <li><strong>题目展示区：</strong>同抢答题展示页格式（题干+选项+倒计时+抢答状态）</li>
+                <li><strong>加赛积分区（侧栏）：</strong>仅展示参与加赛队伍的加赛得分（独立计分，从0开始），实时更新</li>
+                <li><strong>3-2-1倒计时：</strong>有声音（同抢答流程），"3"→"2"→"1"→"抢答开始"</li>
+                <li><strong>3秒答题计时：</strong>有显示（3→2→1倒计时数字），无声音，超时标记答错</li>
+                <li><strong>每题流程（重复5次）：</strong>
+                    <ul style="margin-left:20px; margin-top:4px;">
+                        <li>管理端切换题目 → 展示端显示题干+选项</li>
+                        <li>管理端"开始抢答" → 展示端3-2-1倒计时（有声音）</li>
+                        <li>DLL返回抢答者 → 展示端高亮抢答者（"X连 抢答成功"，绿色+提示音）</li>
+                        <li>展示端启动3秒答题倒计时（有显示，无声音）</li>
+                        <li>管理端判答对/答错 → 展示端显示结果标识（绿色+10 / 蓝色-10）</li>
+                        <li>犯规 → 展示端红色"取消资格"，该队退出本题，其他队继续抢答</li>
+                        <li>无人抢答 → 展示端"无人抢答，跳过本题"</li>
+                    </ul>
+                </li>
+                <li><strong>5题结束 — 加赛结果展示：</strong>
+                    <ul style="margin-left:20px; margin-top:4px;">
+                        <li>按加赛分数排序，展示各队加赛得分排名</li>
+                        <li>分数不同 → 显示最终排名/胜负结果："X连 第N名" / "X连 晋级！"</li>
+                        <li>仍有平分 → 自动提示"继续加赛，使用第X组"，回到5题流程</li>
+                        <li>4组全部用完仍有平分 → 提示"备用题已用完，请手动处理"</li>
+                    </ul>
+                </li>
+                <li><strong>多处平分（第一环节）— 完成一处后：</strong>
+                    <ul style="margin-left:20px; margin-top:4px;">
+                        <li>显示"第1处平分已解决 ✓"</li>
+                        <li>自动切换到下一处平分信息："第2处：第7-8名平分 — 七连 vs 八连"</li>
+                        <li>分配下一组备用题，重复5题流程</li>
+                        <li>所有平分解决后 → 显示完整排名 → 进入下一环节</li>
+                    </ul>
+                </li>
+                <li><strong>决赛平局特殊处理：</strong>
+                    <ul style="margin-left:20px; margin-top:4px;">
+                        <li>决赛8题后平分 → 使用剩余第9题以抢答形式一局定胜负</li>
+                        <li>展示端显示"平局！第9题 — 抢答定胜负"（醒目红色提示）</li>
+                        <li>3-2-1倒计时 → 抢答 → 答对者夺冠 / 答错者对方夺冠</li>
+                        <li>无人抢答 → 管理端手动判定或使用备用题组</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- 展示端 - 颁奖页 -->
+    <div class="page-card">
+        <div class="page-header">
+            <span class="page-num display">10</span>
+            <span class="page-title">颁奖/结果展示页</span>
+            <span class="page-trigger">全部结束</span>
+        </div>
+        <div class="page-body">
+            <ul>
+                <li>最终排名1-14名完整展示</li>
+                <li>一等奖（第1名）：红旗图标 + 连队名</li>
+                <li>二等奖（第2-4名）：黄旗图标</li>
+                <li>三等奖（第5-8名）：绿旗图标</li>
+                <li>优秀奖（第9-14名）：蓝旗图标</li>
+                <li>各轮晋级路径回顾</li>
+                <li>底部：颁奖式装饰效果</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ===================== 管理端页面 ===================== -->
+<div class="section">
+    <div class="section-title">管理端页面规划</div>
+    <p style="color:rgba(255,255,255,0.4); font-size:13px; margin-bottom:20px;">
+        <span class="tag tag-admin">管理端</span>
+        运行于电脑主屏，主持人/操作员使用。所有操作实时同步到展示端。支持完整撤销/回退 + 手动改分 + 答题历史 + 数据导出。
+    </p>
+
+    <!-- 管理端 - 总控台 -->
+    <div class="page-card">
+        <div class="page-header">
+            <span class="page-num admin">1</span>
+            <span class="page-title">总控台 / 仪表盘</span>
+            <span class="page-trigger">全程可用</span>
+        </div>
+        <div class="page-body">
+            <ul>
+                <li>当前环节大字显示 + 当前题号/总题数进度指示</li>
+                <li>全局环节进度面包屑导航：第一环节 → 第二环节 → 第三环节 → 第四环节 → 颁奖（当前环节高亮，可点击跳转）</li>
+                <li>快速操作按钮区：
+                    <ul style="margin-left:20px; margin-top:4px;">
+                        <li>[开始竞赛] 按钮 — 开场启动，展示端显示封面</li>
+                        <li>[上一题] [下一题] [显示/隐藏答案] [开始抢答] 按钮</li>
+                        <li>[进入下一环节] 按钮 — 当前环节全部完成后进入下一环节</li>
+                    </ul>
+                </li>
+                <li>连接状态指示：WebSocket（绿/红点）+ DLL TCP（绿/红点）+ [手动重连DLL]按钮</li>
+                <li>音效总开关 + 分类开关：[倒计时] [抢答成功] [犯规警告] [答对] [答错]</li>
+                <li>答题历史摘要（最近5条操作记录）</li>
+                <li>[撤销上一步]按钮</li>
+                <li>[导出数据]按钮 — 快捷入口（同设置页导出功能）</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- 管理端 - 队伍管理 -->
+    <div class="page-card">
+        <div class="page-header">
+            <span class="page-num admin">2</span>
+            <span class="page-title">队伍管理</span>
+            <span class="page-trigger">全程可用</span>
+        </div>
+        <div class="page-body">
+            <ul>
+                <li>14支连队列表，按实时分数排序，显示排名</li>
+                <li>每队显示：排名徽章、连队名、当前分数、状态（参赛/淘汰）</li>
+                <li>每队操作按钮组（点击展开）：
+                    <ul style="margin-left:20px; margin-top:4px;">
+                        <li>[+5] [+10] [+15] [-5] [-10] [-15] 加减分按钮</li>
+                        <li>[自定义分值] 输入框 + [确认]按钮</li>
+                        <li>[手动改分] 输入框 + [覆盖]按钮（直接覆盖分数）</li>
+                        <li>[激活] / [淘汰] 切换按钮</li>
+                        <li style="color:#ff5252">[判负] 按钮（作弊判负，二次确认弹窗）</li>
+                    </ul>
+                </li>
+                <li>批量操作按钮：[重置全部分数] [全部激活] [全部淘汰]</li>
+                <li>分数变动后展示端同步动画</li>
+                <li>[返回总控台] 按钮</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- 管理端 - 必答题控制 -->
+    <div class="page-card">
+        <div class="page-header">
+            <span class="page-num admin">3</span>
+            <span class="page-title">必答题控制</span>
+            <span class="page-trigger">第一环节 · 必答题阶段</span>
+        </div>
+        <div class="page-body">
+            <ul>
+                <li>题目列表导航（1-5题），当前题高亮</li>
+                <li>当前题目预览（题干+选项+正确答案）</li>
+                <li>[显示答案] / [隐藏答案] 按钮 — 控制展示端答案显示/隐藏</li>
+                <li>[上一题] [下一题] 按钮</li>
+                <li>逐队判分面板：14支连队，每队三个按钮：
+                    <ul style="margin-left:20px; margin-top:4px;">
+                        <li style="color:#00e676">[答对 +10分] 按钮</li>
+                        <li style="color:#64b5f6">[答错 0分] 按钮（不扣分）</li>
+                        <li style="color:#f44336">[违规 -10分] 按钮</li>
+                        <li style="color:#ff5252">[判负] 按钮（作弊，二次确认）</li>
+                    </ul>
+                </li>
+                <li>已判分队伍显示标记（✓答对 / ✗答错 / ⚠违规 / ✗判负）</li>
+                <li>批量操作按钮：[全部答对] [清除本题判分]</li>
+                <li>[撤销本题所有判分] 按钮</li>
+                <li>判分后展示端实时更新分数</li>
+                <li>5题全部完成后 → [进入抢答阶段] 按钮亮起</li>
+                <li>[返回总控台] 按钮</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- 管理端 - 抢答控制 -->
+    <div class="page-card">
+        <div class="page-header">
+            <span class="page-num admin">4</span>
+            <span class="page-title">抢答控制 <span class="tag tag-buzzer">抢答</span></span>
+            <span class="page-trigger">第一/二/三环节</span>
+        </div>
+        <div class="page-body">
+            <ul>
+                <li>题目列表导航，当前题高亮</li>
+                <li>当前题目预览（题干+选项+正确答案）</li>
+                <li>[上一题] [下一题] [显示/隐藏答案] 按钮</li>
+                <li><strong>抢答状态机控制台：</strong>
+                    <ul style="margin-left:20px; margin-top:4px;">
+                        <li>状态显示：待开始 → 倒计时中(3-2-1) → 抢答开放 → 已抢答 → 已判分</li>
+                        <li>[开始抢答] 按钮 — 触发展示端3-2-1倒计时</li>
+                        <li>抢答者显示 — DLL返回key_id后自动映射显示连队名</li>
+                        <li>DLL未就绪时 — [手动选择抢答队伍] 下拉列表 + [确认]按钮</li>
+                        <li style="color:#00e676">[答对] 按钮 — 加分 + 展示端绿色标识</li>
+                        <li style="color:#64b5f6">[答错] 按钮 — 扣分 + 展示端蓝色标识</li>
+                        <li style="color:#f44336">[手动犯规] 按钮 — DLL漏检时手动标记某队犯规</li>
+                        <li style="color:#ff5252">[判负] 按钮 — 作弊判负，二次确认</li>
+                        <li>[跳过此题] 按钮 — 无人抢答时手动跳过</li>
+                        <li>[取消抢答] 按钮 — 回到待开始状态</li>
+                        <li>超时设置 — 自动跳过时间（默认10秒）</li>
+                    </ul>
+                </li>
+                <li>3秒答题计时器 — 抢到后自动启动，超时标记答错（仅显示，无声音）</li>
+                <li>答题历史记录（本题哪队抢答、结果如何）</li>
+                <li>[撤销] 按钮 — 回退本题操作</li>
+                <li>20题全部完成后 → [进入排名确认] 按钮亮起</li>
+                <li>[返回总控台] 按钮</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- 管理端 - 排名确认 -->
+    <div class="page-card">
+        <div class="page-header">
+            <span class="page-num admin">5</span>
+            <span class="page-title">排名确认</span>
+            <span class="page-trigger">第一环节结束后</span>
+        </div>
+        <div class="page-body">
+            <ul>
+                <li>14支连队按分数排序展示</li>
+                <li>前8名标记"晋级"，后6名标记"优秀奖"</li>
+                <li>平局自动检测：
+                    <ul style="margin-left:20px; margin-top:4px;">
+                        <li>平分队伍红色高亮</li>
+                        <li>显示"X支队伍平分第N名，需要加赛"</li>
+                        <li>[开始加赛] 按钮 — 触发加赛流程</li>
+                    </ul>
+                </li>
+                <li>加赛完成后更新排名</li>
+                <li>[确认排名] 按钮 — 锁定排名 → 自动进入第二环节对阵生成</li>
+                <li>[手动调整排名] 按钮 — 特殊情况下拖拽或输入调整</li>
+                <li style="color:#ff5252">[判负] 按钮 — 每队可判负（作弊，二次确认）</li>
+                <li>[返回总控台] 按钮</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- 管理端 - 对阵管理 -->
+    <div class="page-card">
+        <div class="page-header">
+            <span class="page-num admin">6</span>
+            <span class="page-title">对阵管理</span>
+            <span class="page-trigger">第二环节开始</span>
+        </div>
+        <div class="page-body">
+            <ul>
+                <li>[自动生成对阵] 按钮 — 按第一环节排名：1v8/2v7/3v6/4v5</li>
+                <li>[手动调整对阵] 按钮 — 特殊情况下交换对阵双方</li>
+                <li>对阵图展示（与展示端同步）</li>
+                <li>4组PK场次列表，显示状态（待开始/进行中/已完成）</li>
+                <li>每组PK：[进入PK控制] 按钮</li>
+                <li>每组PK结果记录（胜者/负者/分数）</li>
+                <li style="color:#ff5252">[判负] 按钮 — 每队可判负（作弊，对手自动晋级）</li>
+                <li>4组PK全部完成后 → [进入半决赛] 按钮亮起</li>
+                <li>[返回总控台] 按钮</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- 管理端 - PK控制 -->
+    <div class="page-card">
+        <div class="page-header">
+            <span class="page-num admin">7</span>
+            <span class="page-title">PK控制</span>
+            <span class="page-trigger">第二/三环节 · 每组PK</span>
+        </div>
+        <div class="page-body">
+            <ul>
+                <li>当前PK双方大字显示（如"一连 vs 八连"）</li>
+                <li>双方PK分数（从0开始，实时显示）</li>
+                <li>5题抢答控制：
+                    <ul style="margin-left:20px; margin-top:4px;">
+                        <li>[上一题] [下一题] [显示/隐藏答案] 按钮</li>
+                        <li>[开始抢答] 按钮 — 3-2-1倒计时</li>
+                        <li>[手动选择抢答队伍] 下拉列表（DLL降级时）</li>
+                        <li style="color:#00e676">[答对] 按钮 — +10分</li>
+                        <li style="color:#64b5f6">[答错] 按钮 — -10分</li>
+                        <li style="color:#f44336">[手动犯规] 按钮 — 手动标记犯规</li>
+                        <li>[跳过此题] 按钮</li>
+                        <li>[取消抢答] 按钮</li>
+                        <li style="color:#ff5252">[判负] 按钮 — 作弊判负，对手自动获胜（二次确认）</li>
+                    </ul>
+                </li>
+                <li>每题结果记录（哪队抢答、答对/答错/犯规）</li>
+                <li>[显示答案] 按钮</li>
+                <li>[撤销] 按钮</li>
+                <li>5题结束后：
+                    <ul style="margin-left:20px; margin-top:4px;">
+                        <li>分数高 → [标记胜者] 按钮确认，自动晋级</li>
+                        <li>分数相同 → 提示"平局" → [开始加赛] 按钮</li>
+                    </ul>
+                </li>
+                <li>半决赛特殊：两人分数相同时加赛决定选题顺序</li>
+                <li>2组PK全部完成后 → [进入决赛] 按钮亮起</li>
+                <li>[返回对阵管理] 按钮</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- 管理端 - 决赛控制 -->
+    <div class="page-card">
+        <div class="page-header">
+            <span class="page-num admin">8</span>
+            <span class="page-title">决赛控制</span>
+            <span class="page-trigger">第四环节</span>
+        </div>
+        <div class="page-body">
+            <ul>
+                <li>选题顺序管理：显示交替选题顺序（A→B→A→B→A→B→A→B）</li>
+                <li>[确认选题顺序] 按钮 — 半决赛排名决定或加赛后确认</li>
+                <li>9题总览（3绿/3蓝/3红），已选题标记</li>
+                <li>当前选题队伍高亮</li>
+                <li>选题操作：点击某题 → [确认选题] 按钮 → 展示端显示该题</li>
+                <li style="color:#00e676">[答对] 按钮 — +对应分值（5/10/15）</li>
+                <li style="color:#64b5f6">[答错] 按钮 — -对应分值（5/10/15）</li>
+                <li style="color:#f44336">[手动犯规] 按钮 — 手动标记犯规</li>
+                <li style="color:#ff5252">[判负] 按钮 — 作弊判负，对手夺冠（二次确认）</li>
+                <li>[显示/隐藏答案] 按钮</li>
+                <li>[撤销] 按钮</li>
+                <li>每队已答题数追踪（4题上限）</li>
+                <li>8题完成后：
+                    <ul style="margin-left:20px; margin-top:4px;">
+                        <li>分数不同 → [确认冠军] 按钮</li>
+                        <li>分数相同 → [开始平局抢答] 按钮 → 第9题抢答定胜负</li>
+                        <li>第9题：[开始抢答] → [答对]/[答错]/[判负]</li>
+                    </ul>
+                </li>
+                <li>选题顺序确认（半决赛排名决定，或加赛后决定）</li>
+                <li>冠军确认后 → [进入颁奖] 按钮亮起</li>
+                <li>[返回总控台] 按钮</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- 管理端 - 加赛控制 -->
+    <div class="page-card">
+        <div class="page-header">
+            <span class="page-num admin">9</span>
+            <span class="page-title">加赛控制</span>
+            <span class="page-trigger">任意平局时</span>
+        </div>
+        <div class="page-body">
+            <ul>
+                <li><strong>第一步 — 平局检测（自动）：</strong>
+                    <ul style="margin-left:20px; margin-top:4px;">
+                        <li>系统自动检测当前环节是否有平分</li>
+                        <li>若无平分 → 自动跳过加赛，进入下一环节</li>
+                        <li>若有平分 → 显示平局列表：
+                            <ul style="margin-left:20px; margin-top:4px;">
+                                <li>第一环节示例："检测到2处平分：第3-4名(三连=四连=30分) / 第7-8名(七连=八连=20分)"</li>
+                                <li>第二环节示例："PK1平局：一连 20 = 八连 20"</li>
+                                <li>半决赛示例："半决赛A 25 = 半决赛B 25，需决定选题顺序"</li>
+                                <li>决赛示例："决赛 35 = 35，进入第9题抢答"</li>
+                            </ul>
+                        </li>
+                        <li>每处平分独立处理，第一环节从高名次开始依次加赛</li>
+                    </ul>
+                </li>
+                <li><strong>第二步 — 题组自动分配：</strong>
+                    <ul style="margin-left:20px; margin-top:4px;">
+                        <li>系统自动选择未使用的最低编号题组（第1组→第2组→第3组→第4组）</li>
+                        <li>已使用题组标记为灰色划线，不可重复使用</li>
+                        <li>显示："本次加赛使用第X组（5题），剩余Y组可用"</li>
+                        <li>若是本环节第2处平分 → 自动用下一组</li>
+                    </ul>
+                </li>
+                <li><strong>第三步 — 加赛执行（5题抢答）：</strong>
+                    <ul style="margin-left:20px; margin-top:4px;">
+                        <li>题目导航：1-5题，当前题高亮，已答题显示结果标记</li>
+                        <li>当前题目预览：题干+选项+正确答案（管理端可见答案）</li>
+                        <li>抢答控制台（仅限参与加赛的队伍）：
+                            <ul style="margin-left:20px; margin-top:4px;">
+                                <li>[上一题] [下一题] [显示/隐藏答案] 按钮</li>
+                                <li>[开始抢答] 按钮 → 3-2-1倒计时 → DLL开放抢答</li>
+                                <li>DLL未就绪 → [手动选择抢答队伍] 下拉列表</li>
+                                <li style="color:#00e676">[答对] 按钮</li>
+                                <li style="color:#64b5f6">[答错] 按钮</li>
+                                <li style="color:#f44336">[手动犯规] 按钮 — 手动标记犯规</li>
+                                <li style="color:#ff5252">[判负] 按钮 — 作弊判负（二次确认）</li>
+                                <li>[跳过此题] 按钮 — 无人抢答时跳过</li>
+                                <li>[取消抢答] 按钮</li>
+                                <li>[撤销] 按钮</li>
+                                <li>3秒答题计时（有显示无声音），超时算答错</li>
+                            </ul>
+                        </li>
+                        <li>加赛积分表（独立于总分，从0开始）：实时显示各队加赛分数</li>
+                    </ul>
+                </li>
+                <li><strong>第四步 — 加赛结果判定：</strong>
+                    <ul style="margin-left:20px; margin-top:4px;">
+                        <li>5题结束后，系统自动按加赛分数排序</li>
+                        <li>分数不同 → 自动确定排名/胜负：
+                            <ul style="margin-left:20px; margin-top:4px;">
+                                <li>第一环节 → 更新对应名次排名（分数不计入总分）</li>
+                                <li>第二环节PK → 胜者晋级，负者淘汰（PK分数不计入总分）</li>
+                                <li>半决赛 → 胜者获得决赛优先选题权</li>
+                            </ul>
+                        </li>
+                        <li>仍有平分 → 系统提示"平分未决"，自动分配下一组题，回到第三步</li>
+                        <li>4组用完仍有平分 → 提示"备用题已用完"，管理端手动判定胜负</li>
+                    </ul>
+                </li>
+                <li><strong>第五步 — 多处平分处理（第一环节）：</strong>
+                    <ul style="margin-left:20px; margin-top:4px;">
+                        <li>第1处平分解决后，显示"第1处 ✓"，自动跳到第2处</li>
+                        <li>分配下一组题，重复第二~四步</li>
+                        <li>所有平分解决 → 显示完整排名 → "确认排名"按钮 → 进入第二环节</li>
+                        <li>每处平分独立计分，加赛分数互不影响</li>
+                    </ul>
+                </li>
+                <li><strong>决赛第9题特殊流程：</strong>
+                    <ul style="margin-left:20px; margin-top:4px;">
+                        <li>决赛8题后检测到平分 → 进入第9题抢答模式</li>
+                        <li>展示端显示"平局！第9题 — 抢答定胜负"（醒目红色）</li>
+                        <li>3-2-1倒计时 → 抢答 → 判分：
+                            <ul style="margin-left:20px; margin-top:4px;">
+                                <li>答对 → 该队夺冠，比赛结束</li>
+                                <li>答错 → 对方夺冠，比赛结束</li>
+                                <li>犯规 → 该队取消资格，对方夺冠</li>
+                                <li>无人抢答 → 管理端手动判定或使用备用题组</li>
+                            </ul>
+                        </li>
+                        <li>一局定胜负，不进行5题循环</li>
+                    </ul>
+                </li>
+                <li><strong>加赛历史记录：</strong>
+                    <ul style="margin-left:20px; margin-top:4px;">
+                        <li>记录每次加赛：触发原因、参与队伍、使用题组、各题结果、最终排名/胜负</li>
+                        <li>已使用题组列表显示（供参考）</li>
+                        <li>支持撤销最近一次加赛结果（回退到加赛前状态）</li>
+                    </ul>
+                </li>
+                <li>[返回原环节] 按钮 — 加赛结束后返回触发加赛的环节页面</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- 管理端 - 设置 -->
+    <div class="page-card">
+        <div class="page-header">
+            <span class="page-num admin">10</span>
+            <span class="page-title">设置</span>
+            <span class="page-trigger">赛前配置</span>
+        </div>
+        <div class="page-body">
+            <ul>
+                <li>DLL TCP连接配置：地址(127.0.0.1) / 端口(9999) / 连接状态显示 / [手动重连]按钮</li>
+                <li>key_id ↔ 连队映射配置：14个抢答器固定分配（key_id 1=一连, 2=二连, ..., 14=十四连），表格中可修改</li>
+                <li>音效设置：总开关 + 分类开关（[倒计时] [抢答成功] [犯规警告] [答对] [答错]）</li>
+                <li>超时设置：抢答超时时间(默认10秒) / 答题超时时间(默认3秒) + [保存]按钮</li>
+                <li>键盘快捷键开关：[开启]/[关闭] 切换（仅控制翻页/撤销/Esc，不影响按钮操作）</li>
+                <li>题目管理：显示当前加载的题目文件信息 + [重新加载题目]按钮（替换questions.json后刷新）</li>
+                <li>数据导出：[导出成绩表CSV] [导出成绩表JSON] [导出答题历史] 按钮</li>
+                <li>状态管理：[重置全部状态]（清空所有进度，赛前测试后一键重置） / [恢复上次状态] / [手动保存]</li>
+                <li>连队名称编辑：14支连队名称输入框 + [保存名称]按钮（默认一连~十四连）</li>
+                <li>[保存全部设置] 按钮 — 保存以上所有配置</li>
+                <li>[返回总控台] 按钮</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ===================== 页面与流程对照 ===================== -->
+<div class="section">
+    <div class="section-title">页面与比赛流程对照表</div>
+    <table>
+        <thead>
+            <tr>
+                <th>比赛阶段</th>
+                <th>展示端页面</th>
+                <th>管理端页面</th>
+                <th>关键操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>开场</td>
+                <td>①封面页</td>
+                <td>①总控台</td>
+                <td>管理端点"开始竞赛"→展示端显示封面</td>
+            </tr>
+            <tr>
+                <td>第一环节·必答</td>
+                <td>②环节介绍→③必答题展示</td>
+                <td>①总控台→③必答题控制</td>
+                <td>管理端逐队判分（答对/答错/违规），展示端实时更新分数</td>
+            </tr>
+            <tr>
+                <td>第一环节·抢答</td>
+                <td>④抢答题展示</td>
+                <td>①总控台→④抢答控制</td>
+                <td>管理端"开始抢答"→3-2-1→DLL返回→判分</td>
+            </tr>
+            <tr>
+                <td>第一环节·排名</td>
+                <td>⑤排名展示</td>
+                <td>①总控台→⑤排名确认</td>
+                <td>确认前8名，平局进入加赛</td>
+            </tr>
+            <tr>
+                <td>第一环节·加赛</td>
+                <td>⑨加赛展示页</td>
+                <td>⑨加赛控制</td>
+                <td>平分队伍抢答5题，决出排名（多处平分从高名次开始依次加赛）</td>
+            </tr>
+            <tr>
+                <td>第二环节·8进4</td>
+                <td>⑥对阵图→④抢答题展示</td>
+                <td>⑥对阵管理→⑦PK控制</td>
+                <td>4组PK各5题，胜者晋级半决赛（侧栏仅显示PK双方）</td>
+            </tr>
+            <tr>
+                <td>第二环节·PK加赛<br>（可选）</td>
+                <td>⑨加赛展示页</td>
+                <td>⑨加赛控制</td>
+                <td>PK平局→加赛5题决胜负</td>
+            </tr>
+            <tr>
+                <td>第三环节·4进2</td>
+                <td>⑦半决赛对阵图→④抢答题展示</td>
+                <td>⑦PK控制</td>
+                <td>2组PK各5题，胜者晋级决赛</td>
+            </tr>
+            <tr>
+                <td>半决赛·加赛<br>（可选）</td>
+                <td>⑨加赛展示页</td>
+                <td>⑨加赛控制</td>
+                <td>两人分数相同→加赛决定决赛选题顺序</td>
+            </tr>
+            <tr>
+                <td>第四环节·决赛</td>
+                <td>⑧决赛选题展示→③题目展示</td>
+                <td>⑧决赛控制</td>
+                <td>交替选题8题（A→B→A→B→A→B→A→B），平局第9题抢答</td>
+            </tr>
+            <tr>
+                <td>颁奖</td>
+                <td>⑩颁奖/结果展示</td>
+                <td>①总控台→数据导出</td>
+                <td>展示最终排名和奖项，导出成绩</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- ===================== 音效规划 ===================== -->
+<div class="section">
+    <div class="section-title">音效规划</div>
+    <table>
+        <thead><tr><th>场景</th><th>音效描述</th><th>触发</th><th>管理端开关</th></tr></thead>
+        <tbody>
+            <tr><td>抢答开始倒计时(3-2-1)</td><td>3声"滴"（每秒一声）</td><td>管理端点"开始抢答"</td><td>✓ 可关闭</td></tr>
+            <tr><td>抢答成功</td><td>清脆"叮"一声</td><td>DLL返回抢答者</td><td>✓ 可关闭</td></tr>
+            <tr><td>犯规警告</td><td>"嘀嘀嘀"急促警告</td><td>DLL返回犯规/提前抢答</td><td>✓ 可关闭</td></tr>
+            <tr><td>答对</td><td>上行音阶（成功感）</td><td>管理端标记"答对"</td><td>✓ 可关闭</td></tr>
+            <tr><td>答错</td><td>下行音阶（失败感）</td><td>管理端标记"答错"</td><td>✓ 可关闭</td></tr>
+            <tr style="opacity:0.5;"><td>3秒答题计时</td><td>无声音（仅画面显示3→2→1倒计时）</td><td>抢答成功后自动触发</td><td>— 无声音</td></tr>
+        </tbody>
+    </table>
+    <div class="note">
+        <strong>两种倒计时的区别：</strong><br>
+        · 抢答开始倒计时（3-2-1）：管理端点"开始抢答"后触发，<strong>有声音</strong>（3声"滴"），用于告诉选手可以开始抢答了<br>
+        · 3秒答题计时：选手抢到后触发，<strong>无声音</strong>（仅画面显示），用于限制答题时间，超时算答错<br><br>
+        音效使用Web Audio API合成生成，无需外部音频文件。展示端页面加载后需用户首次点击来解锁浏览器音频限制。
+    </div>
+</div>
+
+<!-- ===================== 状态机设计 ===================== -->
+<div class="section">
+    <div class="section-title">抢答状态机设计</div>
+    <div class="phase-card">
+        <div class="phase-body">
+            <div class="flow" style="flex-direction: column; align-items: stretch; gap: 8px;">
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <span class="flow-step" style="background:rgba(255,255,255,0.05); color:rgba(255,255,255,0.5);">IDLE 待开始</span>
+                    <span class="flow-arrow">→</span>
+                    <span>管理端点击"开始抢答"</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <span class="flow-step" style="background:rgba(255,193,7,0.08); border-color:rgba(255,193,7,0.2); color:#ffc107;">COUNTING 倒计时中(3→2→1)</span>
+                    <span class="flow-arrow">→</span>
+                    <span>展示端播放3-2-1动画+音效</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <span class="flow-step" style="background:rgba(0,230,118,0.08); border-color:rgba(0,230,118,0.2); color:#00e676;">OPEN 抢答开放</span>
+                    <span class="flow-arrow">→</span>
+                    <span>DLL开放抢答检测，展示端显示"抢答开始"</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <span class="flow-step" style="background:rgba(33,150,243,0.08); border-color:rgba(33,150,243,0.2); color:#64b5f6;">BUZZED 已抢答</span>
+                    <span class="flow-arrow">→</span>
+                    <span>DLL返回key_id→映射连队→展示端高亮</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <span class="flow-step" style="background:rgba(255,82,82,0.08); border-color:rgba(255,82,82,0.2); color:#ff5252;">VIOLATION 犯规</span>
+                    <span class="flow-arrow">→</span>
+                    <span>提前抢答→展示端红色"取消资格"→回到OPEN（其他队继续抢答）</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <span class="flow-step" style="background:rgba(128,128,128,0.08); border-color:rgba(128,128,128,0.2); color:#aaa;">JUDGED 已判分</span>
+                    <span class="flow-arrow">→</span>
+                    <span>管理端标记答对/答错→加分/扣分→展示端显示结果→下一题→回到IDLE</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <span class="flow-step" style="background:rgba(128,128,128,0.08); border-color:rgba(128,128,128,0.2); color:#aaa;">TIMEOUT 超时</span>
+                    <span class="flow-arrow">→</span>
+                    <span>开放期间无人抢答（10秒）或答题超时（3秒）→跳过→下一题→回到IDLE</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===================== 展示端全局元素 ===================== -->
+<div class="section">
+    <div class="section-title">展示端全局元素（所有页面共享）</div>
+    <table>
+        <thead><tr><th>元素</th><th>位置</th><th>说明</th></tr></thead>
+        <tbody>
+            <tr><td>[点击开始] 音频解锁层</td><td>首次加载覆盖层</td><td>浏览器限制，需用户首次点击解锁音频播放。点击后消失，不再显示</td></tr>
+            <tr><td>[全屏] 按钮</td><td>右上角固定</td><td>点击进入全屏模式（F11效果），投影用。全屏后按钮自动隐藏，按Esc退出全屏后恢复</td></tr>
+            <tr><td>环节进度条</td><td>顶部固定细条</td><td>显示当前环节：第一环节 ▸ 第二环节 ▸ 第三环节 ▸ 第四环节 ▸ 颁奖。当前环节高亮，已完成环节灰色</td></tr>
+            <tr><td>等待状态</td><td>题目区中央</td><td>管理端准备下一题时，展示端显示"等待下一题..."动画（呼吸点）。判分期间保持当前题目不变</td></tr>
+            <tr><td>环节过渡动画</td><td>全屏覆盖</td><td>管理端切换环节时，展示端播放1-2秒过渡动画（环节名称大字淡入），然后进入对应页面</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- ===================== 展示端侧栏显示规则 ===================== -->
+<div class="section">
+    <div class="section-title">展示端侧栏显示规则</div>
+    <table>
+        <thead><tr><th>比赛阶段</th><th>左/右侧栏显示</th><th>说明</th></tr></thead>
+        <tbody>
+            <tr><td>第一环节</td><td>14支连队全部显示</td><td>左栏1-7连，右栏8-14连，实时分数+排名</td></tr>
+            <tr><td>第二环节PK</td><td>仅显示当前PK的2支队伍</td><td>大字显示双方连队名+PK分数（从0开始）</td></tr>
+            <tr><td>第三环节半决赛</td><td>仅显示当前PK的2支队伍</td><td>同上</td></tr>
+            <tr><td>第四环节决赛</td><td>仅显示2支决赛队伍</td><td>双方连队名+决赛分数+已答题数(4题上限)</td></tr>
+            <tr><td>加赛</td><td>仅显示参与加赛的队伍</td><td>显示加赛分数（独立计分，从0开始）</td></tr>
+            <tr><td>颁奖</td><td>不显示侧栏</td><td>全屏展示排名和奖项</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- ===================== 边界情况处理 ===================== -->
+<div class="section">
+    <div class="section-title">边界情况与处理方案</div>
+
+    <div class="phase-card">
+        <div class="phase-header">
+            <span class="phase-badge" style="background:#ff5252; color:#fff;">!</span>
+            <span class="phase-name" style="color:#ff5252;">DLL相关</span>
+        </div>
+        <div class="phase-body">
+            <table>
+                <thead><tr><th>情况</th><th>处理方案</th></tr></thead>
+                <tbody>
+                    <tr><td>DLL未就绪/连接失败</td><td>管理端可手动选择哪个队抢答（下拉列表），系统功能不受影响</td></tr>
+                    <tr><td>DLL TCP断线</td><td>自动重连（间隔3秒），重连期间抢答功能切换为手动模式</td></tr>
+                    <tr><td>DLL返回未知key_id</td><td>提示"未知抢答器编号，请在设置中配置映射"，忽略该事件</td></tr>
+                    <tr><td>多个抢答事件同时到达</td><td>取timestamp最早的一个作为抢答者，其余忽略</td></tr>
+                    <tr><td>非参赛队伍抢答器误触</td><td>系统自动过滤：如1v8 PK时5连误触 → 管理端提示"5连非本场参赛队伍，已忽略"，展示端不显示</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="phase-card">
+        <div class="phase-header">
+            <span class="phase-badge" style="background:#ff5252; color:#fff;">!</span>
+            <span class="phase-name" style="color:#ff5252;">比赛流程相关</span>
+        </div>
+        <div class="phase-body">
+            <table>
+                <thead><tr><th>情况</th><th>处理方案</th></tr></thead>
+                <tbody>
+                    <tr><td>第一环节多处平分</td><td>从高名次开始依次独立加赛，每处平分单独处理</td></tr>
+                    <tr><td>加赛5题后仍然平分</td><td>自动使用下一组备用题继续加赛，直到决出胜负</td></tr>
+                    <tr><td>4组备用题全部用完</td><td>提示"备用题已用完，请手动处理"，由管理端手动判定</td></tr>
+                    <tr><td>抢答开放期间无人抢答</td><td>10秒自动超时跳过，管理端也可手动"跳过此题"</td></tr>
+                    <tr><td>抢答后3秒内未作答</td><td>自动标记为答错，按规则扣分</td></tr>
+                    <tr><td>抢答犯规后</td><td>该队取消本题资格，其他队伍继续抢答（回到OPEN状态）</td></tr>
+                    <tr><td>抢到但答错</td><td>本题直接结束，进入下一题（不允许其他队继续抢）</td></tr>
+                    <tr><td>决赛8题后平分</td><td>使用剩余第9题以抢答形式一局定胜负</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="phase-card">
+        <div class="phase-header">
+            <span class="phase-badge" style="background:#ff5252; color:#fff;">!</span>
+            <span class="phase-name" style="color:#ff5252;">系统相关</span>
+        </div>
+        <div class="phase-body">
+            <table>
+                <thead><tr><th>情况</th><th>处理方案</th></tr></thead>
+                <tbody>
+                    <tr><td>浏览器音频限制</td><td>展示端首次加载需用户点击一次解锁音频，页面显示"点击开始"提示</td></tr>
+                    <tr><td>展示端全屏</td><td>页面提供"全屏"按钮，点击后自动全屏（F11效果）。也可手动拖拽到副屏后全屏</td></tr>
+                    <tr><td>倒计时时间源</td><td>3-2-1倒计时和3秒答题计时均由Node.js服务端控制时间戳，避免管理端与展示端不同步</td></tr>
+                    <tr><td>浏览器误关闭/刷新</td><td>状态实时持久化到state.json，重新打开自动恢复到断点</td></tr>
+                    <tr><td>WebSocket断线</td><td>自动重连（间隔2秒），重连后请求全量状态同步</td></tr>
+                    <tr><td>多个管理端同时操作</td><td>最后操作覆盖，不做锁定。建议只开一个管理端</td></tr>
+                    <tr><td>管理端操作保护</td><td>抢答开放期间点击"下一题" → 弹窗确认"当前抢答未结束，确定跳过？"</td></tr>
+                    <tr><td>撤销/回退</td><td>支持完整回退：可撤销最近一次分数变动 / 回退到上一题 / 清除本题所有操作</td></tr>
+                    <tr><td>数据导出</td><td>支持导出：最终排名表(CSV) + 答题历史记录(CSV/JSON)</td></tr>
+                    <tr><td>赛前测试</td><td>设置页提供"重置全部状态"按钮，可完整走一遍流程测试后一键清空</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="phase-card">
+        <div class="phase-header">
+            <span class="phase-badge" style="background:#ff5252; color:#fff;">!</span>
+            <span class="phase-name" style="color:#ff5252;">作弊判负</span>
+        </div>
+        <div class="phase-body">
+            <table>
+                <thead><tr><th>场景</th><th>操作</th><th>效果</th></tr></thead>
+                <tbody>
+                    <tr><td>第一环节作弊</td><td>管理端"判负"按钮</td><td>该队第一环节总分清零，后续环节不参与（相当于直接淘汰）</td></tr>
+                    <tr><td>第二环节PK作弊</td><td>管理端"判负"按钮</td><td>该队本场PK判负，对手自动获胜晋级</td></tr>
+                    <tr><td>半决赛作弊</td><td>管理端"判负"按钮</td><td>该队判负，对手自动晋级决赛</td></tr>
+                    <tr><td>决赛作弊</td><td>管理端"判负"按钮</td><td>该队判负，对手夺冠</td></tr>
+                </tbody>
+            </table>
+            <div class="note"><strong>判负操作需二次确认：</strong>点击"判负"后弹窗"确定判定X连作弊判负？此操作不可撤销"，确认后立即生效。展示端显示"X连 作弊判负"红色醒目提示。</div>
+        </div>
+    </div>
+</div>
+
+<!-- ===================== 管理端全局导航 ===================== -->
+<div class="section">
+    <div class="section-title">管理端全局导航</div>
+    <table>
+        <thead><tr><th>元素</th><th>位置</th><th>说明</th></tr></thead>
+        <tbody>
+            <tr><td>环节进度面包屑</td><td>顶部固定</td><td>第一环节 → 第二环节 → 第三环节 → 第四环节 → 颁奖，当前环节高亮，可点击跳转</td></tr>
+            <tr><td>页面切换导航栏</td><td>左侧固定</td><td>总控台 / 队伍管理 / 必答题 / 抢答 / 排名 / 对阵 / PK / 决赛 / 加赛 / 设置，当前页高亮</td></tr>
+            <tr><td>[返回总控台] 按钮</td><td>各子页面顶部</td><td>快速返回仪表盘</td></tr>
+            <tr><td>环节推进按钮</td><td>各页面底部</td><td>当前环节完成后亮起：[进入抢答阶段] [进入排名确认] [进入第二环节] [进入半决赛] [进入决赛] [进入颁奖]</td></tr>
+        </tbody>
+    </table>
+    <div class="note">管理端所有页面共享顶部进度条 + 左侧导航栏，操作员可随时切换页面，游戏状态由服务端维护，切换页面不丢失状态。</div>
+</div>
+
+<!-- ===================== 键盘快捷键 ===================== -->
+<div class="section">
+    <div class="section-title">管理端键盘快捷键</div>
+    <table>
+        <thead><tr><th>快捷键</th><th>功能</th><th>适用场景</th></tr></thead>
+        <tbody>
+            <tr><td>→ / 空格</td><td>下一题</td><td>所有环节</td></tr>
+            <tr><td>←</td><td>上一题</td><td>所有环节</td></tr>
+            <tr><td>Ctrl+Z</td><td>撤销上一步</td><td>所有环节</td></tr>
+            <tr><td>Esc</td><td>取消/关闭弹窗</td><td>所有弹窗</td></tr>
+        </tbody>
+    </table>
+    <div class="note">显示/隐藏答案、开始抢答、标记答对/答错、跳过此题等操作仅通过按钮触发，不设快捷键，防止误触。快捷键在输入框聚焦时暂停。</div>
+</div>
+
+<div class="divider"></div>
+
+<div style="text-align: center; color: rgba(255,255,255,0.2); font-size: 12px; padding: 20px;">
+    "长征薪火，青春卫国" 国防知识竞赛 · 页面规划文档<br>
+    2025级本科生军训指挥部 · 计算机协会技术支持
+</div>
+
+</div>
+</body>
+</html>

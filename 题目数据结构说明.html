@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>题目数据结构说明</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Microsoft YaHei', sans-serif; background: #0a1628; color: #e0e0e0; line-height: 1.7; }
+.header { background: linear-gradient(135deg, #0d2137, #102845); padding: 30px 0; text-align: center; border-bottom: 2px solid #ffd700; }
+.header h1 { font-size: 26px; color: #ffd700; }
+.header p { font-size: 13px; color: rgba(255,255,255,0.4); margin-top: 6px; }
+.container { max-width: 900px; margin: 0 auto; padding: 30px 20px 60px; }
+.section { margin-bottom: 40px; }
+.section-title { font-size: 20px; color: #ffd700; border-left: 4px solid #ffd700; padding-left: 12px; margin-bottom: 16px; }
+pre { background: #0d1f2d; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 16px; overflow-x: auto; font-size: 13px; line-height: 1.5; color: #a8d4f0; }
+code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+.keyword { color: #ff79c6; }
+.string { color: #f1fa8c; }
+.number { color: #bd93f9; }
+.comment { color: #6272a4; }
+.note { padding: 12px 16px; background: rgba(255,193,7,0.06); border-left: 3px solid #ffc107; border-radius: 0 6px 6px 0; margin: 12px 0; font-size: 13px; color: rgba(255,255,255,0.6); }
+table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+th { background: rgba(255,215,0,0.06); color: #ffd700; padding: 8px 12px; text-align: left; border-bottom: 1px solid rgba(255,215,0,0.15); }
+td { padding: 8px 12px; border-bottom: 1px solid rgba(255,255,255,0.04); color: rgba(255,255,255,0.7); }
+</style>
+</head>
+<body>
+
+<div class="header">
+    <h1>题目数据结构说明 (questions.json)</h1>
+    <p>题目编写者参考此格式 · 系统动态读取 · 不写死数量</p>
+</div>
+
+<div class="container">
+
+<div class="section">
+    <div class="section-title">整体结构</div>
+    <pre><code>{
+  <span class="keyword">"round1_required"</span>: [ ... ],      <span class="comment">// 第一环节·必答题（5道）</span>
+  <span class="keyword">"round1_buzzer"</span>: [ ... ],        <span class="comment">// 第一环节·抢答题（20道）</span>
+  <span class="keyword">"round2_pk"</span>: [ [ ... ], [ ... ], [ ... ], [ ... ] ],  <span class="comment">// 第二环节·4组PK（每组5道）</span>
+  <span class="keyword">"round3_semifinal"</span>: [ [ ... ], [ ... ] ],  <span class="comment">// 第三环节·2组半决赛（每组5道）</span>
+  <span class="keyword">"round4_final"</span>: [ ... ],         <span class="comment">// 第四环节·决赛（9道：3易3中3难）</span>
+  <span class="keyword">"tiebreaker"</span>: [ [ ... ], [ ... ], ... ]  <span class="comment">// 加赛备用题（N组，每组5道，数量不限）</span>
+}</code></pre>
+</div>
+
+<div class="section">
+    <div class="section-title">单题结构</div>
+    <pre><code>{
+  <span class="keyword">"id"</span>: <span class="number">1</span>,
+  <span class="keyword">"question"</span>: <span class="string">"我国国防的核心是？"</span>,
+  <span class="keyword">"options"</span>: {
+    <span class="keyword">"A"</span>: <span class="string">"人民战争"</span>,
+    <span class="keyword">"B"</span>: <span class="string">"信息化战争"</span>,
+    <span class="keyword">"C"</span>: <span class="string">"总体战"</span>,
+    <span class="keyword">"D"</span>: <span class="string">"混合战争"</span>
+  },
+  <span class="keyword">"answer"</span>: <span class="string">"A"</span>,
+  <span class="keyword">"points"</span>: <span class="number">10</span>,
+  <span class="keyword">"difficulty"</span>: <span class="string">"easy"</span>  <span class="comment">// 仅决赛题需要：easy/medium/hard</span>
+}</code></pre>
+    <table>
+        <thead><tr><th>字段</th><th>类型</th><th>必填</th><th>说明</th></tr></thead>
+        <tbody>
+            <tr><td>id</td><td>number</td><td>是</td><td>题号，组内从1开始</td></tr>
+            <tr><td>question</td><td>string</td><td>是</td><td>题干文字</td></tr>
+            <tr><td>options</td><td>object</td><td>是</td><td>4个选项 A/B/C/D</td></tr>
+            <tr><td>answer</td><td>string</td><td>是</td><td>正确答案，值为 "A"/"B"/"C"/"D"</td></tr>
+            <tr><td>points</td><td>number</td><td>是</td><td>分值：5/10/15（决赛不同，其余均为10）</td></tr>
+            <tr><td>difficulty</td><td>string</td><td>仅决赛</td><td>"easy"=5分 / "medium"=10分 / "hard"=15分</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="section">
+    <div class="section-title">各环节详情</div>
+
+    <h3 style="color:#64b5f6; margin: 20px 0 10px;">第一环节·必答题（5道）</h3>
+    <pre><code><span class="keyword">"round1_required"</span>: [
+  { <span class="keyword">"id"</span>: <span class="number">1</span>, <span class="keyword">"question"</span>: <span class="string">"..."</span>, <span class="keyword">"options"</span>: {<span class="keyword">"A"</span>:<span class="string">"..."</span>,<span class="keyword">"B"</span>:<span class="string">"..."</span>,<span class="keyword">"C"</span>:<span class="string">"..."</span>,<span class="keyword">"D"</span>:<span class="string">"..."</span>}, <span class="keyword">"answer"</span>: <span class="string">"A"</span>, <span class="keyword">"points"</span>: <span class="number">10</span> },
+  <span class="comment">// ... 共5道</span>
+]</code></pre>
+
+    <h3 style="color:#64b5f6; margin: 20px 0 10px;">第一环节·抢答题（20道）</h3>
+    <pre><code><span class="keyword">"round1_buzzer"</span>: [
+  { <span class="keyword">"id"</span>: <span class="number">1</span>, <span class="keyword">"question"</span>: <span class="string">"..."</span>, <span class="keyword">"options"</span>: {...}, <span class="keyword">"answer"</span>: <span class="string">"B"</span>, <span class="keyword">"points"</span>: <span class="number">10</span> },
+  <span class="comment">// ... 共20道</span>
+]</code></pre>
+
+    <h3 style="color:#64b5f6; margin: 20px 0 10px;">第二环节·4组PK（每组5道）</h3>
+    <pre><code><span class="keyword">"round2_pk"</span>: [
+  [ <span class="comment">// 第1组PK（1v8对阵）</span>
+    { <span class="keyword">"id"</span>: <span class="number">1</span>, <span class="keyword">"question"</span>: <span class="string">"..."</span>, <span class="keyword">"options"</span>: {...}, <span class="keyword">"answer"</span>: <span class="string">"A"</span>, <span class="keyword">"points"</span>: <span class="number">10</span> },
+    <span class="comment">// ... 共5道</span>
+  ],
+  [ <span class="comment">// 第2组PK（2v7对阵）</span> ... ],
+  [ <span class="comment">// 第3组PK（3v6对阵）</span> ... ],
+  [ <span class="comment">// 第4组PK（4v5对阵）</span> ... ]
+]</code></pre>
+
+    <h3 style="color:#64b5f6; margin: 20px 0 10px;">第三环节·2组半决赛（每组5道）</h3>
+    <pre><code><span class="keyword">"round3_semifinal"</span>: [
+  [ <span class="comment">// 半决赛A组</span>
+    { <span class="keyword">"id"</span>: <span class="number">1</span>, <span class="keyword">"question"</span>: <span class="string">"..."</span>, <span class="keyword">"options"</span>: {...}, <span class="keyword">"answer"</span>: <span class="string">"C"</span>, <span class="keyword">"points"</span>: <span class="number">10</span> },
+    <span class="comment">// ... 共5道</span>
+  ],
+  [ <span class="comment">// 半决赛B组</span> ... ]
+]</code></pre>
+
+    <h3 style="color:#64b5f6; margin: 20px 0 10px;">第四环节·决赛（9道）</h3>
+    <pre><code><span class="keyword">"round4_final"</span>: [
+  { <span class="keyword">"id"</span>: <span class="number">1</span>, <span class="keyword">"question"</span>: <span class="string">"..."</span>, <span class="keyword">"options"</span>: {...}, <span class="keyword">"answer"</span>: <span class="string">"A"</span>, <span class="keyword">"points"</span>: <span class="number">5</span>,  <span class="keyword">"difficulty"</span>: <span class="string">"easy"</span> },
+  { <span class="keyword">"id"</span>: <span class="number">2</span>, <span class="keyword">"question"</span>: <span class="string">"..."</span>, <span class="keyword">"options"</span>: {...}, <span class="keyword">"answer"</span>: <span class="string">"B"</span>, <span class="keyword">"points"</span>: <span class="number">5</span>,  <span class="keyword">"difficulty"</span>: <span class="string">"easy"</span> },
+  { <span class="keyword">"id"</span>: <span class="number">3</span>, <span class="keyword">"question"</span>: <span class="string">"..."</span>, <span class="keyword">"options"</span>: {...}, <span class="keyword">"answer"</span>: <span class="string">"D"</span>, <span class="keyword">"points"</span>: <span class="number">5</span>,  <span class="keyword">"difficulty"</span>: <span class="string">"easy"</span> },
+  { <span class="keyword">"id"</span>: <span class="number">4</span>, <span class="keyword">"question"</span>: <span class="string">"..."</span>, <span class="keyword">"options"</span>: {...}, <span class="keyword">"answer"</span>: <span class="string">"A"</span>, <span class="keyword">"points"</span>: <span class="number">10</span>, <span class="keyword">"difficulty"</span>: <span class="string">"medium"</span> },
+  <span class="comment">// ... 3道medium(10分) + 3道hard(15分)，共9道</span>
+]</code></pre>
+    <div class="note">第9题（id=9）为平局抢答专用题，difficulty为"hard"。</div>
+
+    <h3 style="color:#ff5252; margin: 20px 0 10px;">加赛备用题（N组，数量不限）</h3>
+    <pre><code><span class="keyword">"tiebreaker"</span>: [
+  [ <span class="comment">// 第1组</span>
+    { <span class="keyword">"id"</span>: <span class="number">1</span>, <span class="keyword">"question"</span>: <span class="string">"..."</span>, <span class="keyword">"options"</span>: {...}, <span class="keyword">"answer"</span>: <span class="string">"B"</span>, <span class="keyword">"points"</span>: <span class="number">10</span> },
+    <span class="comment">// ... 共5道</span>
+  ],
+  [ <span class="comment">// 第2组</span> ... ],
+  [ <span class="comment">// 第3组</span> ... ],
+  <span class="comment">// ... 组数不限，多多益善</span>
+]</code></pre>
+    <div class="note">系统会自动读取tiebreaker数组的长度，动态显示"第X组 / 共N组"。加赛时从未使用的最低编号组开始依次使用。</div>
+</div>
+
+<div class="section">
+    <div class="section-title">注意事项</div>
+    <div class="note">
+        1. 所有题目的 <code>points</code> 字段：必答题/抢答题/PK/半决赛 = 10，决赛简单 = 5，决赛中等 = 10，决赛难题 = 15<br>
+        2. 决赛题必须有 <code>difficulty</code> 字段，其他环节题目可省略<br>
+        3. <code>options</code> 固定4个选项 A/B/C/D，不需要的可以留空字符串<br>
+        4. <code>answer</code> 必须是 "A"/"B"/"C"/"D" 之一<br>
+        5. 题目组数和每组题数均由JSON决定，系统不写死<br>
+        6. 文件名固定为 <code>questions.json</code>，放在项目根目录<br>
+        7. 替换题目只需替换此文件，无需修改代码
+    </div>
+</div>
+
+</div>
+</body>
+</html>

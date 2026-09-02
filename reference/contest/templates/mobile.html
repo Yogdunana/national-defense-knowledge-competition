@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>计分控制 - 国防知识竞赛</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Microsoft YaHei', 'PingFang SC', 'Noto Sans CJK SC', sans-serif; background: #0a1628; color: #fff; min-height: 100vh; overflow-x: hidden; }
+        button { font-family: inherit; touch-action: manipulation; }
+
+        .app { max-width: 500px; margin: 0 auto; padding: 0 0 300px; }
+
+        /* Header */
+        .header { background: linear-gradient(135deg, #0d2137, #102845); padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; border-bottom: 1px solid rgba(255,215,0,0.15); }
+        .header h1 { font-size: 17px; color: #ffd700; }
+        .conn-dot { width: 10px; height: 10px; border-radius: 50%; background: #00e676; box-shadow: 0 0 6px #00e676; }
+        .conn-dot.off { background: #ff5252; box-shadow: 0 0 6px #ff5252; }
+
+        /* Company list */
+        .company-list { padding: 8px 10px; }
+        .company-row { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; margin-bottom: 6px; cursor: pointer; transition: all 0.2s; }
+        .company-row:active { background: rgba(255,215,0,0.08); }
+        .company-row.selected { border-color: #ffd700; background: rgba(255,215,0,0.08); }
+        .company-row.inactive { opacity: 0.4; }
+        .rank-badge { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: bold; background: rgba(255,255,255,0.1); flex-shrink: 0; }
+        .rank-badge.r1 { background: #ffd700; color: #000; }
+        .rank-badge.r2 { background: #c0c0c0; color: #000; }
+        .rank-badge.r3 { background: #cd7f32; color: #fff; }
+        .company-name { font-size: 16px; font-weight: 600; flex: 1; }
+        .company-score { font-size: 22px; font-weight: bold; color: #ffd700; min-width: 45px; text-align: right; }
+        @keyframes scoreUp { 0% { transform: scale(1); } 50% { transform: scale(1.2); color: #00e676; } 100% { transform: scale(1); } }
+        @keyframes scoreDown { 0% { transform: scale(1); } 50% { transform: scale(1.2); color: #ff5252; } 100% { transform: scale(1); } }
+        .company-score.up { animation: scoreUp 0.5s ease; }
+        .company-score.down { animation: scoreDown 0.5s ease; }
+        .active-toggle { font-size: 10px; padding: 3px 8px; border-radius: 10px; border: 1px solid rgba(0,230,118,0.3); background: rgba(0,230,118,0.1); color: #00e676; cursor: pointer; white-space: nowrap; }
+        .active-toggle.off { border-color: rgba(255,82,82,0.3); background: rgba(255,82,82,0.1); color: #ff5252; }
+
+        /* Action buttons */
+        .action-buttons { display: flex; gap: 8px; padding: 10px; }
+        .btn-reset, .btn-activate { flex: 1; padding: 10px; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.05); color: #fff; border-radius: 6px; font-size: 13px; cursor: pointer; }
+        .btn-reset { border-color: rgba(255,82,82,0.3); color: #ff8a80; }
+        .btn-activate { border-color: rgba(0,230,118,0.3); color: #00e676; }
+
+        /* Bottom bar */
+        .bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; max-width: 500px; margin: 0 auto; background: linear-gradient(180deg, #0d2137, #060f1c); border-top: 2px solid #ffd700; padding: 12px 14px 16px; z-index: 100; box-shadow: 0 -4px 20px rgba(0,0,0,0.5); transition: transform 0.3s ease; transform: translateY(100%); }
+        .bottom-bar.show { transform: translateY(0); }
+        .bar-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+        .bar-company { font-size: 18px; font-weight: 600; color: #ffd700; }
+        .bar-score { font-size: 18px; color: #fff; }
+        .bar-score .num { font-size: 28px; font-weight: bold; color: #ffd700; }
+        .bar-close { width: 30px; height: 30px; border: none; background: rgba(255,255,255,0.1); color: #fff; border-radius: 50%; font-size: 18px; cursor: pointer; }
+        .bar-row { display: flex; gap: 8px; margin-bottom: 7px; }
+        .bar-row:last-child { margin-bottom: 0; }
+        .btn-score { flex: 1; height: 48px; border: none; border-radius: 8px; font-size: 17px; font-weight: bold; cursor: pointer; transition: all 0.15s; }
+        .btn-add { background: linear-gradient(135deg, #00c853, #00e676); color: #fff; }
+        .btn-add:active { transform: scale(0.95); background: #00e676; }
+        .btn-sub { background: linear-gradient(135deg, #c62828, #ff5252); color: #fff; }
+        .btn-sub:active { transform: scale(0.95); background: #ff5252; }
+
+        /* Toast */
+        .toast { position: fixed; top: 60px; left: 50%; transform: translateX(-50%) translateY(-20px); background: rgba(0,230,118,0.9); color: #fff; padding: 8px 20px; border-radius: 20px; font-size: 14px; font-weight: 600; opacity: 0; transition: all 0.3s; z-index: 200; pointer-events: none; }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+        .toast.sub { background: rgba(255,82,82,0.9); }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <div class="header">
+            <h1>国防知识竞赛计分</h1>
+            <div class="conn-dot" id="connDot"></div>
+        </div>
+        <div class="company-list" id="companyList"></div>
+        <div class="action-buttons">
+            <button class="btn-reset" onclick="resetScores()">重置全部分数</button>
+            <button class="btn-activate" onclick="activateAll()">全部参与</button>
+        </div>
+    </div>
+
+    <div class="bottom-bar" id="bottomBar">
+        <div class="bar-header">
+            <span class="bar-company" id="selName">-</span>
+            <span class="bar-score"><span class="num" id="selScore">0</span> 分</span>
+            <button class="bar-close" onclick="closeBar()">&times;</button>
+        </div>
+        <div class="bar-row">
+            <button class="btn-score btn-add" data-delta="5" onclick="addScore(5)">+5</button>
+            <button class="btn-score btn-add" data-delta="10" onclick="addScore(10)">+10</button>
+            <button class="btn-score btn-add" data-delta="15" onclick="addScore(15)">+15</button>
+        </div>
+        <div class="bar-row">
+            <button class="btn-score btn-sub" data-delta="-5" onclick="addScore(-5)">-5</button>
+            <button class="btn-score btn-sub" data-delta="-10" onclick="addScore(-10)">-10</button>
+            <button class="btn-score btn-sub" data-delta="-15" onclick="addScore(-15)">-15</button>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script src="/static/socket.io.min.js"></script>
+    <script>
+        // 如果本地静态文件加载失败，从CDN加载
+        if (typeof io === 'undefined') {
+            document.write('<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"><\/script>');
+        }
+        let companies = {{ companies | tojson }};
+        let selectedId = null;
+        const RANK = ['1','2','3','4','5','6','7','8','9','10','11','12','13','14'];
+
+        const socket = io();
+        socket.on('connect', () => { document.getElementById('connDot').classList.remove('off'); });
+        socket.on('disconnect', () => { document.getElementById('connDot').classList.add('off'); });
+        socket.on('state_sync', (state) => {
+            companies = state.companies;
+            renderList();
+            updateBar();
+        });
+
+        function renderList() {
+            const sorted = [...companies].sort((a, b) => b.score - a.score);
+            const container = document.getElementById('companyList');
+            container.innerHTML = sorted.map((c, i) => {
+                const rk = i + 1 <= 3 ? 'r' + (i + 1) : '';
+                const sel = c.id === selectedId ? 'selected' : '';
+                const inact = !c.active ? 'inactive' : '';
+                return '<div class="company-row ' + sel + ' ' + inact + '" data-id="' + c.id + '" onclick="selectCompany(' + c.id + ')">' +
+                    '<span class="rank-badge ' + rk + '">' + (i + 1) + '</span>' +
+                    '<span class="company-name">' + c.name + '</span>' +
+                    '<span class="company-score" id="m-score-' + c.id + '">' + c.score + '</span>' +
+                    '<button class="active-toggle ' + (c.active ? '' : 'off') + '" onclick="event.stopPropagation(); toggleActive(' + c.id + ')">' + (c.active ? '参与' : '淘汰') + '</button>' +
+                    '</div>';
+            }).join('');
+        }
+
+        function selectCompany(id) {
+            selectedId = id;
+            document.querySelectorAll('.company-row').forEach(r => {
+                r.classList.toggle('selected', r.dataset.id == id);
+            });
+            updateBar();
+            document.getElementById('bottomBar').classList.add('show');
+        }
+
+        function closeBar() {
+            selectedId = null;
+            document.getElementById('bottomBar').classList.remove('show');
+            document.querySelectorAll('.company-row').forEach(r => r.classList.remove('selected'));
+        }
+
+        function updateBar() {
+            if (!selectedId) return;
+            const c = companies.find(x => x.id === selectedId);
+            if (!c) { closeBar(); return; }
+            document.getElementById('selName').textContent = c.name;
+            document.getElementById('selScore').textContent = c.score;
+        }
+
+        function addScore(delta) {
+            if (!selectedId) return;
+            socket.emit('update_score', { company_id: selectedId, delta: delta });
+            const c = companies.find(x => x.id === selectedId);
+            if (c) {
+                const newScore = Math.max(0, c.score + delta);
+                const el = document.getElementById('m-score-' + selectedId);
+                if (el) {
+                    el.textContent = newScore;
+                    el.classList.add(delta > 0 ? 'up' : 'down');
+                    setTimeout(() => el.classList.remove('up', 'down'), 500);
+                }
+                document.getElementById('selScore').textContent = newScore;
+            }
+            showToast((delta > 0 ? '+' : '') + delta + ' 分', delta > 0);
+        }
+
+        function toggleActive(id) {
+            socket.emit('toggle_active', { company_id: id });
+            const c = companies.find(x => x.id === id);
+            if (c) c.active = !c.active;
+            renderList();
+        }
+
+        function resetScores() {
+            if (!confirm('确认重置全部分数为0？')) return;
+            socket.emit('reset_scores', {});
+        }
+
+        function activateAll() {
+            companies.forEach(c => { if (!c.active) socket.emit('toggle_active', { company_id: c.id }); });
+        }
+
+        function showToast(msg, isAdd) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.className = 'toast show' + (isAdd ? '' : ' sub');
+            setTimeout(() => t.className = 'toast', 800);
+        }
+
+        renderList();
+    </script>
+</body>
+</html>

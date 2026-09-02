@@ -1,0 +1,2029 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2025级本科生军训国防知识竞赛 - 展示端</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --bg: #060b14; --bg2: #0a1424; --card: rgba(15,28,48,0.85); --border: rgba(255,193,7,0.12);
+  --gold: #ffc107; --gold2: #ffb300; --green: #00c853; --blue: #448aff; --red: #ff1744;
+  --white: #f5f5f5; --muted: rgba(255,255,255,0.35); --dim: rgba(255,255,255,0.08);
+}
+body { font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif; background: var(--bg); color: var(--white); overflow: hidden; user-select: none; }
+#app { width: 100vw; height: 100vh; position: relative; background: radial-gradient(ellipse at 50% 0%, #0d1e38 0%, #060b14 70%); }
+#app::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 20% 80%, rgba(255,193,7,0.04) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(255,23,68,0.03) 0%, transparent 50%); pointer-events: none; z-index: 0; }
+
+/* Audio unlock overlay */
+#audio-unlock { position: fixed; inset: 0; background: radial-gradient(ellipse at center, #0a1424 0%, #060b14 100%); z-index: 9999; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+#audio-unlock .unlock-content { text-align: center; }
+#audio-unlock h2 { font-size: 48px; font-weight: 300; color: var(--gold); margin-bottom: 16px; letter-spacing: 12px; text-shadow: 0 0 30px rgba(255,193,7,0.3); }
+#audio-unlock p { font-size: 16px; color: var(--muted); letter-spacing: 2px; }
+
+.ws-status-banner {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 10000;
+  background: linear-gradient(90deg, #dc2626, #ef4444);
+  color: white; text-align: center; padding: 10px 16px;
+  font-size: 14px; font-weight: 500; letter-spacing: 1px;
+  transform: translateY(-120%); transition: transform 0.3s ease;
+  box-shadow: 0 2px 20px rgba(220,38,38,0.4);
+}
+.ws-status-banner.show { transform: translateY(0); }
+.ws-status-banner .wsb-dot {
+  display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+  background: white; margin-right: 8px; vertical-align: middle;
+  animation: wsbPulse 1s ease-in-out infinite;
+}
+@keyframes wsbPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+/* Fullscreen button */
+#btn-fullscreen { position: fixed; top: 16px; right: 16px; z-index: 100; background: rgba(255,255,255,0.06); border: 1px solid var(--border); color: var(--gold); padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 13px; transition: all 0.25s; backdrop-filter: blur(4px); }
+#btn-fullscreen:hover { background: rgba(255,193,7,0.12); border-color: var(--gold); }
+
+/* Progress bar */
+.progress-bar { position: fixed; top: 0; left: 0; right: 0; height: 3px; background: var(--dim); z-index: 50; display: flex; }
+.progress-bar .seg { flex: 1; transition: all 0.4s; }
+.progress-bar .seg.active { background: linear-gradient(90deg, var(--gold), var(--gold2)); box-shadow: 0 0 8px rgba(255,193,7,0.5); }
+.progress-bar .seg.done { background: var(--green); opacity: 0.4; }
+
+/* Views */
+.view { position: absolute; inset: 0; display: none; flex-direction: column; padding: 32px 48px; z-index: 1; }
+.view.active { display: flex; animation: viewFadeIn 0.5s ease-out; }
+@keyframes viewFadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
+
+/* Cover */
+#view-cover { align-items: center; justify-content: center; }
+#view-cover .cover-title { font-size: 72px; font-weight: 900; background: linear-gradient(135deg, var(--gold) 0%, #ff8f00 50%, var(--gold) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 16px; letter-spacing: 12px; filter: drop-shadow(0 0 30px rgba(255,193,7,0.3)); }
+#view-cover .cover-sub { font-size: 28px; color: var(--white); opacity: 0.6; margin-bottom: 48px; letter-spacing: 4px; font-weight: 300; }
+#view-cover .cover-info { font-size: 16px; color: var(--muted); letter-spacing: 2px; }
+#view-cover::before { content: ''; position: absolute; top: 50%; left: 50%; width: 600px; height: 600px; transform: translate(-50%,-50%); border: 1px solid rgba(255,193,7,0.06); border-radius: 50%; }
+#view-cover::after { content: ''; position: absolute; top: 50%; left: 50%; width: 800px; height: 800px; transform: translate(-50%,-50%); border: 1px solid rgba(255,193,7,0.03); border-radius: 50%; }
+
+/* Phase intro */
+#view-intro { align-items: center; justify-content: center; }
+#view-intro .intro-title { font-size: 60px; font-weight: 800; color: var(--gold); margin-bottom: 32px; letter-spacing: 4px; text-shadow: 0 0 40px rgba(255,193,7,0.2); }
+#view-intro .intro-rules { font-size: 20px; color: var(--white); opacity: 0.65; max-width: 760px; line-height: 2; text-align: center; font-weight: 300; }
+
+/* Question views */
+#view-question { padding: 24px 32px; }
+.q-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; padding: 0 8px; }
+.q-phase { font-size: 18px; color: var(--gold); letter-spacing: 2px; font-weight: 500; }
+.q-num { font-size: 16px; color: var(--muted); }
+.q-body { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.q-text { font-size: 38px; font-weight: 600; text-align: center; max-width: 860px; margin-bottom: 36px; line-height: 1.6; letter-spacing: 1px; }
+.q-options { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; width: 78%; max-width: 760px; }
+.q-option { background: var(--card); border: 1px solid var(--dim); border-radius: 14px; padding: 20px 24px; font-size: 22px; display: flex; align-items: center; gap: 14px; transition: all 0.3s; backdrop-filter: blur(10px); }
+.q-option .opt-label { width: 36px; height: 36px; border-radius: 10px; background: rgba(255,193,7,0.08); color: var(--gold); display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0; font-size: 18px; }
+.q-option.correct { border-color: var(--green); background: rgba(0,200,83,0.08); box-shadow: 0 0 20px rgba(0,200,83,0.15); }
+.q-option.correct .opt-label { background: var(--green); color: #000; border-radius: 10px; }
+.q-points { margin-top: 24px; font-size: 18px; padding: 6px 24px; border-radius: 20px; font-weight: 600; }
+.q-points.green { background: rgba(0,200,83,0.12); color: var(--green); }
+.q-points.blue { background: rgba(68,138,255,0.12); color: var(--blue); }
+.q-points.red { background: rgba(255,23,68,0.12); color: var(--red); }
+
+/* Buzzer countdown overlay */
+.buzzer-overlay { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; z-index: 200; background: rgba(6,11,20,0.92); backdrop-filter: blur(12px); }
+.buzzer-overlay.active { display: flex; }
+.buzzer-overlay .countdown-num { font-size: 220px; font-weight: 900; background: linear-gradient(135deg, var(--gold), #ff8f00); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: cdPop 0.4s ease-out; filter: drop-shadow(0 0 40px rgba(255,193,7,0.3)); }
+@keyframes cdPop { 0% { transform: scale(1.3); opacity: 0.3; } 100% { transform: scale(1); opacity: 1; } }
+
+/* Buzzer banner */
+.buzzer-banner { position: fixed; top: 48px; left: 50%; transform: translateX(-50%); z-index: 150; display: none; align-items: center; gap: 24px; padding: 18px 44px; border-radius: 18px; background: linear-gradient(135deg, rgba(15,28,48,0.92), rgba(10,20,36,0.92)); border: 1px solid var(--gold); box-shadow: 0 8px 40px rgba(0,0,0,0.5), 0 0 24px rgba(255,193,7,0.15); backdrop-filter: blur(12px); animation: bannerSlideIn 0.4s ease-out; }
+.buzzer-banner.active { display: flex; }
+.buzzer-banner .bb-team { font-size: 40px; font-weight: 800; color: var(--gold); text-shadow: 0 0 20px rgba(255,193,7,0.25); }
+.buzzer-banner .bb-status { font-size: 16px; color: var(--white); opacity: 0.7; }
+.buzzer-banner .bb-timer { font-size: 28px; font-weight: 700; color: var(--gold); min-width: 40px; text-align: center; }
+.buzzer-banner .bb-result { font-size: 28px; font-weight: 700; }
+.buzzer-banner .bb-result.correct { color: var(--green); }
+.buzzer-banner .bb-result.wrong { color: var(--red); }
+.buzzer-banner .bb-icon { font-size: 32px; }
+@keyframes bannerSlideIn { from { opacity: 0; transform: translateX(-50%) translateY(-20px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+
+/* Sidebar scores */
+.score-sidebar { position: fixed; top: 4px; bottom: 0; width: 190px; padding: 14px 10px; overflow-y: auto; z-index: 10; }
+.score-sidebar.left { left: 0; }
+.score-sidebar.right { right: 0; }
+.score-sidebar .sidebar-title { font-size: 13px; color: var(--gold); text-align: center; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--border); letter-spacing: 2px; font-weight: 500; }
+.score-item { background: var(--card); border-radius: 12px; padding: 10px 12px; margin-bottom: 6px; border: 1px solid transparent; transition: all 0.3s; backdrop-filter: blur(6px); }
+.score-item .si-rank { font-size: 11px; color: var(--muted); letter-spacing: 1px; }
+.score-item .si-name { font-size: 15px; font-weight: 600; margin: 2px 0; }
+.score-item .si-score { font-size: 26px; font-weight: 800; color: var(--gold); }
+.score-item.buzzed { border-color: var(--gold); box-shadow: 0 0 16px rgba(255,193,7,0.2); }
+.score-item.correct { border-color: var(--green); }
+.score-item.wrong { border-color: var(--red); }
+.score-item.violation { border-color: var(--red); opacity: 0.7; }
+.score-item.early-violation { border-color: var(--red); border-style: dashed; }
+.score-item.disqualified { opacity: 0.25; text-decoration: line-through; }
+.score-item.judged-correct .si-score { color: var(--green); }
+.score-item.judged-wrong .si-score { color: var(--red); }
+.score-item .buzz-badge { margin-left: 6px; color: var(--gold); font-size: 14px; }
+.score-item .correct-badge { margin-left: 6px; color: var(--green); font-weight: 700; font-size: 14px; }
+.score-item .wrong-badge { margin-left: 6px; color: var(--red); font-weight: 700; font-size: 14px; }
+.score-item .early-badge { margin-left: 6px; color: var(--red); font-size: 13px; }
+
+/* PK scores */
+.pk-scores { display: flex; justify-content: center; gap: 80px; margin-bottom: 20px; }
+.pk-team { text-align: center; position: relative; }
+.pk-team .pk-name { font-size: 40px; font-weight: 800; margin-bottom: 8px; letter-spacing: 4px; }
+.pk-team .pk-score { font-size: 80px; font-weight: 900; color: var(--gold); text-shadow: 0 0 30px rgba(255,193,7,0.2); }
+.pk-team.buzzed .pk-name { color: var(--gold); animation: glow 0.5s ease-in-out infinite alternate; }
+@keyframes glow { from { text-shadow: 0 0 10px rgba(255,193,7,0.3); } to { text-shadow: 0 0 30px rgba(255,193,7,0.8); } }
+
+/* Ranking view */
+#view-ranking { align-items: center; padding: 32px 48px; }
+.ranking-title { font-size: 44px; font-weight: 800; color: var(--gold); margin-bottom: 32px; letter-spacing: 6px; }
+.ranking-list { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 32px; width: 100%; max-width: 960px; }
+.rank-item { display: flex; align-items: center; gap: 16px; background: var(--card); padding: 14px 22px; border-radius: 14px; border: 1px solid transparent; transition: all 0.3s; backdrop-filter: blur(8px); }
+.rank-item .rank-num { font-size: 30px; font-weight: 900; color: var(--gold); width: 40px; text-align: center; }
+.rank-item .rank-name { font-size: 22px; flex: 1; font-weight: 500; position: relative; }
+.rank-item .rank-score { font-size: 30px; font-weight: 800; color: var(--gold); }
+.rank-item .rank-badge { font-size: 12px; padding: 3px 10px; border-radius: 10px; font-weight: 600; min-width: 44px; text-align: center; margin-left: 8px; }
+.rank-item .rank-badge.advance { background: var(--green); color: #0f172a; }
+.rank-item .rank-badge.elim { background: #475569; color: #cbd5e1; }
+.rank-item .rank-badge.tied { background: #f59e0b; color: #0f172a; animation: badgePulse 1.5s ease-in-out infinite; }
+@keyframes badgePulse { 0%,100% { opacity: 1; } 50% { opacity: 0.6; } }
+.rank-item.advance { border-color: var(--green); background: rgba(34,197,94,0.08); }
+.rank-item.tied { border-color: #f59e0b; background: rgba(245,158,11,0.08); animation: tiedGlow 2s ease-in-out infinite; }
+@keyframes tiedGlow { 0%,100% { box-shadow: 0 0 0 0 rgba(245,158,11,0.15); } 50% { box-shadow: 0 0 12px 2px rgba(245,158,11,0.2); } }
+.rank-item.top1 { background: linear-gradient(135deg, rgba(251,191,36,0.18), rgba(217,119,6,0.08)); border-color: #fbbf24; box-shadow: 0 4px 20px rgba(251,191,36,0.15); }
+.rank-item.top1 .rank-num { color: #fbbf24; text-shadow: 0 0 10px rgba(251,191,36,0.3); }
+.rank-item.top2 { background: linear-gradient(135deg, rgba(203,213,225,0.15), rgba(148,163,184,0.06)); border-color: #cbd5e1; }
+.rank-item.top2 .rank-num { color: #cbd5e1; }
+.rank-item.top3 { background: linear-gradient(135deg, rgba(217,119,6,0.15), rgba(146,64,14,0.06)); border-color: #d97706; }
+.rank-item.top3 .rank-num { color: #d97706; }
+.rank-item.eliminated { opacity: 0.45; }
+.rank-divider { grid-column: 1 / -1; height: 2px; background: linear-gradient(90deg, transparent, #334155, transparent); margin: 6px 0; }
+.ranking-result-status { margin-top: 24px; text-align: center; padding: 14px 28px; background: rgba(30,41,59,0.8); border-radius: 12px; border: 1px solid var(--border); backdrop-filter: blur(8px); }
+.ranking-result-status .rs-main { font-size: 20px; color: var(--text); margin-bottom: 4px; }
+.ranking-result-status .rs-main .highlight { color: var(--green); font-weight: 700; }
+.ranking-result-status .rs-main .warn { color: #f59e0b; font-weight: 700; }
+.ranking-result-status .rs-sub { font-size: 14px; color: var(--muted); }
+
+/* Bracket view */
+#view-bracket { align-items: center; justify-content: center; padding: 32px; }
+.bracket-title { font-size: 40px; font-weight: 800; color: var(--gold); margin-bottom: 12px; letter-spacing: 4px; }
+.bracket-subtitle { font-size: 16px; color: var(--muted); margin-bottom: 32px; letter-spacing: 2px; }
+.bracket-tree { display: flex; align-items: stretch; justify-content: center; gap: clamp(20px, 3vw, 50px); }
+.bracket-col { display: flex; flex-direction: column; gap: 20px; justify-content: space-around; min-width: 220px; }
+.bracket-col .col-label { text-align: center; font-size: 16px; font-weight: 700; color: var(--gold); margin-bottom: 12px; letter-spacing: 2px; padding-bottom: 8px; border-bottom: 2px solid rgba(255,193,7,0.3); }
+.bracket-match { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 14px 18px; min-width: 210px; backdrop-filter: blur(8px); position: relative; transition: all 0.3s; }
+.bracket-match .bm-team { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; font-size: 18px; }
+.bracket-match .bm-team.winner { color: var(--green); font-weight: 700; }
+.bracket-match .bm-team.loser { opacity: 0.35; text-decoration: line-through; text-decoration-color: rgba(255,23,68,0.5); }
+.bracket-match .bm-team .bm-score { font-weight: 800; color: var(--gold); }
+.bracket-match.done { border-color: var(--green); background: rgba(34,197,94,0.05); }
+.bracket-match.done::after { content: '✓ 已结束'; position: absolute; top: -8px; right: 10px; background: var(--green); color: #0f172a; font-size: 10px; padding: 2px 8px; border-radius: 8px; font-weight: 600; }
+.bracket-match.active { border-color: var(--gold); box-shadow: 0 0 24px rgba(255,193,7,0.2); animation: bracketPulse 2s ease-in-out infinite; }
+@keyframes bracketPulse { 0%,100% { box-shadow: 0 0 24px rgba(255,193,7,0.2); } 50% { box-shadow: 0 0 36px rgba(255,193,7,0.35); } }
+.bracket-match.active::after { content: '▶ 进行中'; position: absolute; top: -8px; right: 10px; background: var(--gold); color: #0f172a; font-size: 10px; padding: 2px 8px; border-radius: 8px; font-weight: 600; animation: tagPulse 1.5s ease-in-out infinite; }
+@keyframes tagPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.7; } }
+.bracket-match.pending { opacity: 0.5; }
+.bracket-match.pending::after { content: '待开始'; position: absolute; top: -8px; right: 10px; background: #475569; color: #cbd5e1; font-size: 10px; padding: 2px 8px; border-radius: 8px; font-weight: 600; }
+.bracket-match .bm-label { text-align: center; font-size: 12px; color: var(--muted); margin-bottom: 6px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+
+/* Final selection view */
+#view-final { align-items: center; padding: 32px; }
+.final-teams { display: flex; gap: 80px; margin-bottom: 28px; }
+.final-team { text-align: center; }
+.final-team .ft-name { font-size: 36px; font-weight: 800; letter-spacing: 4px; }
+.final-team .ft-score { font-size: 56px; font-weight: 900; color: var(--gold); text-shadow: 0 0 24px rgba(255,193,7,0.2); }
+.final-team .ft-answered { font-size: 13px; color: var(--muted); }
+.final-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; max-width: 700px; }
+.final-cell { border-radius: 14px; padding: 18px; text-align: center; border: 2px solid; transition: all 0.3s; backdrop-filter: blur(6px); }
+.final-cell .fc-num { font-size: 13px; color: var(--muted); }
+.final-cell .fc-diff { font-size: 18px; font-weight: 700; }
+.final-cell .fc-pts { font-size: 26px; font-weight: 800; }
+.final-cell.easy { border-color: var(--green); background: rgba(0,200,83,0.06); }
+.final-cell.medium { border-color: var(--blue); background: rgba(68,138,255,0.06); }
+.final-cell.hard { border-color: var(--red); background: rgba(255,23,68,0.06); }
+.final-cell.selected { opacity: 0.25; }
+.final-cell.current { border-width: 3px; box-shadow: 0 0 24px rgba(255,193,7,0.2); }
+.final-order { margin-top: 18px; font-size: 15px; color: var(--muted); }
+
+/* Tiebreaker view */
+#view-tiebreaker { padding: 24px 32px; overflow-y: auto; }
+#view-tiebreaker .tb-info { text-align: center; margin-bottom: 12px; }
+#view-tiebreaker .tb-scores { display: none; }
+#view-tiebreaker .q-body { flex: 1; overflow-y: auto; }
+.tb-info { text-align: center; margin-bottom: 20px; }
+.tb-info .tb-title { font-size: 40px; font-weight: 800; color: var(--red); letter-spacing: 4px; }
+.tb-info .tb-desc { font-size: 18px; color: var(--muted); }
+.tb-scores { display: flex; justify-content: center; gap: 40px; margin-bottom: 20px; }
+
+/* 加赛专用队伍得分条（多队伍时自动紧凑） */
+.tb-team-scores {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  max-width: 100%;
+}
+.tb-team-scores .ts-card {
+  background: var(--card);
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  padding: 8px 14px;
+  text-align: center;
+  min-width: 90px;
+  transition: all 0.3s;
+}
+.tb-team-scores .ts-card.buzzed {
+  border-color: var(--gold);
+  box-shadow: 0 0 16px rgba(255,193,7,0.3);
+}
+.tb-team-scores .ts-name {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+.tb-team-scores .ts-score {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--gold);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Award view */
+#view-award { align-items: center; padding: 24px 48px 32px; overflow: hidden; justify-content: flex-start; }
+.award-title { font-size: 44px; font-weight: 900; background: linear-gradient(135deg, var(--gold), #ff8f00); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 20px; letter-spacing: 6px; filter: drop-shadow(0 0 30px rgba(255,193,7,0.2)); flex-shrink: 0; }
+.award-list { width: 100%; max-width: 1200px; }
+.award-layout { display: flex; gap: 32px; justify-content: center; }
+.award-col { display: flex; flex-direction: column; gap: 8px; flex: 1; max-width: 520px; }
+.award-item { display: flex; align-items: center; gap: 20px; background: var(--card); padding: 12px 24px; border-radius: 14px; border-left: 4px solid; backdrop-filter: blur(8px); transition: all 0.3s; }
+.award-item.first { border-left-color: var(--gold); box-shadow: 0 0 24px rgba(255,193,7,0.15); background: linear-gradient(135deg, rgba(255,193,7,0.08), var(--card)); }
+.award-item.second { border-left-color: #b0bec5; background: linear-gradient(135deg, rgba(176,190,197,0.06), var(--card)); }
+.award-item.third { border-left-color: #bf9b37; background: linear-gradient(135deg, rgba(191,155,55,0.06), var(--card)); }
+.award-item .ai-rank { font-size: 28px; font-weight: 900; width: 40px; }
+.award-item .ai-name { font-size: 20px; flex: 1; }
+.award-item .ai-score { font-size: 24px; font-weight: 800; color: var(--gold); }
+.award-item .ai-flag { font-size: 13px; padding: 3px 12px; border-radius: 6px; font-weight: 500; white-space: nowrap; }
+.award-item.first .ai-flag { background: rgba(255,193,7,0.15); color: var(--gold); }
+.award-item.second .ai-flag { background: rgba(176,190,197,0.12); color: #b0bec5; }
+.award-item.third .ai-flag { background: rgba(191,155,55,0.12); color: #bf9b37; }
+
+/* 冠军加冕特效 */
+.champion-crown { font-size: 72px; margin-bottom: 8px; animation: crownBounce 2s ease-in-out infinite; filter: drop-shadow(0 0 20px rgba(255,193,7,0.5)); }
+@keyframes crownBounce { 0%,100% { transform: translateY(0) rotate(-3deg); } 50% { transform: translateY(-12px) rotate(3deg); } }
+.champion-name-big { font-size: clamp(40px, 5vw, 72px); font-weight: 900; color: var(--gold); text-shadow: 0 0 40px rgba(255,193,7,0.5); letter-spacing: 6px; margin-bottom: 8px; animation: champNameIn 1.2s ease-out; }
+@keyframes champNameIn { from { opacity: 0; transform: scale(0.5); letter-spacing: 20px; } to { opacity: 1; transform: scale(1); letter-spacing: 6px; } }
+.champion-subtitle { font-size: 20px; color: var(--muted); margin-bottom: 32px; letter-spacing: 4px; }
+
+/* 彩纸特效 */
+.confetti-container { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 10; }
+.confetti-piece { position: absolute; width: 8px; height: 10px; top: -20px; opacity: 0; animation: confettiFall linear forwards; }
+@keyframes confettiFall {
+  0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+
+/* Waiting state */
+.waiting { display: flex; align-items: center; justify-content: center; height: 100%; }
+.waiting .waiting-text { font-size: 24px; color: var(--muted); }
+.waiting .dots { display: inline-block; }
+.waiting .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--gold); margin: 0 4px; animation: breathe 1.4s ease-in-out infinite; }
+.waiting .dot:nth-child(2) { animation-delay: 0.2s; }
+.waiting .dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes breathe { 0%, 100% { opacity: 0.15; transform: scale(0.8); } 50% { opacity: 0.8; transform: scale(1.2); } }
+
+/* Violation notice */
+.violation-notice { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: linear-gradient(135deg, rgba(255,23,68,0.9), rgba(213,0,0,0.9)); padding: 30px 60px; border-radius: 20px; font-size: 42px; font-weight: 900; color: #fff; z-index: 300; display: none; text-align: center; box-shadow: 0 8px 40px rgba(255,23,68,0.3); }
+.violation-notice.active { display: block; animation: violationFlash 0.5s ease-in-out 3; }
+@keyframes violationFlash { 0%, 100% { transform: translate(-50%, -50%) scale(1); } 50% { transform: translate(-50%, -50%) scale(1.05); } }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--dim); border-radius: 4px; }
+
+/* 底部栏 */
+.footer-bar { position: fixed; bottom: 0; left: 0; right: 0; height: 44px; display: flex; align-items: center; justify-content: center; background: linear-gradient(180deg, transparent, rgba(0,0,0,0.7)); z-index: 5; pointer-events: none; }
+.footer-bar .footer-text { font-size: 20px; color: rgba(255,255,255,0.5); letter-spacing: 3px; font-weight: 500; }
+
+/* 抢答测试页 */
+#view-buzzerTest { align-items: center; justify-content: center; }
+.bt-header { text-align: center; margin-bottom: 32px; }
+.bt-label { font-size: 16px; color: var(--muted); letter-spacing: 6px; margin-bottom: 8px; }
+.bt-title { font-size: 52px; font-weight: 900; background: linear-gradient(135deg, var(--gold), #ff8f00); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; letter-spacing: 8px; filter: drop-shadow(0 0 30px rgba(255,193,7,0.3)); animation: raTitleIn 0.8s ease-out; }
+.bt-subtitle { font-size: 18px; color: var(--muted); margin-top: 12px; letter-spacing: 2px; }
+.bt-status { font-size: 36px; font-weight: 700; margin-bottom: 28px; letter-spacing: 4px; text-align: center; min-height: 56px; line-height: 1; transition: all 0.3s; }
+.bt-status.status-counting {
+  color: var(--gold);
+  font-size: 120px;
+  font-weight: 900;
+  text-shadow: 0 0 40px rgba(251,191,36,0.6);
+  animation: btCountdownPulse 1s ease-in-out infinite;
+}
+@keyframes btCountdownPulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.15); opacity: 0.85; }
+}
+.bt-grid { display: flex; flex-direction: column; gap: 14px; align-items: center; width: 100%; max-width: 1100px; }
+.bt-row { display: flex; gap: 12px; justify-content: center; width: 100%; }
+.bt-team-card { flex: 1; max-width: 150px; text-align: center; padding: 20px 12px; border-radius: 14px; background: var(--card); border: 2px solid var(--border); color: var(--text); font-size: 18px; font-weight: 600; transition: all 0.3s; backdrop-filter: blur(8px); }
+.bt-team-card .btc-name { margin-bottom: 6px; }
+.bt-team-card .btc-label { font-size: 12px; font-weight: 500; opacity: 0.8; }
+.bt-team-card .btc-time { font-size: 11px; margin-top: 4px; opacity: 0.7; }
+.bt-team-card.status-yellow { background: rgba(251,191,36,0.1); border-color: #fbbf24; color: #fbbf24; }
+.bt-team-card.status-red { background: rgba(239,68,68,0.12); border-color: #ef4444; color: #ef4444; box-shadow: 0 0 20px rgba(239,68,68,0.2); }
+.bt-team-card.status-green { background: rgba(34,197,94,0.15); border-color: #22c55e; color: #22c55e; box-shadow: 0 0 24px rgba(34,197,94,0.3); }
+.bt-team-card.status-blue { background: rgba(59,130,246,0.12); border-color: #3b82f6; color: #3b82f6; box-shadow: 0 0 16px rgba(59,130,246,0.2); }
+.bt-status.status-idle { color: var(--muted); }
+.bt-status.status-counting { color: var(--gold); }
+.bt-status.status-open { color: var(--green); }
+.bt-status.status-buzzed { color: var(--gold); text-shadow: 0 0 20px rgba(251,191,36,0.5); }
+.bt-status.status-done { color: var(--muted); }
+
+/* 排名公布动画 */
+.ranking-announce {
+  text-align: center;
+  margin-bottom: 24px;
+}
+.ranking-announce .ra-label {
+  font-size: 20px;
+  color: var(--muted);
+  letter-spacing: 8px;
+  margin-bottom: 8px;
+}
+.ranking-announce .ra-title {
+  font-size: 52px;
+  font-weight: 900;
+  background: linear-gradient(135deg, var(--gold), #ff8f00);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: 10px;
+  filter: drop-shadow(0 0 30px rgba(255,193,7,0.3));
+  animation: raTitleIn 1s ease-out;
+}
+@keyframes raTitleIn {
+  from { opacity: 0; transform: translateY(-30px) scale(0.8); letter-spacing: 30px; }
+  to { opacity: 1; transform: translateY(0) scale(1); letter-spacing: 10px; }
+}
+.ranking-list .rank-item {
+  opacity: 0;
+  transform: translateX(-30px);
+  animation: rankItemIn 0.5s ease-out forwards;
+}
+@keyframes rankItemIn {
+  from { opacity: 0; transform: translateX(-30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.rank-item.top3 .rank-num {
+  font-size: 36px;
+}
+
+/* 加赛结果页 - 丰富版 */
+.tb-result-view { display: none; width: 100%; height: 100%; overflow-y: auto; padding: 24px 48px 60px; box-sizing: border-box; flex-direction: column; align-items: center; }
+.tb-result-view.active { display: flex; animation: viewFadeIn 0.5s ease-out; }
+.tb-result-container {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+}
+.tb-result-header {
+  text-align: center;
+  margin-bottom: 28px;
+}
+.tb-result-header .trh-round {
+  font-size: 18px;
+  color: var(--muted);
+  letter-spacing: 4px;
+  margin-bottom: 6px;
+  opacity: 0;
+  animation: tbHeaderIn 0.5s ease-out 0.1s forwards;
+}
+.tb-result-header .trh-title {
+  font-size: 44px;
+  font-weight: 900;
+  color: var(--red);
+  letter-spacing: 6px;
+  text-shadow: 0 0 30px rgba(255,23,68,0.2);
+  opacity: 0;
+  animation: tbHeaderIn 0.6s ease-out 0.2s forwards;
+}
+.tb-result-header .trh-sub {
+  font-size: 16px;
+  color: var(--gold);
+  margin-top: 8px;
+  opacity: 0;
+  animation: tbHeaderIn 0.5s ease-out 0.35s forwards;
+}
+@keyframes tbHeaderIn {
+  from { opacity: 0; transform: translateY(-15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.tb-podium {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 28px;
+  margin-top: 8px;
+  margin-bottom: 32px;
+  height: 280px;
+}
+.tb-podium .pod-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 180px;
+  flex-shrink: 0;
+}
+.tb-podium .pod-team {
+  font-size: 22px;
+  font-weight: 800;
+  margin-bottom: 6px;
+  letter-spacing: 2px;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+.tb-podium .pod-score {
+  font-size: 30px;
+  font-weight: 900;
+  color: var(--gold);
+  margin-bottom: 8px;
+}
+.tb-podium .pod-rank {
+  font-size: 14px;
+  color: var(--muted);
+  margin-bottom: 6px;
+  letter-spacing: 2px;
+}
+.tb-podium .pod-block {
+  width: 100%;
+  border-radius: 12px 12px 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 44px;
+  font-weight: 900;
+  color: #fff;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+  flex-shrink: 0;
+}
+.tb-podium .pod-1 .pod-block { height: 200px; background: linear-gradient(180deg, #ffd700, #ff8f00); box-shadow: 0 0 40px rgba(255,193,7,0.3); }
+.tb-podium .pod-2 .pod-block { height: 150px; background: linear-gradient(180deg, #cfd8dc, #90a4ae); box-shadow: 0 0 30px rgba(176,190,197,0.2); }
+.tb-podium .pod-3 .pod-block { height: 120px; background: linear-gradient(180deg, #d4a855, #8b6914); box-shadow: 0 0 25px rgba(191,155,55,0.2); }
+.tb-podium .pod-1 .pod-team { color: var(--gold); font-size: 26px; }
+
+.tb-full-rank {
+  background: var(--card);
+  border-radius: 14px;
+  padding: 18px 24px;
+  backdrop-filter: blur(8px);
+  max-width: 820px;
+  width: 100%;
+  box-sizing: border-box;
+}
+.tb-full-rank .tfr-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--gold);
+  margin-bottom: 12px;
+  text-align: center;
+}
+.tb-rank-row {
+  display: flex;
+  align-items: center;
+  padding: 10px 14px;
+  border-radius: 8px;
+  margin-bottom: 4px;
+  gap: 12px;
+  transition: all 0.3s;
+}
+.tb-rank-row:hover { background: rgba(255,255,255,0.04); }
+.tb-rank-row .trr-rank {
+  width: 36px;
+  font-size: 20px;
+  font-weight: 800;
+  text-align: center;
+}
+.tb-rank-row .trr-name {
+  flex: 1;
+  font-size: 18px;
+  font-weight: 500;
+}
+.tb-rank-row .trr-scores {
+  display: flex;
+  gap: 20px;
+  font-size: 15px;
+}
+.tb-rank-row .trr-scores span {
+  min-width: 82px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.tb-rank-row .trr-total {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--gold);
+  min-width: 82px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.tb-rank-row.tied {
+  border: 1px dashed var(--red);
+  background: rgba(255,23,68,0.06);
+}
+.tb-rank-row.tied .trr-rank { color: var(--red); }
+.tb-rank-row.tied .trr-name::after {
+  content: '⚠ 同分';
+  margin-left: 8px;
+  font-size: 12px;
+  color: var(--red);
+  font-weight: 600;
+}
+.tb-rank-row.forced {
+  border: 1px solid var(--gold);
+  background: rgba(255,193,7,0.06);
+}
+.tb-rank-row.forced .trr-name::after {
+  content: '强制排名';
+  margin-left: 8px;
+  font-size: 12px;
+  color: var(--gold);
+  font-weight: 600;
+}
+.tb-rank-row.ranked-ok {
+  opacity: 0.7;
+}
+.tb-score-header {
+  display: flex;
+  padding: 6px 14px;
+  font-size: 13px;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 6px;
+}
+.tb-score-header .sh-rank { width: 36px; text-align: center; }
+.tb-score-header .sh-name { flex: 1; }
+.tb-score-header .sh-scores { display: flex; gap: 20px; }
+.tb-score-header .sh-scores span { min-width: 82px; text-align: right; font-variant-numeric: tabular-nums; }
+.tb-score-header .sh-total { min-width: 82px; text-align: right; font-weight: 700; }
+.tb-result-hint { text-align: center; margin-top: 28px; font-size: 16px; color: var(--muted); letter-spacing: 1px; opacity: 0; animation: tbHeaderIn 0.5s ease-out 0.8s forwards; }
+
+/* 决赛结果页 */
+#view-final-result {
+  align-items: center;
+  justify-content: center;
+}
+.final-result-wrap {
+  text-align: center;
+}
+.final-result-wrap .fr-label {
+  font-size: 20px;
+  color: var(--muted);
+  letter-spacing: 8px;
+  margin-bottom: 16px;
+}
+.final-result-wrap .fr-scores {
+  display: flex;
+  justify-content: center;
+  gap: 80px;
+  margin-top: 40px;
+}
+.final-result-wrap .fr-team {
+  text-align: center;
+}
+.final-result-wrap .fr-team .frt-name {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.final-result-wrap .fr-team .frt-score {
+  font-size: 48px;
+  font-weight: 900;
+  color: var(--gold);
+}
+.final-result-wrap .fr-team.winner .frt-name {
+  color: var(--gold);
+}
+
+/* 决赛选题优化 */
+.final-select-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+.final-select-header .fsh-title {
+  font-size: 36px;
+  font-weight: 800;
+  color: var(--gold);
+  letter-spacing: 6px;
+  margin-bottom: 8px;
+}
+.final-select-header .fsh-turn {
+  font-size: 20px;
+  color: var(--text);
+}
+.final-select-header .fsh-turn .turn-team {
+  color: var(--gold);
+  font-weight: 700;
+  font-size: 24px;
+  animation: turnPulse 1.5s ease-in-out infinite;
+}
+@keyframes turnPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+.final-cell {
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.final-cell:hover:not(.selected) {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+}
+.final-cell.easy .fc-diff { color: var(--green); }
+.final-cell.medium .fc-diff { color: var(--blue); }
+.final-cell.hard .fc-diff { color: var(--red); }
+.final-cell.selected {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+.final-cell.selected::after {
+  content: '已选';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-15deg);
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--muted);
+  border: 2px solid var(--muted);
+  padding: 4px 12px;
+  border-radius: 6px;
+}
+.final-cell.current-selecting {
+  animation: cellPulse 1.5s ease-in-out infinite;
+}
+@keyframes cellPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255,193,7,0.4); }
+  50% { box-shadow: 0 0 0 10px rgba(255,193,7,0); }
+}
+
+/* PK结果过场 */
+.pk-result-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+.pk-result-card {
+  text-align: center;
+}
+.pk-result-card .prc-vs {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+  margin-bottom: 30px;
+}
+.pk-result-card .prc-team {
+  font-size: 40px;
+  font-weight: 800;
+  letter-spacing: 4px;
+  transition: all 0.5s;
+}
+.pk-result-card .prc-team.winner {
+  color: var(--gold);
+  font-size: 52px;
+  text-shadow: 0 0 30px rgba(255,193,7,0.4);
+  animation: winnerPop 1s ease-out;
+}
+@keyframes winnerPop {
+  0% { transform: scale(0.5); opacity: 0; }
+  60% { transform: scale(1.2); }
+  100% { transform: scale(1); opacity: 1; }
+}
+.pk-result-card .prc-team.loser {
+  opacity: 0.3;
+  font-size: 32px;
+}
+.pk-result-card .prc-vs-text {
+  font-size: 24px;
+  color: var(--muted);
+  font-weight: 700;
+}
+.pk-result-card .prc-scores {
+  display: flex;
+  justify-content: center;
+  gap: 80px;
+  margin-bottom: 20px;
+}
+.pk-result-card .prc-score {
+  font-size: 60px;
+  font-weight: 900;
+  color: var(--gold);
+}
+.pk-result-card .prc-label {
+  font-size: 20px;
+  color: var(--green);
+  letter-spacing: 4px;
+}
+
+/* 对阵图过场标题动画 */
+.bracket-title {
+  animation: bracketTitleIn 0.8s ease-out;
+}
+@keyframes bracketTitleIn {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.bracket-match {
+  opacity: 0;
+  transform: scale(0.9);
+  animation: matchIn 0.5s ease-out forwards;
+}
+@keyframes matchIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+.bracket-match .bm-team.winner {
+  position: relative;
+}
+.bracket-match .bm-team.winner::before {
+  content: '✓';
+  position: absolute;
+  left: -20px;
+  color: var(--green);
+  font-weight: 900;
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="audio-unlock"><div class="unlock-content"><h2>点击开始</h2><p>点击屏幕任意处启动音频</p></div></div>
+  <iframe id="opening-frame" src="opening.html" style="position:fixed;top:0;left:0;width:100vw;height:100vh;border:none;z-index:500;display:none;"></iframe>
+
+  <!-- WebSocket连接状态提示 -->
+  <div id="ws-status-banner" class="ws-status-banner">
+    <span class="wsb-dot"></span>
+    <span class="wsb-text">连接断开，正在重连...</span>
+  </div>
+
+  <div class="progress-bar" id="progress-bar">
+    <div class="seg" data-phase="round1"></div>
+    <div class="seg" data-phase="round2"></div>
+    <div class="seg" data-phase="round3"></div>
+    <div class="seg" data-phase="round4"></div>
+    <div class="seg" data-phase="awards"></div>
+  </div>
+
+  <div class="score-sidebar left" id="sidebar-left"></div>
+  <div class="score-sidebar right" id="sidebar-right"></div>
+
+  <div class="view" id="view-cover">
+    <div class="cover-title">长征薪火 青春卫国</div>
+    <div class="cover-sub">2025级本科生军训国防知识竞赛</div>
+    <div class="cover-info">2025级本科生军训指挥部</div>
+  </div>
+
+  <div class="view" id="view-intro">
+    <div class="intro-title" id="intro-title"></div>
+    <div class="intro-rules" id="intro-rules"></div>
+  </div>
+
+  <div class="view" id="view-question">
+    <div class="q-header">
+      <div class="q-phase" id="q-phase"></div>
+      <div class="q-num" id="q-num"></div>
+    </div>
+    <div class="q-body" id="q-body"></div>
+  </div>
+
+  <div class="view" id="view-ranking">
+    <div class="ranking-announce">
+      <div class="ra-label">第一环节结束</div>
+      <div class="ra-title" id="ranking-title">十四进八排名</div>
+    </div>
+    <div class="ranking-list" id="ranking-list"></div>
+    <div class="ranking-result-status" id="ranking-hint"><div class="rs-main">⏳ 等待主持人宣布排名...</div></div>
+  </div>
+
+  <div class="view" id="view-bracket">
+    <div class="bracket-title" id="bracket-title">对阵图</div>
+    <div class="bracket-subtitle" id="bracket-subtitle"></div>
+    <div class="bracket-tree" id="bracket-tree"></div>
+  </div>
+
+  <div class="view" id="view-final">
+    <div class="final-select-header">
+      <div class="fsh-title">决赛·选题</div>
+      <div class="fsh-turn" id="final-turn"></div>
+    </div>
+    <div class="final-teams" id="final-teams"></div>
+    <div class="final-grid" id="final-grid"></div>
+    <div class="final-order" id="final-order"></div>
+  </div>
+
+  <div class="view" id="view-final-result">
+    <div class="confetti-container" id="final-confetti"></div>
+    <div class="final-result-wrap">
+      <div class="champion-crown">👑</div>
+      <div class="fr-label">冠军诞生</div>
+      <div class="champion-name-big" id="fr-champion">-</div>
+      <div class="champion-subtitle">2025级本科生军训国防知识竞赛 · 总冠军</div>
+      <div class="fr-scores" id="fr-scores"></div>
+    </div>
+  </div>
+
+  <div class="view" id="view-tiebreaker">
+    <!-- 答题模式 -->
+    <div id="tb-question-view">
+      <div class="tb-info"><div class="tb-title" id="tb-title">加赛</div><div class="tb-desc" id="tb-desc"></div></div>
+      <div class="tb-scores" id="tb-scores"></div>
+      <div class="q-body" id="tb-body"></div>
+    </div>
+    <!-- 结果模式 -->
+    <div id="tb-result-view" class="tb-result-view">
+      <div class="tb-result-header">
+        <div class="trh-round" id="tb-result-round">加赛结果</div>
+        <div class="trh-title">加赛结果</div>
+        <div class="trh-sub" id="tb-result-sub"></div>
+      </div>
+      <div class="tb-podium" id="tb-result-podium"></div>
+      <div class="tb-full-rank" id="tb-result-ranking"></div>
+      <div class="tb-result-hint" id="tb-result-hint"></div>
+    </div>
+  </div>
+
+  <div class="view" id="view-buzzerTest">
+    <div class="bt-header">
+      <div class="bt-label">设备检测</div>
+      <div class="bt-title">抢答器测试</div>
+      <div class="bt-subtitle">请各队伍按顺序测试抢答设备</div>
+    </div>
+    <div class="bt-status" id="bt-status-display"></div>
+    <div class="bt-grid" id="bt-grid-display"></div>
+  </div>
+
+  <div class="view" id="view-award">
+    <div class="confetti-container" id="award-confetti"></div>
+    <div class="champion-crown">👑</div>
+    <div class="award-title">颁奖仪式</div>
+    <div class="champion-subtitle">2025级本科生军训国防知识竞赛</div>
+    <div class="award-list" id="award-list"></div>
+  </div>
+
+  <div class="buzzer-overlay" id="buzzer-overlay">
+    <div id="buzzer-content"></div>
+  </div>
+  <div class="buzzer-banner" id="buzzer-banner"></div>
+  <div class="violation-notice" id="violation-notice"></div>
+
+  <!-- PK结果过场 -->
+  <div class="pk-result-overlay" id="pk-result-overlay" style="display:none;">
+    <div class="pk-result-card">
+      <div class="prc-vs">
+        <div class="prc-team" id="prc-team1">-</div>
+        <div class="prc-vs-text">VS</div>
+        <div class="prc-team" id="prc-team2">-</div>
+      </div>
+      <div class="prc-scores">
+        <div class="prc-score" id="prc-score1">0</div>
+        <div class="prc-score" id="prc-score2">0</div>
+      </div>
+      <div class="prc-label" id="prc-label">胜者晋级</div>
+    </div>
+  </div>
+
+  <div class="footer-bar">
+    <div class="footer-text">2025级本科生军训指挥部 监制 &nbsp;|&nbsp; 深北莫计算机协会 技术支持</div>
+  </div>
+
+</div>
+
+<script>
+let audioCtx = null;
+let ws = null;
+let state = null;
+let reconnectTimer = null;
+// 预加载倒计时音频（精确3秒，避免软件计时误差）
+const countdownAudio = new Audio('countdown.wav');
+countdownAudio.preload = 'auto';
+let countdownAudioBuffer = null;
+
+function initAudio() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  // 尝试用 Web Audio API 解码音频文件，实现更精确的播放
+  if (!countdownAudioBuffer && audioCtx.state === 'running') {
+    fetch('countdown.wav')
+      .then(r => r.arrayBuffer())
+      .then(buf => audioCtx.decodeAudioData(buf))
+      .then(decoded => { countdownAudioBuffer = decoded; })
+      .catch(() => { /* 失败则回退到 HTML Audio 元素 */ });
+  }
+}
+
+// 播放倒计时音频（优先使用 Web Audio API 保证精度）
+function playCountdownAudio() {
+  if (!state || !state.settings.soundEnabled) return;
+  if (!state.settings.soundSettings?.countdown) return;
+  // 防止重复播放
+  if (window._cdPlaying) return;
+  window._cdPlaying = true;
+
+  const onEnd = () => { window._cdPlaying = false; };
+
+  if (countdownAudioBuffer && audioCtx) {
+    // 使用 Web Audio API 播放，更精确
+    const source = audioCtx.createBufferSource();
+    source.buffer = countdownAudioBuffer;
+    const gainNode = audioCtx.createGain();
+    gainNode.gain.value = (state.settings.soundSettings?.volume !== undefined ? state.settings.soundSettings.volume : 80) / 100;
+    source.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+    source.start(0);
+    source.onended = onEnd;
+    return source;
+  } else {
+    // 回退到 HTML Audio 元素
+    countdownAudio.currentTime = 0;
+    countdownAudio.volume = (state.settings.soundSettings?.volume !== undefined ? state.settings.soundSettings.volume : 80) / 100;
+    countdownAudio.play().catch(() => { window._cdPlaying = false; });
+    countdownAudio.onended = onEnd;
+    return countdownAudio;
+  }
+}
+function playSound(type) {
+  if (!audioCtx) return;
+  if (!state || !state.settings.soundEnabled) return;
+  const ss = state.settings.soundSettings;
+  const now = audioCtx.currentTime;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.connect(gain); gain.connect(audioCtx.destination);
+  switch(type) {
+    case 'countdown':
+      if (!ss.countdown) return;
+      playCountdownAudio();
+      return;
+    case 'buzzer':
+      if (!ss.buzzer) return;
+      osc.frequency.value = 1200; gain.gain.setValueAtTime(0.4, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+      osc.start(now); osc.stop(now + 0.5); break;
+    case 'violation':
+      if (!ss.violation) return;
+      osc.type = 'sawtooth'; osc.frequency.value = 200;
+      gain.gain.setValueAtTime(0.4, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.8);
+      osc.start(now); osc.stop(now + 0.8); break;
+    case 'correct':
+      if (!ss.correct) return;
+      osc.frequency.setValueAtTime(523, now); osc.frequency.setValueAtTime(659, now + 0.1); osc.frequency.setValueAtTime(784, now + 0.2);
+      gain.gain.setValueAtTime(0.3, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+      osc.start(now); osc.stop(now + 0.4); break;
+    case 'wrong':
+      if (!ss.wrong) return;
+      osc.frequency.setValueAtTime(300, now); osc.frequency.setValueAtTime(200, now + 0.15);
+      gain.gain.setValueAtTime(0.3, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+      osc.start(now); osc.stop(now + 0.3); break;
+  }
+}
+
+let reconnectAttempts = 0;
+function showWsBanner(show, text) {
+  const banner = document.getElementById('ws-status-banner');
+  if (!banner) return;
+  if (show) {
+    if (text) banner.querySelector('.wsb-text').textContent = text;
+    banner.classList.add('show');
+  } else {
+    banner.classList.remove('show');
+  }
+}
+function connect() {
+  const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+  ws = new WebSocket(`${proto}//${location.host}`);
+  ws.onopen = () => {
+    console.log('WS connected');
+    reconnectAttempts = 0;
+    showWsBanner(false);
+  };
+  ws.onmessage = (e) => {
+    let msg;
+    try { msg = JSON.parse(e.data); } catch(err) { console.error('消息解析失败', err); return; }
+    try {
+      if (msg.type === 'state_sync') { state = msg.data; render(); }
+      else if (msg.type === 'play_sound') playSound(msg.data.sound);
+      else if (msg.type === 'buzzer_success') playSound('buzzer');
+      else if (msg.type === 'buzzer_violation') showViolation(msg.data);
+      else if (msg.type === 'buzzer_timeout') showBuzzerTimeout();
+      else if (msg.type === 'pk_match_result') showPkResult(msg.data);
+      else if (msg.type === 'export_data') downloadExport(msg.data);
+    } catch(err) {
+      console.error('消息处理失败', msg.type, err);
+    }
+  };
+  ws.onerror = (e) => { console.log('WS error', e); };
+  ws.onclose = () => {
+    console.log('WS disconnected, reconnecting...');
+    reconnectAttempts++;
+    const secs = Math.min(Math.pow(2, Math.min(reconnectAttempts - 1, 5)), 10);
+    showWsBanner(true, `连接断开，${secs}秒后自动重连（第${reconnectAttempts}次）...`);
+    const delay = secs * 1000;
+    reconnectTimer = setTimeout(connect, delay);
+  };
+}
+connect();
+
+function send(type, data) { if (ws && ws.readyState === 1) ws.send(JSON.stringify({ type, data })); }
+
+// ===================== 全局错误护盾 — 任何错误都不让页面白屏 =====================
+window.addEventListener('error', (e) => {
+  console.error('[全局错误]', e.message, e.error?.stack);
+  // 阻止错误冒泡导致页面崩溃
+  e.preventDefault();
+  // 如果state已经有了，尝试继续渲染（容错）
+  try {
+    if (state) render();
+  } catch(_) {}
+  return true;
+});
+window.addEventListener('unhandledrejection', (e) => {
+  console.error('[未处理Promise]', e.reason?.message || e.reason);
+  e.preventDefault();
+  return true;
+});
+
+// Audio unlock
+document.getElementById('audio-unlock').addEventListener('click', () => {
+  initAudio();
+  document.getElementById('audio-unlock').style.display = 'none';
+});
+
+function showViolation(data) {
+  const el = document.getElementById('violation-notice');
+  el.textContent = `${data.teamName} 违规！取消抢答资格`;
+  el.classList.add('active');
+  setTimeout(() => el.classList.remove('active'), 3000);
+}
+
+function showBuzzerTimeout() {
+  const el = document.getElementById('violation-notice');
+  if (!el) return;
+  el.textContent = '⏰ 无人抢答，本题作废';
+  el.classList.add('active');
+  setTimeout(() => el.classList.remove('active'), 3000);
+}
+
+function showPkResult(data) {
+  const overlay = document.getElementById('pk-result-overlay');
+  if (!overlay) return;
+  const t1El = document.getElementById('prc-team1');
+  const t2El = document.getElementById('prc-team2');
+  const s1El = document.getElementById('prc-score1');
+  const s2El = document.getElementById('prc-score2');
+  const labelEl = document.getElementById('prc-label');
+
+  const t1Win = data.winnerId === data.team1Id;
+  const t2Win = data.winnerId === data.team2Id;
+
+  if (t1El) {
+    t1El.textContent = data.team1Id === data.winnerId ? data.winnerName : data.loserName;
+    t1El.className = 'prc-team ' + (t1Win ? 'winner' : 'loser');
+  }
+  if (t2El) {
+    t2El.textContent = data.team2Id === data.winnerId ? data.winnerName : data.loserName;
+    t2El.className = 'prc-team ' + (t2Win ? 'winner' : 'loser');
+  }
+  if (s1El) s1El.textContent = data.score1 || 0;
+  if (s2El) s2El.textContent = data.score2 || 0;
+
+  if (labelEl) {
+    if (data.disqualified) {
+      labelEl.textContent = '对方弃权 · 自动晋级';
+      labelEl.style.color = 'var(--gold)';
+    } else if (data.context === 'round3_semifinal') {
+      labelEl.textContent = '晋级决赛';
+    } else {
+      labelEl.textContent = '胜者晋级下一轮';
+    }
+  }
+
+  overlay.style.display = 'flex';
+  // 3.5秒后自动隐藏，与服务端的advance时间匹配
+  setTimeout(() => { overlay.style.display = 'none'; }, 3400);
+}
+
+function render() {
+  if (!state) return;
+  // Play opening animation when entering cover phase
+  if (state.phase === 'cover' && !window._openingPlayed) {
+    window._openingPlayed = true;
+    playOpeningAnimation();
+  }
+  if (state.phase !== 'cover') {
+    window._openingPlayed = false;
+  }
+  renderProgress();
+  renderView();
+  renderSidebar();
+  renderBuzzer();
+  if (state.phase === 'buzzer_test') renderBuzzerTest();
+}
+
+function playOpeningAnimation() {
+  const frame = document.getElementById('opening-frame');
+  frame.style.display = 'block';
+  // Reload iframe to restart animation
+  frame.src = 'opening.html';
+  // Auto-hide after 22 seconds (animation is ~21s)
+  setTimeout(() => {
+    frame.style.display = 'none';
+  }, 22000);
+  // Allow click to skip after 3 seconds
+  frame.style.pointerEvents = 'auto';
+  frame.onclick = null;
+  let canSkip = false;
+  setTimeout(() => { canSkip = true; }, 3000);
+  frame.onclick = () => {
+    if (canSkip) {
+      frame.style.display = 'none';
+      frame.onclick = null;
+    }
+  };
+}
+
+function renderProgress() {
+  const phases = ['round1','round2','round3','round4','awards'];
+  const phaseMap = {
+    idle: -1, cover: -1, round1_required: 0, round1_buzzer: 0, ranking: 0, tiebreaker: 0, tiebreaker_result: 0,
+    round2_pk: 1, round3_semifinal: 2,
+    final_select: 3, round4_final: 3, final_tiebreak: 3, final_result: 3,
+    awards: 4
+  };
+  const idx = phaseMap[state.phase] ?? -1;
+  document.querySelectorAll('.progress-bar .seg').forEach((seg, i) => {
+    seg.classList.remove('active','done');
+    if (i < idx) seg.classList.add('done');
+    else if (i === idx) seg.classList.add('active');
+  });
+}
+
+function renderView() {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  const p = state.phase;
+  if (p === 'idle' || p === 'cover') { document.getElementById('view-cover').classList.add('active'); return; }
+  if (p === 'buzzer_test') { document.getElementById('view-buzzerTest').classList.add('active'); renderBuzzerTest(); return; }
+  if (p === 'intro') { document.getElementById('view-intro').classList.add('active'); renderIntro(); return; }
+  if (p === 'round1_required' || p === 'round1_buzzer' || p === 'round2_pk' || p === 'round3_semifinal' || p === 'round4_final' || p === 'final_tiebreak' || p === 'tiebreaker') {
+    document.getElementById('view-question').classList.add('active');
+    renderQuestion();
+    return;
+  }
+  if (p === 'tiebreaker_result') {
+    document.getElementById('view-tiebreaker').classList.add('active');
+    renderTiebreakerResult();
+    return;
+  }
+  if (p === 'ranking') { document.getElementById('view-ranking').classList.add('active'); renderRanking(); return; }
+  if (p === 'bracket') { document.getElementById('view-bracket').classList.add('active'); renderBracket(); return; }
+  if (p === 'final_select') { document.getElementById('view-final').classList.add('active'); renderFinal(); return; }
+  if (p === 'final_result') { document.getElementById('view-final-result').classList.add('active'); renderFinalResult(); return; }
+  if (p === 'awards') { document.getElementById('view-award').classList.add('active'); renderAwards(); return; }
+}
+
+function renderTiebreakerResult() {
+  const tb = state.tiebreaker;
+  if (!tb.lastResult) return;
+  const results = tb.lastResult;
+  const depth = tb.recursionDepth || 0;
+  const maxDepth = tb.maxDepth || 2;
+
+  // 切换到结果视图
+  const qView = document.getElementById('tb-question-view');
+  const rView = document.getElementById('tb-result-view');
+  if (qView) qView.style.display = 'none';
+  if (rView) rView.classList.add('active');
+
+  // 副标题
+  const subEl = document.getElementById('tb-result-sub');
+  const roundEl = document.getElementById('tb-result-round');
+  let subText = `第 ${depth + 1} 轮 / 共 ${maxDepth + 1} 轮`;
+  if (tb.queue && tb.queue.length > 0) {
+    subText += ` · 剩余 ${tb.queue.length} 组待加赛`;
+  } else if (tb.allDone) {
+    subText += ' · 已达最大深度，强制排名';
+  } else {
+    subText += ' · 加赛结束';
+  }
+  if (subEl) subEl.textContent = subText;
+  if (roundEl) roundEl.textContent = tb.context === 'round1_ranking' ? '排名加赛' : tb.context === 'round2_pk' ? 'PK加赛' : tb.context === 'round3_semifinal' ? '半决赛加赛' : '决赛加赛';
+
+  // 领奖台（前三名）
+  const podiumEl = document.getElementById('tb-result-podium');
+  const offset = tb.rankOffset || 0;
+
+  // 获取显示名次：有全局排名用全局，否则用加赛内部排名
+  function getDisplayRank(result, idx) {
+    if (result.tiebreakerRank) return result.tiebreakerRank;
+    return offset + idx + 1;
+  }
+
+  if (podiumEl && results.length >= 2) {
+    let podiumHtml = '';
+    // 第二名
+    if (results[1]) {
+      const rk = getDisplayRank(results[1], 1);
+      podiumHtml += `<div class="pod-col pod-2" style="animation:rankItemIn 0.6s ease-out 0.2s both;">
+        <div class="pod-rank">第${rk}名</div>
+        <div class="pod-team">${results[1].name}</div>
+        <div class="pod-score">${results[1].tbScore}</div>
+        <div class="pod-block">${rk}</div>
+      </div>`;
+    }
+    // 第一名
+    if (results[0]) {
+      const rk = getDisplayRank(results[0], 0);
+      podiumHtml += `<div class="pod-col pod-1" style="animation:winnerPop 0.8s ease-out 0.1s both;">
+        <div class="pod-rank" style="color:var(--gold);">第${rk}名 🏆</div>
+        <div class="pod-team">${results[0].name}</div>
+        <div class="pod-score">${results[0].tbScore}</div>
+        <div class="pod-block">${rk}</div>
+      </div>`;
+    }
+    // 第三名
+    if (results[2]) {
+      const rk = getDisplayRank(results[2], 2);
+      podiumHtml += `<div class="pod-col pod-3" style="animation:rankItemIn 0.6s ease-out 0.3s both;">
+        <div class="pod-rank">第${rk}名</div>
+        <div class="pod-team">${results[2].name}</div>
+        <div class="pod-score">${results[2].tbScore}</div>
+        <div class="pod-block">${rk}</div>
+      </div>`;
+    }
+    podiumEl.innerHTML = podiumHtml;
+  } else if (podiumEl) {
+    podiumEl.innerHTML = '';
+  }
+
+  // 完整排名列表
+  const rankEl = document.getElementById('tb-result-ranking');
+  if (rankEl && results.length > 0) {
+    let rankHtml = '<div class="tfr-title">加赛排名详情</div>';
+    // 表头
+    rankHtml += `<div class="tb-score-header">
+      <div class="sh-rank">名次</div>
+      <div class="sh-name">队伍</div>
+      <div class="sh-scores">
+        <span>本轮</span>
+        <span>累计</span>
+        <span>基础分</span>
+        <span class="sh-total">总分</span>
+      </div>
+    </div>`;
+    // 数据行
+    results.forEach((r, i) => {
+      const rankNum = r.tiebreakerRank || (offset + i + 1);
+      let cls = 'tb-rank-row';
+      let extra = '';
+      if (r.isTied && !tb.allDone) { cls += ' tied'; }
+      else if (tb.allDone && r.isTied) { cls += ' forced'; }
+      if (r.tiebreakerRank) { cls += ' ranked-ok'; }
+
+      rankHtml += `<div class="${cls}" style="animation:rankItemIn 0.5s ease-out ${0.4 + i * 0.08}s both;opacity:0;">
+        <div class="trr-rank">${rankNum}</div>
+        <div class="trr-name">${r.name}${extra}</div>
+        <div class="trr-scores">
+          <span style="color:var(--gold);font-weight:600;">+${r.tbScore}</span>
+          <span style="color:var(--blue);">${r.cumulativeTbScore || 0}</span>
+          <span>${r.score}</span>
+          <span class="trr-total">${r.totalScore || r.score}</span>
+        </div>
+      </div>`;
+    });
+    rankEl.innerHTML = rankHtml;
+  }
+
+  // 底部提示
+  const hintEl = document.getElementById('tb-result-hint');
+  if (hintEl) {
+    let hint = '';
+    if (tb.queue && tb.queue.length > 0) {
+      hint = '⏳ 等待管理员开始下一组加赛...';
+    } else if (tb.allDone) {
+      hint = '⚡ 已达最大加赛深度，按总分强制排名。等待管理员确认...';
+    } else {
+      hint = '✅ 加赛全部结束，等待管理员确认排名...';
+    }
+    hintEl.textContent = hint;
+  }
+}
+
+// 确保加赛答题模式时显示正确的视图
+function ensureTiebreakerQuestionView() {
+  const qView = document.getElementById('tb-question-view');
+  const rView = document.getElementById('tb-result-view');
+  if (qView) qView.style.display = '';
+  if (rView) rView.classList.remove('active');
+}
+
+function renderFinalResult() {
+  const finalMatch = state.bracket.final;
+  if (!finalMatch) return;
+  const t1 = state.companies.find(c => c.id === finalMatch.team1Id);
+  const t2 = state.companies.find(c => c.id === finalMatch.team2Id);
+  const champId = state.final?.pendingChampion;
+  const champ = state.companies.find(c => c.id === champId);
+
+  const champEl = document.getElementById('fr-champion');
+  const scoresEl = document.getElementById('fr-scores');
+
+  if (champEl && champ) {
+    champEl.textContent = champ.name;
+  }
+  if (scoresEl && t1 && t2) {
+    const t1Win = champId === t1.id;
+    const t2Win = champId === t2.id;
+    scoresEl.innerHTML = `
+      <div class="fr-team ${t1Win?'winner':''}">
+        <div class="frt-name">${t1.name}</div>
+        <div class="frt-score">${state.final.scores ? (state.final.scores[t1.id]||0) : t1.score}</div>
+      </div>
+      <div class="fr-team ${t2Win?'winner':''}">
+        <div class="frt-name">${t2.name}</div>
+        <div class="frt-score">${state.final.scores ? (state.final.scores[t2.id]||0) : t2.score}</div>
+      </div>
+    `;
+  }
+
+  // 触发彩纸特效（只触发一次）
+  if (!window._finalConfettiLaunched && champ) {
+    window._finalConfettiLaunched = true;
+    launchConfetti('final-confetti');
+  }
+}
+
+function renderIntro() {
+  const target = state.introTarget || state.phase;
+  const titles = { 'round1_required': '第一环节：同心协力', 'round1_buzzer': '第一环节：抢答题',
+    'round2_pk': '第二环节：突围淘汰赛', 'round3_semifinal': '第三环节：半决赛', 'round4_final': '第四环节：决赛' };
+  const rules = {
+    'round1_required': '共5题，每题10分，答对加分，答错不扣分，违规扣10分',
+    'round1_buzzer': '抢答题20道，答对加10分，答错扣10分，犯规取消该题资格',
+    'round2_pk': '8支队伍4组PK，每组5题抢答，答对+10分，答错-10分，胜者晋级',
+    'round3_semifinal': '4支队伍2组PK，抢答5题，胜者晋级决赛',
+    'round4_final': '9题（3易3中3难），轮流选题，每队答4题'
+  };
+  document.getElementById('intro-title').textContent = titles[target] || '';
+  document.getElementById('intro-rules').textContent = rules[target] || '';
+}
+
+let btCountdownTimer = null;
+function renderBuzzerTest() {
+  const bt = state.buzzerTest || { status: 'idle', results: {} };
+  const statusEl = document.getElementById('bt-status-display');
+  const gridEl = document.getElementById('bt-grid-display');
+  if (!statusEl || !gridEl) return;
+
+  const statusText = { idle: '等待开始', counting: '3', open: '抢答中！', buzzed: '首个抢答已决出', done: '测试完成' };
+  const statusClass = { idle: 'status-idle', counting: 'status-counting', open: 'status-open', buzzed: 'status-buzzed', done: 'status-done' };
+  statusEl.textContent = statusText[bt.status] || bt.status;
+  statusEl.className = 'bt-status ' + (statusClass[bt.status] || '');
+
+  // 倒计时动画：如果在counting阶段且有countdownEnd，启动实时倒计时
+  if (bt.status === 'counting' && bt.countdownEnd) {
+    updateCountdownDisplay(statusEl, bt.countdownEnd);
+  } else if (btCountdownTimer) {
+    clearInterval(btCountdownTimer);
+    btCountdownTimer = null;
+  }
+
+  const labelMap = { yellow: '等待', red: '提前抢答', green: '🥇 最快', blue: '抢答成功' };
+
+  const teams = state.companies;
+  const row1 = teams.slice(0, 7);
+  const row2 = teams.slice(7, 14);
+
+  function renderRow(rowTeams, rowOffset) {
+    return `<div class="bt-row">${rowTeams.map((c, i) => {
+      const r = bt.results[c.id] || { status: 'yellow', time: null };
+      const label = labelMap[r.status] || '等待';
+      const delay = ((rowOffset || 0) + i) * 0.05;
+      return `<div class="bt-team-card status-${r.status}" style="animation:rankItemIn 0.4s ease-out ${delay}s both;opacity:0;">
+        <div class="btc-name">${c.name}</div>
+        <div class="btc-label">${label}</div>
+        ${r.time ? `<div class="btc-time">${r.time} ms</div>` : ''}
+      </div>`;
+    }).join('')}</div>`;
+  }
+
+  gridEl.innerHTML = renderRow(row1, 0) + renderRow(row2, 7);
+}
+
+function updateCountdownDisplay(el, endTime) {
+  if (btCountdownTimer) clearInterval(btCountdownTimer);
+  const tick = () => {
+    const remaining = Math.max(0, endTime - Date.now());
+    const sec = Math.ceil(remaining / 1000);
+    if (el) el.textContent = sec > 0 ? sec : 'Go!';
+    if (remaining <= 0) {
+      clearInterval(btCountdownTimer);
+      btCountdownTimer = null;
+    }
+  };
+  tick();
+  btCountdownTimer = setInterval(tick, 100);
+}
+
+function getCurrentQuestion() {
+  const p = state.phase;
+  let q = null;
+  if (p === 'round1_required') q = (state._questions?.round1_required||[])[state.currentQuestionIndex];
+  // We'll get questions from server-side, but since we don't send them, use a simpler approach
+  return null; // Will be populated by renderQuestion via a different mechanism
+}
+
+function renderQuestion() {
+  const phaseLabels = {
+    'round1_required': '必答题', 'round1_buzzer': '抢答题',
+    'round2_pk': 'PK赛', 'round3_semifinal': '半决赛', 'round4_final': '决赛', 'final_tiebreak': '决赛·第9题', 'tiebreaker': '加赛'
+  };
+  document.getElementById('q-phase').textContent = phaseLabels[state.phase] || '';
+  document.getElementById('q-num').textContent = `第 ${state.currentQuestionIndex + 1} 题`;
+
+  // For PK phases, show PK scores
+  const body = document.getElementById('q-body');
+  const isPk = state.phase === 'round2_pk' || state.phase === 'round3_semifinal';
+  const isTb = state.phase === 'tiebreaker' || state.phase === 'tiebreaker_result';
+  const isFinalTiebreak = state.phase === 'final_tiebreak';
+  let html = '';
+
+  if (isFinalTiebreak) {
+    const fm = state.bracket.final;
+    if (fm) {
+      const t1 = state.companies.find(c => c.id === fm.team1Id);
+      const t2 = state.companies.find(c => c.id === fm.team2Id);
+      const s1 = state.final.scores ? (state.final.scores[fm.team1Id] || 0) : 0;
+      const s2 = state.final.scores ? (state.final.scores[fm.team2Id] || 0) : 0;
+      const buzzedTeam = state.buzzer.buzzedTeamId;
+      html += `<div class="pk-scores">
+        <div class="pk-team ${buzzedTeam===fm.team1Id?'buzzed':''}"><div class="pk-name">${t1?.name||''}</div><div class="pk-score">${s1}</div></div>
+        <div style="font-size:48px;color:var(--muted);align-self:center;">VS</div>
+        <div class="pk-team ${buzzedTeam===fm.team2Id?'buzzed':''}"><div class="pk-name">${t2?.name||''}</div><div class="pk-score">${s2}</div></div>
+      </div>`;
+    }
+  }
+
+  if (isPk) {
+    const match = state.bracket.round2?.[state.pk.currentMatch] || state.bracket.round3?.[state.pk.currentMatch];
+    if (match) {
+      const t1 = state.companies.find(c => c.id === match.team1Id);
+      const t2 = state.companies.find(c => c.id === match.team2Id);
+      const s1 = state.pk.scores[match.team1Id] || 0;
+      const s2 = state.pk.scores[match.team2Id] || 0;
+      const buzzedTeam = state.buzzer.buzzedTeamId;
+      html += `<div class="pk-scores">
+        <div class="pk-team ${buzzedTeam===match.team1Id?'buzzed':''}"><div class="pk-name">${t1?.name||''}</div><div class="pk-score">${s1}</div></div>
+        <div style="font-size:48px;color:var(--muted);align-self:center;">VS</div>
+        <div class="pk-team ${buzzedTeam===match.team2Id?'buzzed':''}"><div class="pk-name">${t2?.name||''}</div><div class="pk-score">${s2}</div></div>
+      </div>`;
+    }
+  }
+
+  if (isTb) {
+    const tb = state.tiebreaker;
+    html += `<div class="tb-team-scores">`;
+    tb.teams.forEach(id => {
+      const t = state.companies.find(c => c.id === id);
+      const isBuzzed = tb.buzzedTeamId === id;
+      html += `<div class="ts-card ${isBuzzed?'buzzed':''}">
+        <div class="ts-name">${t?.name||''}</div>
+        <div class="ts-score">${tb.scores[id]||0}</div>
+      </div>`;
+    });
+    html += `</div>`;
+  }
+
+  // Question content comes from server state - we need the question text
+  // For now, show waiting if no question data
+  if (state._currentQuestion) {
+    const q = state._currentQuestion;
+    const pts = q.points || 10;
+    html += `<div class="q-text">${q.question}</div>`;
+    // 分数信息始终跟随题目显示，必答题答错不扣分
+    const isRequiredPhase = state.phase === 'round1_required';
+    if (isFinalTiebreak) {
+      html += `<div class="q-points-info" style="display:flex;gap:24px;justify-content:center;margin:12px 0;font-size:18px;">
+        <span style="color:var(--green);">答对：夺冠！</span>
+        <span style="color:var(--red);">答错：对手夺冠！</span>
+      </div>`;
+    } else {
+      const wrongText = isRequiredPhase ? `答错：0分` : `答错：-${pts}分`;
+      const wrongColor = isRequiredPhase ? 'var(--muted)' : 'var(--red)';
+      html += `<div class="q-points-info" style="display:flex;gap:24px;justify-content:center;margin:12px 0;font-size:18px;">
+        <span style="color:var(--green);">答对：+${pts}分</span>
+        <span style="color:${wrongColor};">${wrongText}</span>
+      </div>`;
+    }
+    html += `<div class="q-options">`;
+    ['A','B','C','D'].forEach(opt => {
+      if (q.options && q.options[opt]) {
+        // 仅在显示答案时高亮正确选项
+        const isCorrect = state.showAnswer && q.answer === opt;
+        html += `<div class="q-option ${isCorrect?'correct':''}"><div class="opt-label">${opt}</div><div>${q.options[opt]}</div></div>`;
+      }
+    });
+    html += `</div>`;
+  } else {
+    html += `<div class="waiting"><div class="waiting-text">等待题目<div class="dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div></div></div>`;
+  }
+
+  // Show required answer status
+  const currentQAnswers = state.requiredAnswers[state.currentQuestionIndex] || {};
+  if (state.phase === 'round1_required' && Object.keys(currentQAnswers).length > 0) {
+    html += `<div style="margin-top:16px;font-size:16px;color:var(--muted);">`;
+    const entries = Object.entries(currentQAnswers);
+    entries.forEach(([tid, result]) => {
+      const t = state.companies.find(c => c.id === parseInt(tid));
+      if (!t) return;
+      const colors = { correct: 'var(--green)', wrong: 'var(--blue)', violation: 'var(--red)' };
+      const labels = { correct: '✓', wrong: '✗', violation: '⚠' };
+      html += `<span style="margin-right:16px;color:${colors[result]};">${t.name} ${labels[result]}</span>`;
+    });
+    html += `</div>`;
+  }
+
+  body.innerHTML = html;
+}
+
+function renderSidebar() {
+  const left = document.getElementById('sidebar-left');
+  const right = document.getElementById('sidebar-right');
+  // Hide sidebars on cover/idle/awards
+  if (state.phase === 'idle' || state.phase === 'cover' || state.phase === 'awards' || state.phase === 'buzzer_test') {
+    left.innerHTML = ''; right.innerHTML = ''; return;
+  }
+  const isPk = state.phase === 'round2_pk' || state.phase === 'round3_semifinal';
+  const isFinal = state.phase === 'round4_final' || state.phase === 'final_tiebreak';
+  const isTb = state.phase === 'tiebreaker' || state.phase === 'tiebreaker_result';
+
+  if (isPk || isFinal || isTb) {
+    left.innerHTML = ''; right.innerHTML = ''; return;
+  }
+
+  const active = state.companies.filter(c => !c.eliminated);
+  const sorted = [...active].sort((a,b) => b.score - a.score);
+  const leftHalf = sorted.slice(0, 7);
+  const rightHalf = sorted.slice(7, 14);
+
+  function renderHalf(teams, container) {
+    let html = '<div class="sidebar-title"> <br><br><br><br></div>';
+    teams.forEach((c, i) => {
+      const rank = sorted.indexOf(c) + 1;
+      const buzzed = state.buzzer.buzzedTeamId === c.id;
+      const reqAns = (state.requiredAnswers[state.currentQuestionIndex] || {})[c.id];
+      const violationInfo = state.buzzer.violations?.find(v => v.teamId === c.id);
+      const isEarlyBuzz = violationInfo?.reason === 'early_buzz';
+      let cls = 'score-item';
+      let badge = '';
+      if (buzzed && state.buzzer.status === 'buzzed') { cls += ' buzzed'; badge = '<span class="buzz-badge">✋</span>'; }
+      if (buzzed && state.buzzer.status === 'judged') {
+        const last = state.history[state.history.length - 1];
+        if (last && last.action === 'buzzer_correct') { cls += ' judged-correct'; badge = '<span class="correct-badge">✓</span>'; }
+        else if (last && last.action === 'buzzer_wrong') { cls += ' judged-wrong'; badge = '<span class="wrong-badge">✗</span>'; }
+      }
+      if (isEarlyBuzz) { cls += ' early-violation'; badge = '<span class="early-badge">⚠</span>'; }
+      if (reqAns === 'correct') { cls += ' judged-correct'; badge = '<span class="correct-badge">✓</span>'; }
+      if (reqAns === 'wrong') { cls += ' judged-wrong'; badge = '<span class="wrong-badge">✗</span>'; }
+      if (reqAns === 'violation') { cls += ' violation'; badge = '<span class="early-badge">⚠</span>'; }
+      if (c.disqualified) cls += ' disqualified';
+      html += `<div class="${cls}">
+        <div class="si-rank">第${rank}名</div>
+        <div class="si-name">${c.name}${badge}</div>
+        <div class="si-score">${c.score}</div>
+      </div>`;
+    });
+    container.innerHTML = html;
+  }
+  renderHalf(leftHalf, left);
+  renderHalf(rightHalf, right);
+}
+
+function renderBuzzer() {
+  const overlay = document.getElementById('buzzer-overlay');
+  const content = document.getElementById('buzzer-content');
+  const banner = document.getElementById('buzzer-banner');
+  const bz = state.buzzer;
+
+  // Only use full-screen overlay for 3-2-1 countdown
+  if (bz.status === 'counting') {
+    if (!window._cdActive) {
+      window._cdActive = true;
+      const cdEnd = bz.countdownEnd;
+      overlay.classList.add('active');
+      banner.classList.remove('active');
+      content.innerHTML = `<div class="countdown-num">3</div>`;
+      
+      // 播放完整的3秒倒计时音频（精确计时，避免误差）
+      const audioSource = playCountdownAudio();
+      
+      // 根据音频播放进度更新数字显示
+      const startTime = Date.now();
+      const updateCountdown = () => {
+        if (state.buzzer.status !== 'counting' || state.buzzer.countdownEnd !== cdEnd) {
+          window._cdActive = false;
+          return;
+        }
+        const elapsed = (Date.now() - startTime) / 1000;
+        let num;
+        if (elapsed < 1) num = 3;
+        else if (elapsed < 2) num = 2;
+        else if (elapsed < 3) num = 1;
+        else {
+          // 3秒到了，隐藏倒计时
+          overlay.classList.remove('active');
+          content.innerHTML = '';
+          window._cdActive = false;
+          return;
+        }
+        const numEl = content.querySelector('.countdown-num');
+        if (numEl && numEl.textContent !== String(num)) {
+          numEl.textContent = num;
+        }
+        requestAnimationFrame(updateCountdown);
+      };
+      requestAnimationFrame(updateCountdown);
+    }
+  } else {
+    window._cdActive = false;
+    overlay.classList.remove('active');
+    content.innerHTML = '';
+
+    if (bz.status === 'open') {
+      banner.classList.add('active');
+      const earlyTeams = bz.violations.filter(v => v.reason === 'early_buzz').map(v => {
+        const t = state.companies.find(c => c.id === v.teamId);
+        return t ? t.name : '';
+      }).filter(n => n);
+      let extra = '';
+      if (earlyTeams.length) extra += `<span class="bb-status" style="color:var(--red);font-size:14px;">提前抢答: ${earlyTeams.join('、')}</span>`;
+      banner.innerHTML = `<span class="bb-icon">🔔</span><span class="bb-status">抢答开放中</span>${extra}`;
+    } else if (bz.status === 'buzzed') {
+      banner.classList.add('active');
+      const team = state.companies.find(c => c.id === bz.buzzedTeamId);
+      const remaining = bz.answerEnd ? Math.max(0, Math.ceil((bz.answerEnd - Date.now()) / 1000)) : 3;
+      banner.innerHTML = `<span class="bb-icon">✋</span><span class="bb-team">${team?.name || ''}</span><span class="bb-status">抢到答题权</span>`;
+    } else if (bz.status === 'judged') {
+      banner.classList.add('active');
+      const team = state.companies.find(c => c.id === bz.buzzedTeamId);
+      const isCorrect = bz.judgeResult === 'correct';
+      const isWrong = bz.judgeResult === 'wrong';
+      const q = state._currentQuestion;
+      const points = q ? (q.points || 10) : 10;
+      const isRequiredPhase = state.phase === 'round1_required';
+      let resultText = '', resultClass = '';
+      if (isCorrect) {
+        if (state.phase === 'final_tiebreak') { resultText = `答对！夺冠！`; resultClass = 'correct'; }
+        else { resultText = `答对！+${points}分`; resultClass = 'correct'; }
+      }
+      else if (isWrong) {
+        if (state.phase === 'final_tiebreak') { resultText = `答错！对手夺冠！`; resultClass = 'wrong'; }
+        else if (isRequiredPhase) { resultText = `答错！0分`; resultClass = 'wrong'; }
+        else { resultText = `答错！-${points}分`; resultClass = 'wrong'; }
+      }
+      banner.innerHTML = `<span class="bb-team">${team?.name || ''}</span><span class="bb-result ${resultClass}">${resultText}</span>`;
+    } else {
+      banner.classList.remove('active');
+    }
+  }
+
+  // Violations
+  if (bz.violations.length > 0 && bz.status === 'open') {
+    const lastViol = bz.violations[bz.violations.length - 1];
+    const team = state.companies.find(c => c.id === lastViol.teamId);
+    if (team && !window._shownViol?.includes(lastViol.teamId)) {
+      window._shownViol = window._shownViol || [];
+      window._shownViol.push(lastViol.teamId);
+      showViolation({ teamName: team.name });
+    }
+  }
+  if (bz.status === 'idle') window._shownViol = [];
+}
+
+function renderRanking() {
+  const sorted = [...state.companies].filter(c => !c.disqualified).sort((a,b) => b.score - a.score);
+  const title = document.getElementById('ranking-title');
+  title.textContent = '十四进八排名';
+  const list = document.getElementById('ranking-list');
+
+  // 检查是否有同分（影响晋级线）
+  const top8 = sorted.slice(0, 8);
+  let hasTieAtCutoff = false;
+  let tieTeams = [];
+  for (let i = 0; i < top8.length; i++) {
+    if (i < top8.length - 1 && top8[i].score === top8[i+1].score && !top8[i].tiebreakerRank) {
+      hasTieAtCutoff = true;
+      if (!tieTeams.includes(top8[i].id)) tieTeams.push(top8[i].id);
+      if (!tieTeams.includes(top8[i+1].id)) tieTeams.push(top8[i+1].id);
+    }
+  }
+  // 检查第8、9名是否同分且无加赛排名
+  if (sorted.length > 8 && sorted[7].score === sorted[8].score && !sorted[7].tiebreakerRank) {
+    hasTieAtCutoff = true;
+  }
+
+  let html = '';
+  sorted.forEach((c, i) => {
+    const advance = i < 8;
+    const tied = (i > 0 && c.score === sorted[i-1].score || (i < sorted.length-1 && c.score === sorted[i+1].score)) && !c.tiebreakerRank;
+    let cls = 'rank-item';
+    if (advance) cls += ' advance';
+    if (tied) cls += ' tied';
+    if (i === 0) cls += ' top1';
+    else if (i === 1) cls += ' top2';
+    else if (i === 2) cls += ' top3';
+    if (!advance) cls += ' eliminated';
+    // 第8名和第9名之间加分割线
+    if (i === 8) {
+      html += '<div class="rank-divider"></div>';
+    }
+    // 徽章
+    let badge = '';
+    if (tied) badge = '<span class="rank-badge tied">同分</span>';
+    else if (advance) badge = '<span class="rank-badge advance">晋级</span>';
+    else badge = '<span class="rank-badge elim">淘汰</span>';
+    // 加赛排名标注
+    let rankDisplay = i + 1;
+    if (c.tiebreakerRank) {
+      rankDisplay = c.tiebreakerRank;
+    }
+    html += `<div class="${cls}" style="animation-delay: ${i * 0.08}s;">
+      <div class="rank-num">${rankDisplay}</div>
+      <div class="rank-name">${c.name}${badge}</div>
+      <div class="rank-score">${c.score}</div>
+    </div>`;
+  });
+  list.innerHTML = html;
+
+  // 结果状态栏
+  const hintEl = document.getElementById('ranking-hint');
+  if (hintEl) {
+    if (hasTieAtCutoff) {
+      hintEl.className = 'ranking-result-status';
+      hintEl.innerHTML = `<div class="rs-main">⚠ <span class="warn">前八名存在同分</span>，需进行加赛确定排名</div><div class="rs-sub">等待主持人宣布加赛规则...</div>`;
+    } else {
+      hintEl.className = 'ranking-result-status';
+      hintEl.innerHTML = `<div class="rs-main">✅ <span class="highlight">前八名已确定</span>，即将进入PK赛</div><div class="rs-sub">等待主持人宣布对阵结果...</div>`;
+    }
+  }
+}
+
+function renderBracket() {
+  const tree = document.getElementById('bracket-tree');
+  const titleEl = document.getElementById('bracket-title');
+
+  // 确定当前阶段和标题
+  let phaseLabel = '对阵图';
+  let subtitle = '';
+  if (state.phase === 'bracket') {
+    const r = state.bracket.currentRound;
+    if (r === 'round2') { phaseLabel = '八强对阵图'; subtitle = '四分之一决赛 · 即将开始'; }
+    else if (r === 'round3') { phaseLabel = '半决赛对阵图'; subtitle = '四强争霸 · 即将开始'; }
+  }
+  else if (state.phase === 'round2_pk') { phaseLabel = '八进四 · 四分之一决赛'; subtitle = '八强争霸'; }
+  else if (state.phase === 'round3_semifinal') { phaseLabel = '四进二 · 半决赛'; subtitle = '巅峰对决'; }
+  else if (state.phase === 'round4_final' || state.phase === 'final_select' || state.phase === 'final_tiebreak') { phaseLabel = '决赛 · 冠军争夺战'; subtitle = '王者对决'; }
+  else if (state.phase === 'final_result') { phaseLabel = '决赛结果'; subtitle = '冠军诞生'; }
+  else if (state.phase === 'awards') { phaseLabel = '对阵图'; subtitle = '完整赛程回顾'; }
+
+  if (titleEl) titleEl.textContent = phaseLabel;
+
+  // 副标题
+  const subEl = document.getElementById('bracket-subtitle');
+  if (subEl) subEl.textContent = subtitle;
+
+  let html = '';
+  const isBracketPhase = state.phase === 'bracket';
+
+  if (state.bracket.round2) {
+    html += '<div class="bracket-col"><div class="col-label">四分之一决赛</div>';
+    state.bracket.round2.forEach((m, i) => {
+      const t1 = state.companies.find(c => c.id === m.team1Id);
+      const t2 = state.companies.find(c => c.id === m.team2Id);
+      const active = state.phase === 'round2_pk' && state.pk.currentMatch === i;
+      const done = !!m.winnerId;
+      let statusCls = done ? 'done' : active ? 'active' : 'pending';
+      const s1 = isBracketPhase ? '' : `<span class="bm-score">${m.score1||0}</span>`;
+      const s2 = isBracketPhase ? '' : `<span class="bm-score">${m.score2||0}</span>`;
+      html += `<div class="bracket-match ${statusCls}">
+        <div class="bm-label">第 ${i + 1} 场</div>
+        <div class="bm-team ${m.winnerId && m.winnerId===m.team1Id?'winner':m.winnerId?'loser':''}"><span>${t1?.name||'?'}</span>${s1}</div>
+        <div class="bm-team ${m.winnerId && m.winnerId===m.team2Id?'winner':m.winnerId?'loser':''}"><span>${t2?.name||'?'}</span>${s2}</div>
+      </div>`;
+    });
+    html += '</div>';
+  }
+  if (state.bracket.round3) {
+    html += '<div class="bracket-col"><div class="col-label">半决赛</div>';
+    state.bracket.round3.forEach((m, i) => {
+      const t1 = state.companies.find(c => c.id === m.team1Id);
+      const t2 = state.companies.find(c => c.id === m.team2Id);
+      const active = state.phase === 'round3_semifinal' && state.pk.currentMatch === i;
+      const done = !!m.winnerId;
+      let statusCls = done ? 'done' : active ? 'active' : (m.team1Id && m.team2Id ? 'pending' : 'pending');
+      const s1 = isBracketPhase ? '' : `<span class="bm-score">${m.score1||0}</span>`;
+      const s2 = isBracketPhase ? '' : `<span class="bm-score">${m.score2||0}</span>`;
+      html += `<div class="bracket-match ${statusCls}">
+        <div class="bm-label">第 ${i + 1} 场</div>
+        <div class="bm-team ${m.winnerId && m.winnerId===m.team1Id?'winner':m.winnerId?'loser':''}"><span>${t1?.name||(m.team1Id?'待定':'?')}</span>${s1}</div>
+        <div class="bm-team ${m.winnerId && m.winnerId===m.team2Id?'winner':m.winnerId?'loser':''}"><span>${t2?.name||(m.team2Id?'待定':'?')}</span>${s2}</div>
+      </div>`;
+    });
+    html += '</div>';
+  }
+  if (state.bracket.final) {
+    html += '<div class="bracket-col"><div class="col-label">🏆 决赛</div>';
+    const w = state.companies.find(c => c.id === state.bracket.final.winnerId);
+    const t1 = state.companies.find(c => c.id === state.bracket.final.team1Id);
+    const t2 = state.companies.find(c => c.id === state.bracket.final.team2Id);
+    const done = !!state.bracket.final.winnerId;
+    const active = state.phase === 'round4_final' || state.phase === 'final_select' || state.phase === 'final_tiebreak';
+    let statusCls = done ? 'done' : active ? 'active' : 'pending';
+    const finS1 = state.final.scores ? (state.final.scores[state.bracket.final.team1Id]||0) : (state.bracket.final.score1||0);
+    const finS2 = state.final.scores ? (state.final.scores[state.bracket.final.team2Id]||0) : (state.bracket.final.score2||0);
+    const fs1 = isBracketPhase ? '' : `<span class="bm-score">${finS1}</span>`;
+    const fs2 = isBracketPhase ? '' : `<span class="bm-score">${finS2}</span>`;
+    if (t1 && t2) {
+      html += `<div class="bracket-match ${statusCls}">
+        <div class="bm-label">冠军争夺战</div>
+        <div class="bm-team ${state.bracket.final.winnerId && state.bracket.final.winnerId===state.bracket.final.team1Id?'winner':state.bracket.final.winnerId?'loser':''}"><span>${t1?.name||'?'}</span>${fs1}</div>
+        <div class="bm-team ${state.bracket.final.winnerId && state.bracket.final.winnerId===state.bracket.final.team2Id?'winner':state.bracket.final.winnerId?'loser':''}"><span>${t2?.name||'?'}</span>${fs2}</div>
+      </div>`;
+    } else if (w) {
+      html += `<div class="bracket-match done"><div class="bm-label">冠军</div><div class="bm-team winner"><span>${w?.name||'?'}</span><span class="bm-score">🏆</span></div></div>`;
+    } else {
+      html += `<div class="bracket-match pending"><div class="bm-label">冠军</div><div class="bm-team"><span>待定</span><span class="bm-score">-</span></div></div>`;
+    }
+    html += '</div>';
+  }
+  tree.innerHTML = html || '<div class="waiting-text">等待对阵生成...</div>';
+}
+
+function renderFinal() {
+  const teams = document.getElementById('final-teams');
+  const grid = document.getElementById('final-grid');
+  const order = document.getElementById('final-order');
+  const turnEl = document.getElementById('final-turn');
+  let html = '';
+  const finalists = state.bracket.round3?.filter(m => m.winnerId).map(m => m.winnerId) || [];
+  const selOrder = state.final.selectionOrder || [];
+  const currentSel = state.final.currentSelection || 0;
+  const currentTeamId = selOrder[currentSel];
+
+  // 当前选题队伍提示
+  if (state.phase === 'final_tiebreak') {
+    if (turnEl) turnEl.innerHTML = `<span style="color:var(--red);">第9题平局抢答 · 答对赢 答错输</span>`;
+  } else if (turnEl && currentTeamId) {
+    const t = state.companies.find(c => c.id === currentTeamId);
+    turnEl.innerHTML = `第 ${currentSel + 1} / ${selOrder.length} 题 · 轮到 <span class="turn-team">${t?.name || ''}</span> 选题`;
+  } else if (turnEl) {
+    turnEl.textContent = '选题结束';
+  }
+
+  finalists.forEach(id => {
+    const t = state.companies.find(c => c.id === id);
+    const answered = state.final.teamAnswered[id] || 0;
+    const total = selOrder.filter(x => x === id).length;
+    const isTurn = id === currentTeamId && state.phase !== 'final_tiebreak';
+    const fscore = state.final.scores ? (state.final.scores[id] || 0) : (t?.score||0);
+    html += `<div class="final-team" style="${isTurn ? 'transform: scale(1.1);' : ''} transition: all 0.3s;"><div class="ft-name" style="${isTurn ? 'color: var(--gold);' : ''}">${t?.name||''}${isTurn ? ' ◀' : ''}</div><div class="ft-score">${fscore}</div><div class="ft-answered">已答 ${answered}/${total || '-'}</div></div>`;
+  });
+  teams.innerHTML = html;
+
+  // Final questions grid - need question data
+  if (state.phase === 'final_tiebreak') {
+    // 第9题抢答模式：只显示第9题
+    if (grid) grid.parentElement.style.display = 'none';
+    if (order) order.style.display = 'none';
+    const q = state._currentQuestion;
+    if (q && teams) {
+      teams.innerHTML += `<div style="width:100%;margin-top:16px;padding:16px;background:rgba(0,0,0,0.3);border-radius:8px;">
+        <div style="font-size:14px;color:var(--red);margin-bottom:8px;">第9题（平局抢答）</div>
+        <div style="font-size:20px;color:var(--gold);">${q.question}</div>
+        ${q.options ? `<div style="margin-top:8px;font-size:14px;">${['A','B','C','D'].map(o => q.options[o] ? `${o}. ${q.options[o]}` : '').join(' | ')}</div>` : ''}
+        ${state.showAnswer ? `<div style="margin-top:8px;color:var(--green);">答案: ${q.answer}</div>` : ''}
+      </div>`;
+    }
+  } else {
+    if (grid) grid.parentElement.style.display = '';
+    if (order) order.style.display = '';
+    if (state._currentQuestions?.round4_final) {
+      const qs = state._currentQuestions.round4_final;
+      let gh = '';
+      qs.forEach((q, i) => {
+        const diff = q.difficulty || 'medium';
+        const selected = (state.final.selectedQuestions || []).includes(i);
+        let cls = `final-cell ${diff}`;
+        if (selected) cls += ' selected';
+        gh += `<div class="${cls}"><div class="fc-num">第${i+1}题</div><div class="fc-diff">${diff==='easy'?'简单':diff==='medium'?'中等':'难题'}</div><div class="fc-pts">${q.points}分</div></div>`;
+      });
+      grid.innerHTML = gh;
+    } else {
+      grid.innerHTML = '<div class="waiting-text">等待题目...</div>';
+    }
+    if (order) {
+      order.innerHTML = `选题顺序: ${selOrder.map((id, idx) => {
+        const t = state.companies.find(c=>c.id===id)?.name || '';
+        const done = idx < currentSel;
+        const current = idx === currentSel;
+        if (done) return `<span style="opacity:0.4;text-decoration:line-through;">${t}</span>`;
+        if (current) return `<span style="color:var(--gold);font-weight:700;">${t}</span>`;
+        return t;
+      }).join(' → ')}`;
+    }
+  }
+}
+
+function renderAwards() {
+  const sorted = [...state.companies].sort((a,b) => {
+    if (a.disqualified && !b.disqualified) return 1;
+    if (!a.disqualified && b.disqualified) return -1;
+    return b.score - a.score;
+  });
+  const list = document.getElementById('award-list');
+
+  // 分组：一等奖(1名)、二等奖(3名)、三等奖(4名)
+  const firstPrize = sorted.slice(0, 1);
+  const secondPrize = sorted.slice(1, 4);
+  const thirdPrize = sorted.slice(4, 8);
+
+  let leftHtml = '';
+  let rightHtml = '';
+  let delay = 0;
+
+  // 左侧：一等奖 + 二等奖
+  firstPrize.forEach((c, i) => {
+    leftHtml += `<div class="award-item first" style="animation:rankItemIn 0.5s ease-out ${delay}s both;opacity:0;">
+      <div class="ai-rank">${i+1}</div><div class="ai-name">${c.name}</div><div class="ai-score">${c.score}</div><div class="ai-flag">🏆 一等奖</div>
+    </div>`;
+    delay += 0.08;
+  });
+  secondPrize.forEach((c, i) => {
+    leftHtml += `<div class="award-item second" style="animation:rankItemIn 0.5s ease-out ${delay}s both;opacity:0;">
+      <div class="ai-rank">${i+2}</div><div class="ai-name">${c.name}</div><div class="ai-score">${c.score}</div><div class="ai-flag">🥈 二等奖</div>
+    </div>`;
+    delay += 0.08;
+  });
+
+  // 右侧：三等奖
+  thirdPrize.forEach((c, i) => {
+    rightHtml += `<div class="award-item third" style="animation:rankItemIn 0.5s ease-out ${delay}s both;opacity:0;">
+      <div class="ai-rank">${i+5}</div><div class="ai-name">${c.name}</div><div class="ai-score">${c.score}</div><div class="ai-flag">🥉 三等奖</div>
+    </div>`;
+    delay += 0.08;
+  });
+
+  list.innerHTML = `
+    <div class="award-layout">
+      <div class="award-col left">${leftHtml}</div>
+      <div class="award-col right">${rightHtml}</div>
+    </div>
+  `;
+
+  if (!window._confettiLaunched) {
+    window._confettiLaunched = true;
+    launchConfetti('award-confetti');
+  }
+}
+
+function launchConfetti(containerId) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  container.innerHTML = '';
+  const colors = ['#fbbf24', '#ef4444', '#22c55e', '#3b82f6', '#a855f7', '#ec4899', '#f97316'];
+  for (let i = 0; i < 60; i++) {
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    piece.style.left = Math.random() * 100 + '%';
+    piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+    piece.style.animationDuration = (2 + Math.random() * 2) + 's';
+    piece.style.animationDelay = Math.random() * 1.5 + 's';
+    piece.style.width = (6 + Math.random() * 6) + 'px';
+    piece.style.height = (8 + Math.random() * 8) + 'px';
+    piece.style.borderRadius = Math.random() > 0.5 ? '2px' : '50%';
+    container.appendChild(piece);
+  }
+  // 3秒后清除
+  setTimeout(() => { container.innerHTML = ''; }, 5000);
+}
+
+function downloadExport(data) {
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `contest_export_${Date.now()}.json`;
+  a.click();
+}
+
+// No polling needed - countdown is driven by setTimeout in renderBuzzer
+</script>
+</body>
+</html>
