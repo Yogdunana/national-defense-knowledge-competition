@@ -447,6 +447,11 @@ function handleMessage(type, data) {
     case 'tiebreaker_confirm_pk_winner':
       // 手动确认PK加赛获胜者
       if (state.phase === 'tiebreaker_result' && state.tiebreaker.pendingWinnerId) {
+        // 恢复到原来的PK阶段，让advanceToNextMatch能正常工作
+        const pkCtx = state.tiebreaker.context;
+        if (pkCtx === 'round2_pk' || pkCtx === 'round3_semifinal') {
+          state.phase = pkCtx;
+        }
         handlePkMarkWinner(state.tiebreaker.pendingWinnerId);
         state.tiebreaker.pendingWinnerId = null;
       }
@@ -714,6 +719,16 @@ function handleBuzzerJudge(result) {
       state.buzzer.judgeResult = 'correct';
       broadcast('play_sound', { sound: 'correct' });
       logHistory('buzzer_correct', { team: team.name, points });
+      setTimeout(() => {
+        if (state.tiebreaker.currentQuestionIndex >= 4) {
+          handleTiebreakerFinish();
+        } else {
+          state.tiebreaker.currentQuestionIndex++;
+          state.currentQuestionIndex++;
+          state.buzzer = createFreshBuzzerState();
+          broadcastState();
+        }
+      }, 1500);
     } else {
       team.score += points;
       state.buzzer.status = 'judged';
@@ -756,6 +771,16 @@ function handleBuzzerJudge(result) {
       state.buzzer.answerEnd = null;
       broadcast('play_sound', { sound: 'wrong' });
       logHistory('buzzer_wrong', { team: team.name, points: -points });
+      setTimeout(() => {
+        if (state.tiebreaker.currentQuestionIndex >= 4) {
+          handleTiebreakerFinish();
+        } else {
+          state.tiebreaker.currentQuestionIndex++;
+          state.currentQuestionIndex++;
+          state.buzzer = createFreshBuzzerState();
+          broadcastState();
+        }
+      }, 1500);
     } else {
       team.score -= points;
       state.buzzer.status = 'judged';
@@ -806,6 +831,17 @@ function handleBuzzerSkip() {
   // PK phase: auto advance to next question after skip
   if (isPkPhase()) {
     setTimeout(() => autoAdvancePk(), 1500);
+  } else if (isTiebreakerPhase()) {
+    setTimeout(() => {
+      if (state.tiebreaker.currentQuestionIndex >= 4) {
+        handleTiebreakerFinish();
+      } else {
+        state.tiebreaker.currentQuestionIndex++;
+        state.currentQuestionIndex++;
+        state.buzzer = createFreshBuzzerState();
+        broadcastState();
+      }
+    }, 1500);
   }
 }
 
@@ -1341,6 +1377,12 @@ function doTiebreakerStart(context, teams) {
 }
 
 function handleTiebreakerStart(context, teams) {
+  // 非排名加赛（PK/决赛）重置题组使用记录，避免题组耗尽
+  if (context !== 'round1_ranking') {
+    state.tiebreaker.usedGroups = [];
+    state.tiebreaker.queue = [];
+    state.tiebreaker.cumulativeTbScores = {};
+  }
   const usedCount = state.tiebreaker.usedGroups.length;
   const groupIndex = usedCount;
   if (groupIndex >= (questions.tiebreaker || []).length) {
@@ -1387,6 +1429,14 @@ function handleTiebreakerJudge(result) {
     setTimeout(() => {
       handleTiebreakerFinish();
     }, 2000);
+  } else {
+    // 1-4题判分后自动切换下一题
+    setTimeout(() => {
+      state.tiebreaker.currentQuestionIndex++;
+      state.currentQuestionIndex++;
+      state.buzzer = createFreshBuzzerState();
+      broadcastState();
+    }, 1500);
   }
 }
 
@@ -1491,6 +1541,24 @@ function handleTiebreakerFinish(ranking) {
 
   // --- PK / semifinal tiebreaker ---
   if (ctx === 'round2_pk' || ctx === 'round3_semifinal') {
+    // 检查加赛是否仍然平局
+    const s1 = scores[sortedTeams[0]] || 0;
+    const s2 = scores[sortedTeams[1]] || 0;
+    if (s1 === s2) {
+      // 加赛仍然平局，再进行一轮加赛
+      state.phase = 'tiebreaker_result';
+      state.tiebreaker.lastResult = sortedTeams.map(id => {
+        const t = state.companies.find(c => c.id === id);
+        return { id, name: t?.name || '', score: t?.score || 0, tbScore: scores[id] || 0 };
+      });
+      state.tiebreaker.pendingWinnerId = null;
+      broadcastState();
+      // 自动开始下一轮加赛
+      setTimeout(() => {
+        handleTiebreakerStart(ctx, sortedTeams);
+      }, 3000);
+      return;
+    }
     const winnerId = sortedTeams[0];
     state.phase = 'tiebreaker_result';
     state.tiebreaker.lastResult = sortedTeams.map(id => {
@@ -1505,6 +1573,23 @@ function handleTiebreakerFinish(ranking) {
 
   // --- Final tiebreaker ---
   if (ctx === 'round4_final') {
+    // 检查加赛是否仍然平局
+    const s1 = scores[sortedTeams[0]] || 0;
+    const s2 = scores[sortedTeams[1]] || 0;
+    if (s1 === s2) {
+      // 决赛加赛仍然平局，再进行一轮
+      state.phase = 'tiebreaker_result';
+      state.tiebreaker.lastResult = sortedTeams.map(id => {
+        const t = state.companies.find(c => c.id === id);
+        return { id, name: t?.name || '', score: t?.score || 0, tbScore: scores[id] || 0 };
+      });
+      state.tiebreaker.pendingChampionId = null;
+      broadcastState();
+      setTimeout(() => {
+        handleTiebreakerStart(ctx, sortedTeams);
+      }, 3000);
+      return;
+    }
     const championId = sortedTeams[0];
     state.phase = 'tiebreaker_result';
     state.tiebreaker.lastResult = sortedTeams.map(id => {
